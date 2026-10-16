@@ -268,3 +268,34 @@ Orchestrator verification:
   with a *smooth* normalization instead of `lnL_max`; if that still needs >~100 nodes per axis the
   method is dropped for good.
 - Next: iteration 006 — method 3 (Laplace along the stiff direction) and its SNR breakdown.
+
+## Iteration 006 — method 3: Laplace approximation along the stiff direction, SNR breakdown (accepted)
+
+Codex report (summarized): `dpmarg/method3.py` implements (i) the closed-form 2-D Laplace formula
+for an interior peak with orders 0/2/4 (Gaussian expectations of the Taylor polynomial of
+`r^-5`; guard `xmin + 3/sqrt(lam2) < rbar < xmax - 3/sqrt(lam2)`, NaN otherwise) and (ii) Laplace
+in the stiff direction `s` with exact annulus truncation (interval moments via erfcx, anchor at the
+maximizer of `f_s - 5 ln r`, orders 0/2/4) followed by a 48-node sinh-clustered quadrature in `t`
+with breakpoints at the annulus cuts. Sweep of 4525 reference points over `q`, `eta`, `x0*`,
+`rho = 1..1000` (29 `q = 0, eta > 0` cells are mathematically unattainable, cf. the tex).
+Breakdown SNR at `1e-3` (worst over attainable cells): 2-D order 4: 18 (`q = 1`), 32 (0.3), 42
+(0.1), 133 (0.01), 422 (0.001); 1-D order 4 with 96 nodes: 18 for all `q` including 0 (48 nodes
+leave one strongly anisotropic inner-boundary cell at 1.7e-3). Cost: 2-D 0.13–0.15 µs; 1-D
+39–57 µs, i.e. *slower* than the table-backed method 2 (21 µs). Higher Taylor order is harmful
+outside the asymptotic regime (stored-set worst errors grow with order). 392 tests.
+`METHOD3.md` has the derivations.
+
+Orchestrator verification:
+- Checked the order-2 coefficient formula (`h_ss/h = -5/r^2 + 35 s^2/r^4`, moments `1/lam_i`)
+  and the moment recurrence in `METHOD3.md`; `python -m pytest tests -q`: 392 passed (105 s).
+- Figures: errors fall as `rho^-2`, `rho^-4`, `rho^-6` for orders 0/2/4 in the smooth interior
+  regime; for `q <= 0.01` the 2-D curves show a bump where the weak-axis Gaussian starts to feel
+  the annulus (the three-sigma guard is not sufficient there), consistent with the thresholds.
+- Conclusions for the synthesis: method 3's 1-D variant has no niche (slower than method 2);
+  the 2-D closed form is a legitimate ~0.15 µs fast branch *only* for interior peaks with
+  `lam2 > 0` and SNR above a regime-dependent threshold (about 20 for `q >= 0.3`, rising to
+  >100 for `q <= 0.01`), so a dispatcher must gate it by SNR and anisotropy and fall back to
+  method 2 otherwise. Cache `data/method3_sweep_reference.json` (720 KB) is git-ignored by Codex;
+  rerunning the sweep costs ~12 min.
+- Next: iteration 007 — method 1 revisited (transition-aligned coordinates, smooth normalization;
+  slice study only), then iteration 008 — synthesis (`REPORT.md`, `dpmarg.fast` dispatcher).

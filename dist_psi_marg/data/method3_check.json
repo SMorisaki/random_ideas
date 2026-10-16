@@ -1,0 +1,1419 @@
+{
+  "n_t": 48,
+  "comparison_n_t": 96,
+  "quadrature_nodes": "n_t total across active sinh half-patches; minimum two nodes (one when n_t<2*patch_count)",
+  "snr_grid": [
+    1.0,
+    1.333521432163324,
+    1.7782794100389228,
+    2.371373705661655,
+    3.1622776601683795,
+    4.216965034285822,
+    5.62341325190349,
+    7.498942093324558,
+    10.0,
+    13.33521432163324,
+    17.78279410038923,
+    23.71373705661655,
+    31.622776601683793,
+    42.169650342858226,
+    56.23413251903491,
+    74.98942093324558,
+    100.0,
+    133.3521432163324,
+    177.82794100389228,
+    237.13737056616552,
+    316.2277660168379,
+    421.6965034285822,
+    562.341325190349,
+    749.8942093324558,
+    1000.0
+  ],
+  "x0_definition": "a(theta*)/b(theta*) at annulus-constrained dominant likelihood angle; select theta=0 on the q=0,eta=0 flat ridge when possible",
+  "reference_points": 4525,
+  "undefined_cells": [
+    {
+      "q": 0.0,
+      "eta": 0.0,
+      "eta_index": 0,
+      "x0_label": "0.7xmin",
+      "x0": 0.07,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 0.39269908169872414,
+      "eta_index": 1,
+      "x0_label": "0.3",
+      "x0": 0.3,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 0.39269908169872414,
+      "eta_index": 1,
+      "x0_label": "3",
+      "x0": 3.0,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 0.39269908169872414,
+      "eta_index": 1,
+      "x0_label": "30",
+      "x0": 30.0,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 0.39269908169872414,
+      "eta_index": 1,
+      "x0_label": "0.7xmin",
+      "x0": 0.07,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 0.39269908169872414,
+      "eta_index": 1,
+      "x0_label": "1.3xmin",
+      "x0": 0.13,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 0.39269908169872414,
+      "eta_index": 1,
+      "x0_label": "0.8xmax",
+      "x0": 80.0,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 0.39269908169872414,
+      "eta_index": 1,
+      "x0_label": "1.5xmax",
+      "x0": 150.0,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 0.7853981633974483,
+      "eta_index": 2,
+      "x0_label": "0.3",
+      "x0": 0.3,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 0.7853981633974483,
+      "eta_index": 2,
+      "x0_label": "3",
+      "x0": 3.0,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 0.7853981633974483,
+      "eta_index": 2,
+      "x0_label": "30",
+      "x0": 30.0,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 0.7853981633974483,
+      "eta_index": 2,
+      "x0_label": "0.7xmin",
+      "x0": 0.07,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 0.7853981633974483,
+      "eta_index": 2,
+      "x0_label": "1.3xmin",
+      "x0": 0.13,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 0.7853981633974483,
+      "eta_index": 2,
+      "x0_label": "0.8xmax",
+      "x0": 80.0,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 0.7853981633974483,
+      "eta_index": 2,
+      "x0_label": "1.5xmax",
+      "x0": 150.0,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 1.1780972450961724,
+      "eta_index": 3,
+      "x0_label": "0.3",
+      "x0": 0.3,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 1.1780972450961724,
+      "eta_index": 3,
+      "x0_label": "3",
+      "x0": 3.0,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 1.1780972450961724,
+      "eta_index": 3,
+      "x0_label": "30",
+      "x0": 30.0,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 1.1780972450961724,
+      "eta_index": 3,
+      "x0_label": "0.7xmin",
+      "x0": 0.07,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 1.1780972450961724,
+      "eta_index": 3,
+      "x0_label": "1.3xmin",
+      "x0": 0.13,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 1.1780972450961724,
+      "eta_index": 3,
+      "x0_label": "0.8xmax",
+      "x0": 80.0,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 1.1780972450961724,
+      "eta_index": 3,
+      "x0_label": "1.5xmax",
+      "x0": 150.0,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 1.5707963267948966,
+      "eta_index": 4,
+      "x0_label": "0.3",
+      "x0": 0.3,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 1.5707963267948966,
+      "eta_index": 4,
+      "x0_label": "3",
+      "x0": 3.0,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 1.5707963267948966,
+      "eta_index": 4,
+      "x0_label": "30",
+      "x0": 30.0,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 1.5707963267948966,
+      "eta_index": 4,
+      "x0_label": "0.7xmin",
+      "x0": 0.07,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 1.5707963267948966,
+      "eta_index": 4,
+      "x0_label": "1.3xmin",
+      "x0": 0.13,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 1.5707963267948966,
+      "eta_index": 4,
+      "x0_label": "0.8xmax",
+      "x0": 80.0,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    },
+    {
+      "q": 0.0,
+      "eta": 1.5707963267948966,
+      "eta_index": 4,
+      "x0_label": "1.5xmax",
+      "x0": 150.0,
+      "reason": "No coefficient scale has this radial peak at a dominant annular angle (flat-axis geometry)."
+    }
+  ],
+  "reference_warning_points": 7,
+  "variants": {
+    "2d_o0": {
+      "sweep": {
+        "count": 4525,
+        "finite": 2177,
+        "unavailable": 2348,
+        "median": 0.002225225504844275,
+        "p99": 12.537022774234595,
+        "max": 16.702276023195182,
+        "pass_1e3": 935,
+        "pass_1e2": 1428
+      },
+      "stored": {
+        "regression": {
+          "count": 40,
+          "finite": 7,
+          "unavailable": 33,
+          "median": 0.005032962873883662,
+          "p99": 2.0970995354871538,
+          "max": 2.2194313279501428,
+          "pass_1e3": 2,
+          "pass_1e2": 4
+        },
+        "random": {
+          "count": 300,
+          "finite": 61,
+          "unavailable": 239,
+          "median": 0.012063021936569385,
+          "p99": 10.97562753412535,
+          "max": 13.274298098993926,
+          "pass_1e3": 10,
+          "pass_1e2": 30
+        }
+      },
+      "worst_stored": "seed2_032",
+      "worst_sweep": {
+        "q": 0.001,
+        "eta_index": 4,
+        "x0_label": "30",
+        "rho": 3.1622776601683795
+      }
+    },
+    "2d_o2": {
+      "sweep": {
+        "count": 4525,
+        "finite": 2177,
+        "unavailable": 2348,
+        "median": 6.248261342989281e-06,
+        "p99": 11.878108260297813,
+        "max": 15.786085296321362,
+        "pass_1e3": 1657,
+        "pass_1e2": 1886
+      },
+      "stored": {
+        "regression": {
+          "count": 40,
+          "finite": 7,
+          "unavailable": 33,
+          "median": 2.4654415256009088e-05,
+          "p99": 1.638745831883047,
+          "max": 1.7416598020636092,
+          "pass_1e3": 4,
+          "pass_1e2": 5
+        },
+        "random": {
+          "count": 300,
+          "finite": 61,
+          "unavailable": 239,
+          "median": 0.00018142879247307064,
+          "p99": 10.198913840814088,
+          "max": 12.47466824805637,
+          "pass_1e3": 43,
+          "pass_1e2": 53
+        }
+      },
+      "worst_stored": "seed2_032",
+      "worst_sweep": {
+        "q": 0.001,
+        "eta_index": 4,
+        "x0_label": "30",
+        "rho": 3.1622776601683795
+      }
+    },
+    "2d_o4": {
+      "sweep": {
+        "count": 4525,
+        "finite": 2177,
+        "unavailable": 2348,
+        "median": 1.6429112292826176e-08,
+        "p99": 11.520221263632061,
+        "max": 15.176426234229316,
+        "pass_1e3": 1867,
+        "pass_1e2": 1965
+      },
+      "stored": {
+        "regression": {
+          "count": 40,
+          "finite": 7,
+          "unavailable": 33,
+          "median": 1.3333806236914825e-07,
+          "p99": 1.4497385754132186,
+          "max": 1.5419909897945885,
+          "pass_1e3": 5,
+          "pass_1e2": 6
+        },
+        "random": {
+          "count": 300,
+          "finite": 61,
+          "unavailable": 239,
+          "median": 2.5927015485649463e-06,
+          "p99": 9.715444168547778,
+          "max": 11.967411970600093,
+          "pass_1e3": 53,
+          "pass_1e2": 55
+        }
+      },
+      "worst_stored": "seed2_032",
+      "worst_sweep": {
+        "q": 0.001,
+        "eta_index": 4,
+        "x0_label": "30",
+        "rho": 3.1622776601683795
+      }
+    },
+    "1d_o0": {
+      "sweep": {
+        "count": 4525,
+        "finite": 4525,
+        "unavailable": 0,
+        "median": 0.0006324447422230151,
+        "p99": 17.098656335111535,
+        "max": 28.951539775236633,
+        "pass_1e3": 2384,
+        "pass_1e2": 2962
+      },
+      "stored": {
+        "regression": {
+          "count": 40,
+          "finite": 40,
+          "unavailable": 0,
+          "median": 0.009245294039594398,
+          "p99": 6.43911767568238,
+          "max": 6.459980541696449,
+          "pass_1e3": 14,
+          "pass_1e2": 20
+        },
+        "random": {
+          "count": 300,
+          "finite": 300,
+          "unavailable": 0,
+          "median": 0.018321225816651854,
+          "p99": 14.901965119959504,
+          "max": 18.58646013375935,
+          "pass_1e3": 88,
+          "pass_1e2": 133
+        }
+      },
+      "worst_stored": "seed3_020",
+      "worst_sweep": {
+        "q": 1.0,
+        "eta_index": 0,
+        "x0_label": "1.5xmax",
+        "rho": 7.498942093324558
+      },
+      "sweep_2n": {
+        "count": 4525,
+        "finite": 4525,
+        "unavailable": 0,
+        "median": 0.0006001353939311116,
+        "p99": 17.044612876120016,
+        "max": 29.097701597118835,
+        "pass_1e3": 2402,
+        "pass_1e2": 2967
+      },
+      "t_quadrature_n_vs_2n": {
+        "count": 4525,
+        "finite": 4525,
+        "unavailable": 0,
+        "median": 2.9412632329695043e-07,
+        "p99": 0.1624482048103731,
+        "max": 0.4756032602634832,
+        "pass_1e3": 3991,
+        "pass_1e2": 4139
+      },
+      "t_quadrature_high_snr_n_vs_2n": {
+        "count": 1629,
+        "finite": 1629,
+        "unavailable": 0,
+        "median": 1.2005330063402653e-10,
+        "p99": 0.0005794845995842479,
+        "max": 0.0017387674888595939,
+        "pass_1e3": 1625,
+        "pass_1e2": 1629
+      },
+      "t_quadrature_worst": {
+        "q": 0.001,
+        "eta_index": 2,
+        "x0_label": "30",
+        "rho": 7.498942093324558
+      }
+    },
+    "1d_o2": {
+      "sweep": {
+        "count": 4525,
+        "finite": 4525,
+        "unavailable": 0,
+        "median": 2.6998457428817346e-05,
+        "p99": 31.50763025631335,
+        "max": 44.84848370510955,
+        "pass_1e3": 3138,
+        "pass_1e2": 3346
+      },
+      "stored": {
+        "regression": {
+          "count": 40,
+          "finite": 40,
+          "unavailable": 0,
+          "median": 6.260372239097478e-05,
+          "p99": 16.591968146445772,
+          "max": 17.16056341696307,
+          "pass_1e3": 25,
+          "pass_1e2": 27
+        },
+        "random": {
+          "count": 300,
+          "finite": 300,
+          "unavailable": 0,
+          "median": 0.0003469010390716454,
+          "p99": 27.81455414489594,
+          "max": 33.06435922131062,
+          "pass_1e3": 164,
+          "pass_1e2": 190
+        }
+      },
+      "worst_stored": "seed2_001",
+      "worst_sweep": {
+        "q": 1.0,
+        "eta_index": 0,
+        "x0_label": "1.5xmax",
+        "rho": 7.498942093324558
+      },
+      "sweep_2n": {
+        "count": 4525,
+        "finite": 4525,
+        "unavailable": 0,
+        "median": 4.997360520064831e-06,
+        "p99": 31.5103835740118,
+        "max": 44.824048420586514,
+        "pass_1e3": 3162,
+        "pass_1e2": 3349
+      },
+      "t_quadrature_n_vs_2n": {
+        "count": 4525,
+        "finite": 4525,
+        "unavailable": 0,
+        "median": 3.157667833875166e-07,
+        "p99": 0.02444420838169947,
+        "max": 0.43695433634404246,
+        "pass_1e3": 3818,
+        "pass_1e2": 4406
+      },
+      "t_quadrature_high_snr_n_vs_2n": {
+        "count": 1629,
+        "finite": 1629,
+        "unavailable": 0,
+        "median": 1.2005330063402653e-10,
+        "p99": 0.0005798337402666221,
+        "max": 0.0017387674888595939,
+        "pass_1e3": 1625,
+        "pass_1e2": 1629
+      },
+      "t_quadrature_worst": {
+        "q": 0.001,
+        "eta_index": 2,
+        "x0_label": "30",
+        "rho": 7.498942093324558
+      }
+    },
+    "1d_o4": {
+      "sweep": {
+        "count": 4525,
+        "finite": 4525,
+        "unavailable": 0,
+        "median": 6.020522391736449e-06,
+        "p99": 44.934990785529116,
+        "max": 59.56169476284862,
+        "pass_1e3": 3283,
+        "pass_1e2": 3413
+      },
+      "stored": {
+        "regression": {
+          "count": 40,
+          "finite": 40,
+          "unavailable": 0,
+          "median": 4.0577972484356906e-06,
+          "p99": 27.180874449673283,
+          "max": 28.828790523151422,
+          "pass_1e3": 26,
+          "pass_1e2": 26
+        },
+        "random": {
+          "count": 300,
+          "finite": 300,
+          "unavailable": 0,
+          "median": 0.00010252169879976236,
+          "p99": 38.12621042812934,
+          "max": 47.91477114026739,
+          "pass_1e3": 182,
+          "pass_1e2": 188
+        }
+      },
+      "worst_stored": "seed2_001",
+      "worst_sweep": {
+        "q": 1.0,
+        "eta_index": 0,
+        "x0_label": "1.5xmax",
+        "rho": 7.498942093324558
+      },
+      "sweep_2n": {
+        "count": 4525,
+        "finite": 4525,
+        "unavailable": 0,
+        "median": 2.2983992664649122e-07,
+        "p99": 44.93309361702311,
+        "max": 59.75911247023966,
+        "pass_1e3": 3307,
+        "pass_1e2": 3417
+      },
+      "t_quadrature_n_vs_2n": {
+        "count": 4525,
+        "finite": 4525,
+        "unavailable": 0,
+        "median": 3.816094249486923e-07,
+        "p99": 0.03773082156460166,
+        "max": 0.536072173369142,
+        "pass_1e3": 3643,
+        "pass_1e2": 4271
+      },
+      "t_quadrature_high_snr_n_vs_2n": {
+        "count": 1629,
+        "finite": 1629,
+        "unavailable": 0,
+        "median": 1.2005330063402653e-10,
+        "p99": 0.0005798337415762944,
+        "max": 0.0017387674888595939,
+        "pass_1e3": 1625,
+        "pass_1e2": 1629
+      },
+      "t_quadrature_worst": {
+        "q": 0.1,
+        "eta_index": 1,
+        "x0_label": "3",
+        "rho": 5.62341325190349
+      }
+    }
+  },
+  "timing_us": {
+    "2d_o0": 0.13085,
+    "2d_o2": 0.14821,
+    "2d_o4": 0.14933000000000002,
+    "1d_o0": 38.8033,
+    "1d_o2": 56.5939,
+    "1d_o4": 55.4229
+  },
+  "warned_reference_method2_256_max_difference": 3.637978807091713e-12,
+  "breakdown_by_q": {
+    "1.0": {
+      "2d_o0": {
+        "0.001": {
+          "cells": 35,
+          "passing": 25,
+          "min": 133.3521432163324,
+          "max": 133.3521432163324
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 25,
+          "min": 42.169650342858226,
+          "max": 42.169650342858226
+        }
+      },
+      "2d_o2": {
+        "0.001": {
+          "cells": 35,
+          "passing": 25,
+          "min": 23.71373705661655,
+          "max": 23.71373705661655
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 25,
+          "min": 13.33521432163324,
+          "max": 13.33521432163324
+        }
+      },
+      "2d_o4": {
+        "0.001": {
+          "cells": 35,
+          "passing": 25,
+          "min": 13.33521432163324,
+          "max": 17.78279410038923
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 25,
+          "min": 10.0,
+          "max": 13.33521432163324
+        }
+      },
+      "1d_o0": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 42.169650342858226,
+          "max": 177.82794100389228
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 13.33521432163324,
+          "max": 56.23413251903491
+        }
+      },
+      "1d_o2": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 7.498942093324558,
+          "max": 31.622776601683793
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 4.216965034285822,
+          "max": 17.78279410038923
+        }
+      },
+      "1d_o4": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 4.216965034285822,
+          "max": 17.78279410038923
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 2.371373705661655,
+          "max": 13.33521432163324
+        }
+      }
+    },
+    "0.3": {
+      "2d_o0": {
+        "0.001": {
+          "cells": 35,
+          "passing": 25,
+          "min": 100.0,
+          "max": 177.82794100389228
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 25,
+          "min": 31.622776601683793,
+          "max": 56.23413251903491
+        }
+      },
+      "2d_o2": {
+        "0.001": {
+          "cells": 35,
+          "passing": 25,
+          "min": 23.71373705661655,
+          "max": 31.622776601683793
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 25,
+          "min": 13.33521432163324,
+          "max": 31.622776601683793
+        }
+      },
+      "2d_o4": {
+        "0.001": {
+          "cells": 35,
+          "passing": 25,
+          "min": 13.33521432163324,
+          "max": 31.622776601683793
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 25,
+          "min": 7.498942093324558,
+          "max": 31.622776601683793
+        }
+      },
+      "1d_o0": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 17.78279410038923,
+          "max": 177.82794100389228
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 5.62341325190349,
+          "max": 56.23413251903491
+        }
+      },
+      "1d_o2": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 4.216965034285822,
+          "max": 31.622776601683793
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 2.371373705661655,
+          "max": 17.78279410038923
+        }
+      },
+      "1d_o4": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 2.371373705661655,
+          "max": 17.78279410038923
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.7782794100389228,
+          "max": 13.33521432163324
+        }
+      }
+    },
+    "0.1": {
+      "2d_o0": {
+        "0.001": {
+          "cells": 35,
+          "passing": 25,
+          "min": 100.0,
+          "max": 177.82794100389228
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 25,
+          "min": 31.622776601683793,
+          "max": 56.23413251903491
+        }
+      },
+      "2d_o2": {
+        "0.001": {
+          "cells": 35,
+          "passing": 25,
+          "min": 23.71373705661655,
+          "max": 42.169650342858226
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 25,
+          "min": 13.33521432163324,
+          "max": 42.169650342858226
+        }
+      },
+      "2d_o4": {
+        "0.001": {
+          "cells": 35,
+          "passing": 25,
+          "min": 13.33521432163324,
+          "max": 42.169650342858226
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 25,
+          "min": 10.0,
+          "max": 42.169650342858226
+        }
+      },
+      "1d_o0": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 10.0,
+          "max": 177.82794100389228
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 3.1622776601683795,
+          "max": 56.23413251903491
+        }
+      },
+      "1d_o2": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 2.371373705661655,
+          "max": 31.622776601683793
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.333521432163324,
+          "max": 17.78279410038923
+        }
+      },
+      "1d_o4": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.333521432163324,
+          "max": 17.78279410038923
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 13.33521432163324
+        }
+      }
+    },
+    "0.01": {
+      "2d_o0": {
+        "0.001": {
+          "cells": 35,
+          "passing": 25,
+          "min": 133.3521432163324,
+          "max": 562.341325190349
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 25,
+          "min": 42.169650342858226,
+          "max": 177.82794100389228
+        }
+      },
+      "2d_o2": {
+        "0.001": {
+          "cells": 35,
+          "passing": 25,
+          "min": 23.71373705661655,
+          "max": 133.3521432163324
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 25,
+          "min": 13.33521432163324,
+          "max": 133.3521432163324
+        }
+      },
+      "2d_o4": {
+        "0.001": {
+          "cells": 35,
+          "passing": 25,
+          "min": 13.33521432163324,
+          "max": 133.3521432163324
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 25,
+          "min": 10.0,
+          "max": 133.3521432163324
+        }
+      },
+      "1d_o0": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 2.371373705661655,
+          "max": 237.13737056616552
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 56.23413251903491
+        }
+      },
+      "1d_o2": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 23.71373705661655
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 13.33521432163324
+        }
+      },
+      "1d_o4": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 17.78279410038923
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 13.33521432163324
+        }
+      }
+    },
+    "0.001": {
+      "2d_o0": {
+        "0.001": {
+          "cells": 35,
+          "passing": 20,
+          "min": 133.3521432163324,
+          "max": 133.3521432163324
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 25,
+          "min": 42.169650342858226,
+          "max": 562.341325190349
+        }
+      },
+      "2d_o2": {
+        "0.001": {
+          "cells": 35,
+          "passing": 25,
+          "min": 23.71373705661655,
+          "max": 421.6965034285822
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 25,
+          "min": 13.33521432163324,
+          "max": 421.6965034285822
+        }
+      },
+      "2d_o4": {
+        "0.001": {
+          "cells": 35,
+          "passing": 25,
+          "min": 13.33521432163324,
+          "max": 421.6965034285822
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 25,
+          "min": 10.0,
+          "max": 421.6965034285822
+        }
+      },
+      "1d_o0": {
+        "0.001": {
+          "cells": 35,
+          "passing": 34,
+          "min": 1.0,
+          "max": 749.8942093324558
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 56.23413251903491
+        }
+      },
+      "1d_o2": {
+        "0.001": {
+          "cells": 35,
+          "passing": 34,
+          "min": 1.0,
+          "max": 749.8942093324558
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 13.33521432163324
+        }
+      },
+      "1d_o4": {
+        "0.001": {
+          "cells": 35,
+          "passing": 34,
+          "min": 1.0,
+          "max": 749.8942093324558
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 10.0
+        }
+      }
+    },
+    "0.0": {
+      "2d_o0": {
+        "0.001": {
+          "cells": 6,
+          "passing": 0,
+          "min": null,
+          "max": null
+        },
+        "0.01": {
+          "cells": 6,
+          "passing": 0,
+          "min": null,
+          "max": null
+        }
+      },
+      "2d_o2": {
+        "0.001": {
+          "cells": 6,
+          "passing": 0,
+          "min": null,
+          "max": null
+        },
+        "0.01": {
+          "cells": 6,
+          "passing": 0,
+          "min": null,
+          "max": null
+        }
+      },
+      "2d_o4": {
+        "0.001": {
+          "cells": 6,
+          "passing": 0,
+          "min": null,
+          "max": null
+        },
+        "0.01": {
+          "cells": 6,
+          "passing": 0,
+          "min": null,
+          "max": null
+        }
+      },
+      "1d_o0": {
+        "0.001": {
+          "cells": 6,
+          "passing": 6,
+          "min": 100.0,
+          "max": 133.3521432163324
+        },
+        "0.01": {
+          "cells": 6,
+          "passing": 6,
+          "min": 31.622776601683793,
+          "max": 56.23413251903491
+        }
+      },
+      "1d_o2": {
+        "0.001": {
+          "cells": 6,
+          "passing": 6,
+          "min": 17.78279410038923,
+          "max": 31.622776601683793
+        },
+        "0.01": {
+          "cells": 6,
+          "passing": 6,
+          "min": 10.0,
+          "max": 13.33521432163324
+        }
+      },
+      "1d_o4": {
+        "0.001": {
+          "cells": 6,
+          "passing": 6,
+          "min": 13.33521432163324,
+          "max": 17.78279410038923
+        },
+        "0.01": {
+          "cells": 6,
+          "passing": 6,
+          "min": 10.0,
+          "max": 10.0
+        }
+      }
+    }
+  },
+  "dense_breakdown_by_q": {
+    "1.0": {
+      "1d_o0": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 42.169650342858226,
+          "max": 177.82794100389228
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 13.33521432163324,
+          "max": 56.23413251903491
+        }
+      },
+      "1d_o2": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 7.498942093324558,
+          "max": 31.622776601683793
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 4.216965034285822,
+          "max": 17.78279410038923
+        }
+      },
+      "1d_o4": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 4.216965034285822,
+          "max": 17.78279410038923
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 2.371373705661655,
+          "max": 13.33521432163324
+        }
+      }
+    },
+    "0.3": {
+      "1d_o0": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 17.78279410038923,
+          "max": 177.82794100389228
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 5.62341325190349,
+          "max": 56.23413251903491
+        }
+      },
+      "1d_o2": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 4.216965034285822,
+          "max": 31.622776601683793
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 2.371373705661655,
+          "max": 17.78279410038923
+        }
+      },
+      "1d_o4": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 2.371373705661655,
+          "max": 17.78279410038923
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.7782794100389228,
+          "max": 13.33521432163324
+        }
+      }
+    },
+    "0.1": {
+      "1d_o0": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 10.0,
+          "max": 177.82794100389228
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 3.1622776601683795,
+          "max": 56.23413251903491
+        }
+      },
+      "1d_o2": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 2.371373705661655,
+          "max": 31.622776601683793
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.333521432163324,
+          "max": 17.78279410038923
+        }
+      },
+      "1d_o4": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.333521432163324,
+          "max": 17.78279410038923
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 13.33521432163324
+        }
+      }
+    },
+    "0.01": {
+      "1d_o0": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 3.1622776601683795,
+          "max": 177.82794100389228
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 56.23413251903491
+        }
+      },
+      "1d_o2": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 23.71373705661655
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 13.33521432163324
+        }
+      },
+      "1d_o4": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 13.33521432163324
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 13.33521432163324
+        }
+      }
+    },
+    "0.001": {
+      "1d_o0": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 177.82794100389228
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 56.23413251903491
+        }
+      },
+      "1d_o2": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 23.71373705661655
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 13.33521432163324
+        }
+      },
+      "1d_o4": {
+        "0.001": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 13.33521432163324
+        },
+        "0.01": {
+          "cells": 35,
+          "passing": 35,
+          "min": 1.0,
+          "max": 10.0
+        }
+      }
+    },
+    "0.0": {
+      "1d_o0": {
+        "0.001": {
+          "cells": 6,
+          "passing": 6,
+          "min": 100.0,
+          "max": 177.82794100389228
+        },
+        "0.01": {
+          "cells": 6,
+          "passing": 6,
+          "min": 31.622776601683793,
+          "max": 56.23413251903491
+        }
+      },
+      "1d_o2": {
+        "0.001": {
+          "cells": 6,
+          "passing": 6,
+          "min": 17.78279410038923,
+          "max": 23.71373705661655
+        },
+        "0.01": {
+          "cells": 6,
+          "passing": 6,
+          "min": 10.0,
+          "max": 13.33521432163324
+        }
+      },
+      "1d_o4": {
+        "0.001": {
+          "cells": 6,
+          "passing": 6,
+          "min": 13.33521432163324,
+          "max": 13.33521432163324
+        },
+        "0.01": {
+          "cells": 6,
+          "passing": 6,
+          "min": 10.0,
+          "max": 10.0
+        }
+      }
+    }
+  },
+  "elapsed_seconds": 7.2754506149994995
+}
