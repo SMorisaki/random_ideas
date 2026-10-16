@@ -165,3 +165,32 @@ Orchestrator verification:
   of this kernel (iteration 004) is what brings it to the µs range.
 - Next: iteration 003 — method 2 (adaptive theta quadrature over the kernel), accuracy and node
   count first, speed later via the table.
+
+## Iteration 003 — method 2: adaptive theta quadrature over the direct kernel (accepted)
+
+Codex report (summarized): `dpmarg/method2.py` folds the circle into the pi-periodic pair
+`h = J(a) + J(-a)` (`kernel1d.lnJ_pair`, with a certified skip of the negligible sign), finds up to
+two peaks of the analytic proxy `max(fmax(+a), fmax(-a)) - 4 ln r*` (128-point scan + golden
+section), and switches at proxy width 0.22 between (0) the uniform periodic trapezoid rule,
+(1) a sinh-stretched trapezoid around a single sharp peak with the exact first Euler–Maclaurin
+endpoint correction `-pi dtau^2 h(endpoint)/12`, and (2) Gauss–Legendre in `tau` on two sinh
+intervals split at the valleys when a secondary peak lies within 40 log units. Nested
+16/32/64-node grids reuse kernel values and stop when successive values agree to 2e-6.
+Accuracy at 64 nodes: regression set max 3.8e-5, 300 random points (seeds 2–4) max 4.7e-5,
+median ~1e-15; 48 nodes already give 1.2e-3. Cost: median 250 µs per call (64–128 kernel
+evaluations at 3–7 µs each). Worst cases have `lam2 = 0` (degenerate weak axis). 304 tests.
+
+Orchestrator verification:
+- Read `method2.py` and the `kernel1d.py`/`params.py` diffs (pair skip certificate, peak/valley
+  search, endpoint correction, mode-2 GL rule); `python -m pytest tests -q`: 304 passed in 76 s.
+- Independent spot check on 18 orchestrator-chosen cases x 2 priors (sharp bimodal boundary cases,
+  `lam2 = 0` with SNR 158, SNR up to 2800, `lam2/lam1` from 1e-4 to 0.97): worst 1.9e-5 (the
+  sharp bimodal case `lam1 = 4e6, lam2 = 1e6, R = 1.5e5, eta = 0`), all others <= 2.5e-6.
+- Scatter plot: every error above 1e-6 is at `lam2/lam1 ~ 0`; all below the 1e-3 requirement.
+- Data policy: `data/method2_check.json` (713 KB per-point dump) and `data/method2_run.log` are not
+  committed (git-ignored); `data/method2_summary.md` and `data/method2_random_reference.json`
+  (reference values for the 300 random points, reusable) are committed.
+- Remaining cost is dominated by the kernel; the geometry (scan + golden section + valley search)
+  costs ~10–20 µs and will matter once the kernel is a ~0.1 µs table lookup (iteration 004).
+- Next: iteration 004 — 2-D table of the kernel in generalized `(s, v)` coordinates, tabulating
+  the smooth remainder `lnI - ln Itilde` relative to the analytic frozen-prior Gaussian integral.

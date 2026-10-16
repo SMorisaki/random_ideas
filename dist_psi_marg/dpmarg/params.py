@@ -3,11 +3,13 @@
 import math
 
 import numpy as np
+from numba import njit
 from scipy.optimize import minimize_scalar
 
 TAU = 2 * math.pi
 
 
+@njit(cache=True)
 def check_coefficients(A, B, C, D, E, rtol=1e-12):
     """Return whether finite coefficients obey E >= 0 and E²-C²-D² >= 0.
 
@@ -15,13 +17,15 @@ def check_coefficients(A, B, C, D, E, rtol=1e-12):
     The factored comparison avoids squaring large coefficients. False reports
     a material violation; :func:`reduce_params` raises for such inputs.
     """
-    if not all(math.isfinite(v) for v in (A, B, C, D, E)) or E < 0:
+    if not (math.isfinite(A) and math.isfinite(B) and math.isfinite(C)
+            and math.isfinite(D) and math.isfinite(E)) or E < 0:
         return False
     S = math.hypot(C, D)
     scale = max(E, S)
     return scale == 0 or (E / scale - S / scale) * (E / scale + S / scale) >= -rtol
 
 
+@njit(cache=True)
 def reduce_params(A, B, C, D, E):
     """Return (E+S, max(0,E-S), hypot(A,B), eta), S=hypot(C,D).
 

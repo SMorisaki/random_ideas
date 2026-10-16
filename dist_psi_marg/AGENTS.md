@@ -22,7 +22,11 @@ Background notes (read them first):
   If a package is missing, stop and report the package name and the reason.
 - Never write secrets (tokens, keys) into files, logs or code.
 - Keep figures and data products under `dist_psi_marg/figures/` and `dist_psi_marg/data/`.
-  Keep large generated tables out of git unless `TASK.md` says otherwise.
+  Keep large generated tables out of git unless `TASK.md` says otherwise. Committed JSON/MD
+  summaries should stay under ~100 KB; write per-point dumps to `data/<name>_full.json` and run
+  logs to `data/<name>_run.log` (both git-ignored).
+- Do not edit `TASK.md`, `PROGRESS.md`, `AGENTS.md` or `prompts/`; put your report in the final
+  message. The orchestrator records progress.
 
 ## Environment
 - Use the `python` on `PATH` (a conda environment built from the repository's

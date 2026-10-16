@@ -194,3 +194,38 @@ def lnI_direct_array(a, b, xmin, xmax):
     for i in range(a.size):
         out[i] = lnI_direct(a[i], b[i], xmin, xmax)
     return out
+
+
+@njit(cache=True)
+def _lnJ_pair_count(a, b, xmin, xmax):
+    """Return (log(J(a)+J(-a)), number of direct distance evaluations)."""
+    a = abs(a)
+    fp = fmax_1d(a, b, xmin, xmax)
+    fm = fmax_1d(-a, b, xmin, xmax)
+    positive = fp + lnI_direct(a, b, xmin, xmax)
+    if a == 0:
+        return positive+math.log(2.0), 1
+    # The fmax gap alone does not bound the integral ratio: the radial
+    # widths and prior weights can differ. Pointwise J(-a)/J(a) <=
+    # exp(-2*a*xmin) supplies the additional rigorous certificate.
+    logvolume = -3*math.log(xmin)+math.log1p(-(xmin/xmax)**3)-math.log(3.)
+    if fm-fp < -40.0 and (2*a*xmin > 40.0 or fm+logvolume-positive < -40.0):
+        return positive, 1
+    negative = fm + lnI_direct(-a, b, xmin, xmax)
+    top = max(positive, negative)
+    return top + math.log1p(math.exp(min(positive, negative)-top)), 2
+
+
+@njit(cache=True)
+def lnJ_pair(a, b, xmin, xmax):
+    """Log of J(a,b)+J(-a,b), J=integral r^-4 exp(a*r-b*r²/2) dr.
+
+    Domain is lnI_direct's domain. Evaluate the larger exponent first.
+    Omit the opposite sign only when its fmax gap is below -40 AND either
+    J(-|a|)/J(|a|)<=exp(-2*|a|*xmin)<exp(-40), or the integral upper
+    bound J(-|a|)<=exp(fmax(-|a|))*integral r^-4 dr certifies the same gap.
+    At a=0 reuse the identical integral exactly.
+    The omitted contribution changes the result by <exp(-40)=4.25e-18;
+    this bound excludes the direct kernel's numerical error.
+    """
+    return _lnJ_pair_count(a, b, xmin, xmax)[0]
