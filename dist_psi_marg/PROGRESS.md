@@ -27,6 +27,13 @@ What was prepared so that the loop can start as soon as authentication is availa
 - `dist_psi_marg/AGENTS.md` (rules for Codex), `dist_psi_marg/prompts/`, `dist_psi_marg/logs/`
   (git-ignored), `environment.yml`.
 
+**Second blocker (GitHub push):** `git push -u origin LLM` was refused with HTTP 403:
+"Claude doesn't have GitHub access to SMorisaki/random_ideas for your organization". The
+repository is attached read-only to the cloud session; pushes need the Claude GitHub App installed
+on the repository (https://github.com/apps/claude/installations/select_target) or the GitHub
+connection re-linked from claude.ai settings. Commits were made locally on `LLM` and must be pushed
+once access exists (`git push -u origin LLM`).
+
 How to unblock (either):
 1. Store the content of the local `~/.codex/auth.json` (from the devcontainer volume) as a cloud
    environment secret named `CODEX_AUTH_JSON`. At session start the orchestrator writes it to
