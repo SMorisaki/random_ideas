@@ -1,0 +1,36 @@
+[
+  {
+    "xmin": 0.1,
+    "xmax": 100.0,
+    "ns": 996,
+    "nv": 996,
+    "smax": 24.0,
+    "bmax": 100000000.0,
+    "sigma0": 0.01001001001001001,
+    "bref": 0.0001,
+    "build_s": 29.0708348320004,
+    "coefficient_entries": 1000000,
+    "coefficient_bytes": 8000000,
+    "guard_bytes": 990025,
+    "guard_cell_fraction": 0.008159389914396102,
+    "warmup_s": 0.7068212599997423,
+    "path": "data/table1d_xmin0.1_xmax100.npz"
+  },
+  {
+    "xmin": 0.1,
+    "xmax": 10.0,
+    "ns": 996,
+    "nv": 996,
+    "smax": 24.0,
+    "bmax": 100000000.0,
+    "sigma0": 0.10101010101010101,
+    "bref": 0.01,
+    "build_s": 21.57883136200053,
+    "coefficient_entries": 1000000,
+    "coefficient_bytes": 8000000,
+    "guard_bytes": 990025,
+    "guard_cell_fraction": 0.0034312264841796923,
+    "warmup_s": 0.7068212599997423,
+    "path": "data/table1d_xmin0.1_xmax10.npz"
+  }
+]

@@ -194,3 +194,42 @@ Orchestrator verification:
   costs ~10–20 µs and will matter once the kernel is a ~0.1 µs table lookup (iteration 004).
 - Next: iteration 004 — 2-D table of the kernel in generalized `(s, v)` coordinates, tabulating
   the smooth remainder `lnI - ln Itilde` relative to the analytic frozen-prior Gaussian integral.
+
+## Iteration 004 — 2-D table of the distance kernel, table-backed method 2 (accepted)
+
+Codex report (summarized): `dpmarg/table1d.py` tabulates, on a regular `996 x 996` grid in
+`s = asinh((a - b xmin)/sigma) + asinh((a - b xmax)/sigma)`, `v = asinh(b/bref)`,
+`sigma = sqrt(b + sigma0^2)`, `sigma0 = 1/(xmax - xmin)`, `bref = 1/xmax^2`, `|s| <= 24`,
+`b <= 1e8`, the smooth remainder `lnI - lnG` where `G = int exp(f - fmax) dx` is the analytic
+truncated-Gaussian integral (prior kept inside the table). Cubic B-spline interpolation with
+precomputed coefficients (1e6 entries, 8 MB, built in 22–29 s). The orchestrator's proposed
+frozen-prior remainder `lnI - ln(r^-4 G)` was rejected for a good reason: it jumps by
+`4 ln(xmax/xmin)` at `a = b = 0` (the clipped peak switches from `xmin` to `xmax`) and has kinks
+along the clipping curves. Unguarded cubic interpolation of the smooth remainder still reaches only
+5.6e-4 / 2.2e-5 (`xmax = 100 / 10`) because of sharp (smooth) transitions where the `x^-4` prior
+and the Gaussian peak exchange dominance, so cells whose probes exceed 2e-6 are flagged (0.8% /
+0.3% of cells) and fall back to `lnI_direct`; outside `|s| <= 24` an 18-term endpoint expansion is
+used when certified, else `lnI_direct`. Validated worst error 1.9e-6 / 2.0e-6 on 1e5 actual
+method-2 nodes, 1e5 coordinate probes and the iteration-002 grid; fallback rate on physical nodes
+1.5% / 0.7%. Method 2 with the table: median 21 µs per call (direct kernel: 242 µs), worst
+reference error unchanged at 4.7e-5, table/direct difference <= 5e-7. Geometry 3.7 µs (18%),
+kernels 9.4 µs (46%). 327 tests. `TABLE1D.md` documents the design.
+
+Orchestrator verification:
+- Read `table1d.py` (coordinates, analytic `ln_gaussian` with erfcx/expm1/Taylor branches,
+  B-spline lookup with guard mask, endpoint series, certified pair skip) and the `method2.py` diff
+  (shared `_compute_core`, stride-corrected nested weights, SCAN 128 -> 64).
+- `python -m pytest tests -q`: 327 passed (217 s in the orchestrator's run; the suite now builds
+  small tables).
+- `python scripts/check_table1d.py` re-run by the orchestrator (79 s): worst `|Delta lnI|`
+  1.9e-6 / 2.0e-6 (`xmax = 100 / 10`) on physical nodes, 1.1e-6 / 1.8e-6 on the iteration-002
+  grid, 1.9e-6 / 1.8e-6 on coordinate probes; lookup 237 / 177 ns inclusive of fallbacks;
+  fallback 1.5% / 0.7% (direct quadrature 1.2% / 0.6%); `bmax = 1e10` extension 1.8e-6, 0.7%.
+- Figures: the error map shows the guarded smooth table flat at <= 2e-6 everywhere, while the
+  frozen-prior remainder fails by O(10) along `a ~ 0` and raw `lnI` by 1e-3–1e-2 along the
+  clipping curves; the grid-convergence plot shows unguarded smooth cubic converging as expected.
+- Note for later polishing: the remaining sharp transitions are where the prior slope `4/x`
+  competes with `f'(endpoint)`; a coordinate built from the total log-integrand slope
+  `a - b x - 4/x` at the endpoints might remove the need for the guard. Not pursued now.
+- Next: iteration 005 — method 1 feasibility (4-D table) using the table-backed method 2 as
+  the generator.

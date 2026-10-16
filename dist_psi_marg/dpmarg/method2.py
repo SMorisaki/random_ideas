@@ -1,4 +1,4 @@
-"""Adaptive angular quadrature of the direct distance kernel.
+"""Adaptive angular quadrature of direct or tabulated distance kernels.
 
 The full-circle integral is folded into the pi-periodic pair h=J(a)+J(-a).
 Cheap exponent/prior geometry locates up to two peaks without evaluating J.
@@ -11,10 +11,13 @@ import numpy as np
 from numba import njit
 
 from .kernel1d import _lnJ_pair_count
+from .table1d import _lnJ_pair_table_count
 from .params import reduce_params
 
 PI = math.pi
-SCAN = 128
+GL32_X, GL32_W = np.polynomial.legendre.leggauss(32)
+GL64_X, GL64_W = np.polynomial.legendre.leggauss(64)
+SCAN = 64
 WIDTH_SWITCH = 0.22
 CONVERGENCE_ATOL = 2e-6
 SPLIT_WIDTH_SCALE = 1.5
@@ -37,7 +40,7 @@ def _refine(left, right, l1, l2, R, eta, lo, hi, sign):
     y = left+g*(right-left)
     fx = sign*_proxy(x, l1, l2, R, eta, lo, hi)
     fy = sign*_proxy(y, l1, l2, R, eta, lo, hi)
-    for _ in range(40):
+    for _ in range(28):
         if fx > fy:
             right, y, fy = y, x, fx
             x = right-g*(right-left)
@@ -167,6 +170,10 @@ def _nodes_reduced(l1, l2, R, eta, lo, hi, n_nodes):
 @njit(cache=True)
 def _legendre_rule(n):
     """Gauss--Legendre nodes/weights on [-1,1], via Legendre recurrence."""
+    if n == 32:
+        return GL32_X.copy(), GL32_W.copy()
+    if n == 64:
+        return GL64_X.copy(), GL64_W.copy()
     nodes, weights = np.empty(n), np.empty(n)
     for i in range((n+1)//2):
         z = math.cos(PI*(i+.75)/(n+.5))
@@ -197,7 +204,12 @@ def _validate(A, B, C, D, E, xmin, xmax, n_nodes):
 
 
 @njit(cache=True)
-def _compute(A, B, C, D, E, xmin, xmax, n_nodes):
+def _compute_core(A, B, C, D, E, xmin, xmax, n_nodes, table=None):
+    """Shared normalized angular quadrature; domain as method2_nodes.
+
+    Return value, radial calls, mode, actual nodes/weights, fallback count.
+    A None table specializes to the original direct distance kernel.
+    """
     l1, l2, R, eta = _validate(A, B, C, D, E, xmin, xmax, n_nodes)
     fullnodes, fullweights, mode = _nodes_reduced(l1, l2, R, eta, xmin, xmax, n_nodes)
     # Nested uniform-tau grids reuse every distance evaluation. Start at
@@ -210,20 +222,35 @@ def _compute(A, B, C, D, E, xmin, xmax, n_nodes):
     logs = np.full(n_nodes, np.nan)
     previous = math.inf
     count = 0
+    fallbacks = 0
     norm = math.log(3/(2*PI))+3*math.log(xmin)-math.log1p(-(xmin/xmax)**3)
     while True:
         n = n_nodes//stride
         if stride == 1:
             nodes, weights = fullnodes, fullweights
         else:
-            nodes, weights, mode = _nodes_reduced(l1, l2, R, eta, xmin, xmax, n)
+            nodes = fullnodes[::stride].copy()
+            weights = fullweights[::stride].copy()*stride
+            if mode == 1:
+                # Coarse tau spacing scales the endpoint correction by stride².
+                # The full rule has already supplied stride times its correction.
+                # Nested budgets are even; their middle full-grid node is
+                # the proxy center, which determines the original tau step.
+                center=fullnodes[n_nodes//2]
+                width_proxy=_peak_width(center,l1,l2,R,eta,xmin,xmax)
+                dt=2*math.asinh(PI/(2*width_proxy))/n_nodes
+                weights[0]-=(stride*stride-stride)*dt*dt*PI/12
         shift = -math.inf
         for i in range(n):
             if math.isnan(logs[i*stride]):
                 t = nodes[i]
                 a = R*math.cos(t-eta)
                 b = l2+(l1-l2)*math.cos(t)**2
-                logs[i*stride], calls = _lnJ_pair_count(a, b, xmin, xmax)
+                if table is None:
+                    logs[i*stride], calls = _lnJ_pair_count(a, b, xmin, xmax)
+                else:
+                    logs[i*stride], calls, fb = _lnJ_pair_table_count(a,b,table)
+                    fallbacks += fb
                 count += calls
             shift = max(shift, logs[i*stride])
         total = 0.0
@@ -231,9 +258,15 @@ def _compute(A, B, C, D, E, xmin, xmax, n_nodes):
             total += weights[i]*math.exp(logs[i*stride]-shift)
         value = norm+shift+math.log(total)
         if stride == 1 or abs(value-previous) < CONVERGENCE_ATOL:
-            return value, count, mode, nodes, weights
+            return value, count, mode, nodes, weights, fallbacks
         previous = value
         stride //= 2
+
+
+@njit(cache=True)
+def _compute(A,B,C,D,E,xmin,xmax,n_nodes):
+    result=_compute_core(A,B,C,D,E,xmin,xmax,n_nodes)
+    return result[0],result[1],result[2],result[3],result[4]
 
 
 @njit(cache=True)
@@ -280,4 +313,33 @@ def lnL_marg_m2_array(parameters, n_nodes=64):
     for i in range(parameters.shape[0]):
         p = parameters[i]
         out[i] = lnL_marg_m2(p[0], p[1], p[2], p[3], p[4], p[5], p[6], n_nodes)
+    return out
+
+
+@njit(cache=True)
+def method2_table_diagnostics(A,B,C,D,E,xmin,xmax,table,n_nodes=64):
+    """Return (value,kernel_calls,mode,nodes,weights,fallback_count)."""
+    if xmin!=table[7] or xmax!=table[8]:
+        raise ValueError('table bounds must match integration bounds')
+    return _compute_core(A,B,C,D,E,xmin,xmax,n_nodes,table)
+
+
+@njit(cache=True)
+def lnL_marg_m2_table(A,B,C,D,E,xmin,xmax,table,n_nodes=64):
+    """Same normalized likelihood and adaptive nodes as lnL_marg_m2, via lookup.
+
+    Table bounds must equal xmin,xmax. Diagnostics count exterior and guarded-cell fallbacks.
+    """
+    return method2_table_diagnostics(A,B,C,D,E,xmin,xmax,table,n_nodes)[0]
+
+
+@njit(cache=True)
+def lnL_marg_m2_table_array(parameters,table,n_nodes=64):
+    """Numba array loop over (n,7) coefficient/bound rows for a fixed table."""
+    if parameters.ndim!=2 or parameters.shape[1]!=7:
+        raise ValueError('parameters must have shape (n,7)')
+    out=np.empty(len(parameters))
+    for i in range(len(parameters)):
+        p=parameters[i]
+        out[i]=lnL_marg_m2_table(p[0],p[1],p[2],p[3],p[4],p[5],p[6],table,n_nodes)
     return out

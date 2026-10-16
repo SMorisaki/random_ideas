@@ -11,4 +11,3 @@ data/*.hdf5
 # per-point validation dumps and run logs (summaries are committed instead)
 data/*_full.json
 data/*_run.log
-data/method2_check.json
