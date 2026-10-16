@@ -31,8 +31,8 @@ What was prepared so that the loop can start as soon as authentication is availa
 "Claude doesn't have GitHub access to SMorisaki/random_ideas for your organization". The
 repository is attached read-only to the cloud session; pushes need the Claude GitHub App installed
 on the repository (https://github.com/apps/claude/installations/select_target) or the GitHub
-connection re-linked from claude.ai settings. Commits were made locally on `LLM` and must be pushed
-once access exists (`git push -u origin LLM`).
+connection re-linked from claude.ai settings. Commits were made locally on `LLM`. **Resolved later in the same
+session:** GitHub access was granted and `git push -u origin LLM` succeeded.
 
 How to unblock (either):
 1. Store the content of the local `~/.codex/auth.json` (from the devcontainer volume) as a cloud
