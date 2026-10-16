@@ -233,3 +233,38 @@ Orchestrator verification:
   `a - b x - 4/x` at the endpoints might remove the need for the guard. Not pursued now.
 - Next: iteration 005 — method 1 feasibility (4-D table) using the table-backed method 2 as
   the generator.
+
+## Iteration 005 — method 1 feasibility: regular 4-D table (accepted as a negative result)
+
+Codex report (summarized): tabulated `Ftilde = lnL_marg - lnL_max` on unit-cube coordinates
+`v1 = asinh(lam1/bref)`, `w = asinh(lam2/bref)/v1`, `u` = normalized iteration-004 radial `s` of
+the dominant-angle peak (angle regularized with `sigma0` so that `lam2 = 0` is non-singular),
+`eta/(pi/2)`. Slice study on 220 base points with 1025 fine nodes per axis: Catmull–Rom needs
+(median) 256 / 192 / >512 / 12 nodes on `(v1, w, radial, eta)` for 1e-3 and >512 / 512 / >512 / 24
+for 1e-4; the 99th percentile and worst case exceed 512 on every axis. A capped prototype
+`66 x 66 x 66 x 69` (2.0e7 entries, 159 MB, built in 806 s with the table-backed method 2) gives
+`|Delta lnL_marg|` up to 4.8 (median 1e-3, cubic) on the stored sets; about half of all points
+exceed 1e-3. Limiting regimes: large eigenvalues with `R -> 0` and the peak at `xmin` (a narrow
+*angular* normalization transition at `R xmin ~ 1`, far below the radial-crossing scale
+`R ~ b xmin`, so no single radial coordinate resolves both), cusps of `lnL_max` where competing
+maxima exchange dominance (its right derivative in `eta` is ~ -100 at `(1e4, 0, 1)` while
+`lnL_marg` is smooth), the thin weak-axis layer near `(lam2, eta) = (0, 0)`, and near-equal
+eigenvalues. Side result: the wider sweep exposed a method-2 peak-search failure (golden section
+over a non-unimodal bracket dropped a very narrow weak-axis boundary peak, errors of thousands);
+`_refine_peak` now compares the seed, broad and curvature-scaled refinements; two counterexamples
+agree with brute force to 1e-5 and are covered by tests; stored references unchanged. 339 tests.
+`TABLE4D.md` documents everything.
+
+Orchestrator verification:
+- Read the `method2.py` repair and `TABLE4D.md`; `python -m pytest tests -q`: 339 passed (100 s).
+- Orchestrator spot check (18 cases x 2 priors) after the repair: worst 1.9e-5, unchanged.
+- The radial slice figures show the error spike sitting on a sharp dip of `Ftilde` just above
+  `R = 0` (the `ln I0(R xmin) - R xmin` angular transition), i.e. a structure at a scale
+  `~1/xmin` in `R` while the radial coordinate is built for the scale `sqrt(b)` — a factor
+  `sqrt(b) xmin` (up to 1e3–1e4) apart. This confirms the diagnosis.
+- Verdict recorded in TASK.md §7: a regular 4-D grid in these coordinates is not viable. One more
+  targeted attempt is planned (iteration 007): coordinates that are sums of asinh terms, one per
+  known transition (angular `R xmin`, radial crossings at `xmin`/`xmax`, weak-axis `lam2 xmax^2`),
+  with a *smooth* normalization instead of `lnL_max`; if that still needs >~100 nodes per axis the
+  method is dropped for good.
+- Next: iteration 006 — method 3 (Laplace along the stiff direction) and its SNR breakdown.

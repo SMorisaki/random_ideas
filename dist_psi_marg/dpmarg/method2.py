@@ -71,6 +71,26 @@ def _peak_width(t, l1, l2, R, eta, lo, hi):
 
 
 @njit(cache=True)
+def _refine_peak(seed, step, l1, l2, R, eta, lo, hi):
+    """Keep a narrow seeded maximum when a broad golden bracket is multimodal.
+
+    In the null-eigenvalue boundary layer the exponent peak at pi/2 can be
+    much narrower than the scan spacing. The prior proxy also has a broad
+    local peak in that same bracket. Compare broad and curvature-scaled
+    refinement, retaining the seed itself as a candidate.
+    """
+    best = seed
+    value = _proxy(seed, l1, l2, R, eta, lo, hi)
+    width = _peak_width(seed, l1, l2, R, eta, lo, hi)
+    for half in (step, min(step, 4*width)):
+        t = _refine(seed-half, seed+half, l1, l2, R, eta, lo, hi, 1)
+        candidate = _proxy(t, l1, l2, R, eta, lo, hi)
+        if candidate > value:
+            best, value = t, candidate
+    return best
+
+
+@njit(cache=True)
 def _geometry(l1, l2, R, eta, lo, hi):
     """Return peak centers/widths and valley boundaries on one period."""
     step = PI/SCAN
@@ -84,7 +104,7 @@ def _geometry(l1, l2, R, eta, lo, hi):
         return np.array([0.0]), np.array([0.3]), np.array([-PI/2, PI/2])
     for i in range(SCAN):
         if values[i] >= values[(i-1) % SCAN] and values[i] >= values[(i+1) % SCAN]:
-            t = _refine((i-1)*step, (i+1)*step, l1, l2, R, eta, lo, hi, 1)
+            t = _refine_peak(i*step, step, l1, l2, R, eta, lo, hi)
             centers[count] = t % PI
             heights[count] = _proxy(t, l1, l2, R, eta, lo, hi)
             count += 1
@@ -93,7 +113,7 @@ def _geometry(l1, l2, R, eta, lo, hi):
         if (_proxy(seed, l1, l2, R, eta, lo, hi) >=
                 max(_proxy(seed-step, l1, l2, R, eta, lo, hi),
                     _proxy(seed+step, l1, l2, R, eta, lo, hi))):
-            t = _refine(seed-step, seed+step, l1, l2, R, eta, lo, hi, 1) % PI
+            t = _refine_peak(seed, step, l1, l2, R, eta, lo, hi) % PI
             duplicate = False
             for j in range(count):
                 if abs((t-centers[j]+PI/2) % PI-PI/2) < step/2:
