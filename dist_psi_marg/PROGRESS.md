@@ -299,3 +299,28 @@ Orchestrator verification:
   rerunning the sweep costs ~12 min.
 - Next: iteration 007 — method 1 revisited (transition-aligned coordinates, smooth normalization;
   slice study only), then iteration 008 — synthesis (`REPORT.md`, `dpmarg.fast` dispatcher).
+
+## Iteration 007 — method 1 revisited: transition-aligned coordinates, smooth normalization (accepted; final negative verdict)
+
+Codex report (summarized): second slice study (220 base points, >= 1025 fine nodes, grids 8–512,
+Catmull–Rom / natural cubic / linear) for the baseline and for each change separately: smooth
+normalizations (proxy integral and soft maximum, raw and with the radial regularization
+`b -> b + 2/xmax^2` that removes the `lnL_max` cusp: slope ~100 -> < 2e-7), transition-aligned
+radial coordinate `s3` (literal and regularized), weak-axis alternatives (`w' = asinh(lam2 xmax^2)`,
+two-ended stretched `q`, two-angle average), `cos(2 eta)`, and the combinations. **Every design
+still needs > 512 nodes per axis at the 99th percentile for every axis, tolerance and
+interpolator**; medians improve on single axes (radial 512 with regularized `s3`, `v1` 96 with
+`w'`) but the combined designs are worse on the eigenvalue axes. Physical thin layers remain:
+at `R = 0, lam1 = 1e8` a `1e-6` change in `q` changes the remainder by 0.23; angular-grid
+aliasing of the fixed-grid normalizations produces remainder variations of O(100). No prototype
+was built (`513^4 = 6.9e10` entries vs the 3e7 cap). 428 tests; 20 reference checks within 1e-5.
+
+Orchestrator verification:
+- `python -m pytest tests -q`: 428 passed (109 s). Figures and `data/method1b_slices.json` read.
+- Verdict (final): **a regular 4-D lookup table of lnL_marg is not viable**, even with
+  transition-aligned asinh coordinates and smooth normalizations. The function has thin
+  layers (weak-axis degeneracy, `R xmin ~ 1` angular transition, prior-boundary crossings)
+  whose positions depend on all four parameters, so no separable grid aligns with all of them.
+  The practical form of "table + numerical integration" is method 2.
+- Next: iteration 008 — synthesis: `dpmarg.fast` dispatcher (method 2 table + gated 2-D Laplace
+  branch), final benchmark on identical sets, `REPORT.md`.

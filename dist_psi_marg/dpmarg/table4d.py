@@ -5,6 +5,12 @@ and eta/(pi/2). The weak-axis singularity of the unconstrained peak direction
 is regularized by adding sigma0**2 to both eigenvalues ONLY when constructing
 the coordinates. The likelihood and its maximum retain the physical eigenvalues.
 No interpolation accuracy guarantee is implied; see data/method1_check.json.
+Iteration-007 slice options are exposed by from_unit/to_unit and sample_unit:
+radial_mode (0=old, 1=regularized three transitions, 2=literal c=co/b), weak_mode (0=ratio, 1=absolute v2,
+2=two-ended q stretch), angle_mode (0=eta, 1=cos(2 eta)), geometry_mode
+(0=ridge, 1=average ridge/linear-direction coordinates). normalization_value
+documents proxy normalization modes. Saved tables and lookup APIs retain the
+iteration-005 format and normalization; the new options are slice-only.
 """
 import math
 from pathlib import Path
@@ -13,6 +19,13 @@ from numba import njit
 from .params import reduce_params
 from .table1d import coordinates, inverse_s
 from .method2 import lnL_marg_m2_table
+
+# Fixed angular proxy rules; exact symmetry-axis zeros avoid spurious
+# nonzero weak-eigenvalue penalties from cos(pi/2) roundoff.
+_NORMALIZATION_COS=np.cos(2*np.pi*np.arange(128)/128)
+_NORMALIZATION_SIN=np.sin(2*np.pi*np.arange(128)/128)
+_NORMALIZATION_COS[np.abs(_NORMALIZATION_COS)<1e-15]=0.
+_NORMALIZATION_SIN[np.abs(_NORMALIZATION_SIN)<1e-15]=0.
 
 
 @njit(cache=True)
@@ -101,8 +114,14 @@ def radial_R(s,l1,l2,eta,lo,hi):
 
 
 @njit(cache=True)
-def from_unit(z,bmax,smax,lo,hi):
-    """Regular box [0,1]^4 -> physical (lam1,lam2,R,eta)."""
+def from_unit(z,bmax,smax,lo,hi,radial_mode=0,weak_mode=0,angle_mode=0,geometry_mode=0):
+    """Regular box -> (lam1,lam2,R,eta), with the old mapping by default.
+
+    Optional modes are documented in from_unit_options; absolute-v2 uses
+    only the physical triangle z1<=z0, rather than the entire unit box.
+    """
+    if radial_mode or weak_mode or angle_mode or geometry_mode:
+        return from_unit_options(z,bmax,smax,lo,hi,radial_mode,weak_mode,angle_mode,geometry_mode)
     vmax=math.asinh(bmax*hi*hi)
     v1=z[0]*vmax; l1=math.sinh(v1)/hi**2
     l2=math.sinh(z[1]*v1)/hi**2; eta=z[3]*math.pi/2
@@ -111,8 +130,10 @@ def from_unit(z,bmax,smax,lo,hi):
 
 
 @njit(cache=True)
-def to_unit(l1,l2,R,eta,bmax,smax,lo,hi):
+def to_unit(l1,l2,R,eta,bmax,smax,lo,hi,radial_mode=0,weak_mode=0,angle_mode=0,geometry_mode=0):
     """Physical coordinates -> unit box (outside coordinates trigger fallback)."""
+    if radial_mode or weak_mode or angle_mode or geometry_mode:
+        return to_unit_options(l1,l2,R,eta,bmax,smax,lo,hi,radial_mode,weak_mode,angle_mode,geometry_mode)
     v1=math.asinh(l1*hi*hi); v2=math.asinh(l2*hi*hi)
     s0=radial_geometry(l1,l2,eta,lo,hi)[2]
     s=radial_s(R,l1,l2,eta,lo,hi)
@@ -121,20 +142,26 @@ def to_unit(l1,l2,R,eta,bmax,smax,lo,hi):
 
 
 @njit(cache=True)
-def reduced_value(l1,l2,R,eta,lo,hi,radial):
-    """Fast generator for Ftilde=lnL_marg-max lnL; domain lam1>=lam2>=0."""
+def reduced_value(l1,l2,R,eta,lo,hi,radial,normalization=0):
+    """F=lnL_marg-N, lam1>=lam2>=0, R>=0, 0<lo<hi.
+
+    N=max lnL by default; optional modes use normalization_value's proxies.
+    """
     A=R*math.cos(eta); B=R*math.sin(eta)
     value=lnL_marg_m2_table(A,B,.5*(l1-l2),0.,.5*(l1+l2),lo,hi,radial)
-    return value-lnL_max_numba(l1,l2,R,eta,lo,hi)[0]
+    return value-normalization_value(l1,l2,R,eta,lo,hi,normalization)
 
 
 @njit(cache=True)
-def sample_unit(points,bmax,smax,lo,hi,radial):
-    """Evaluate Ftilde at rows of unit coordinates in a compiled loop."""
+def sample_unit(points,bmax,smax,lo,hi,radial,normalization=0,radial_mode=0,weak_mode=0,angle_mode=0,geometry_mode=0):
+    """Evaluate lnL_marg-N at rows of selectable unit coordinates.
+
+    Defaults exactly retain iteration 005; see from_unit_options for domain.
+    """
     out=np.empty(len(points))
     for i in range(len(points)):
-        l1,l2,R,eta=from_unit(points[i],bmax,smax,lo,hi)
-        out[i]=reduced_value(l1,l2,R,eta,lo,hi,radial)
+        l1,l2,R,eta=from_unit(points[i],bmax,smax,lo,hi,radial_mode,weak_mode,angle_mode,geometry_mode)
+        out[i]=reduced_value(l1,l2,R,eta,lo,hi,radial,normalization)
     return out
 
 
@@ -266,3 +293,194 @@ def load_table(path):
     """Read a table built for one fixed distance prior."""
     with np.load(path,allow_pickle=False) as f:
         return (np.ascontiguousarray(f['values']),*f['parameters'].tolist())
+
+
+@njit(cache=True)
+def normalization_value(l1,l2,R,eta,lo,hi,mode=0,temperature=1.):
+    """Cheap proxy normalization on lam1>=lam2>=0, R>=0, finite annulus.
+
+    0: old maximum. 1: log(pi/64 sum of paired exp(fmax)) on a fixed
+    64-angle pi-periodic rule. 2: T log sum exp(fmax/T), 64 full-circle
+    angles. Both use SIGNED a (pairing before log) and the C1 upper proxy
+    max_r[a*r-(b+2*T/hi²)*r²/2]+T. This bounds each exact radial maximum
+    from above within T, including the null-eigenvalue corner. Clipping
+    gives continuous first derivatives, not continuous second derivatives.
+    The fixed angular rule can miss narrow peaks: it is NOT a certified
+    upper bound on the angular integral. No distance-kernel calls occur.
+    Modes 3/4 are unregularized versions of 1/2 for cusp diagnostics.
+    """
+    if mode==0:return lnL_max_numba(l1,l2,R,eta,lo,hi)[0]
+    if mode<1 or mode>4 or temperature<=0:raise ValueError('invalid normalization')
+    integral=mode==1 or mode==3
+    regularized=mode<=2
+    n=128 if integral else 64
+    T=1. if integral else temperature
+    top=-math.inf; total=0.;ce=math.cos(eta);se=math.sin(eta)
+    for i in range(n):
+        idx=i if integral else 2*i
+        ct=_NORMALIZATION_COS[idx];st=_NORMALIZATION_SIN[idx]
+        a=R*(ct*ce+st*se)
+        b=l2+(l1-l2)*ct*ct
+        if regularized:b+=2*T/(hi*hi)
+        r=min(hi,max(lo,a/b)) if b>0 else (hi if a>0 else lo)
+        f=(r*(a-.5*b*r)+(T if regularized else 0.))/T
+        if f>top:
+            total=total*math.exp(top-f)+1.;top=f
+        else:total+=math.exp(f-top)
+    return T*(top+math.log(total))+(math.log(math.pi/64) if integral else 0.)
+
+
+@njit(cache=True)
+def _direction_geometry(l1,l2,eta,lo,hi,linear=False):
+    if not linear:
+        co,b,_=radial_geometry(l1,l2,eta,lo,hi)
+        return co,b
+    return 1.,l2+(l1-l2)*math.cos(eta)**2
+
+
+@njit(cache=True)
+def _transition_s_dR(R,l1,l2,eta,lo,hi,mode,linear=False):
+    """Return s and ds/dR for the old s or the three-transition sum.
+
+    s3=asinh(R*xmin)+asinh(sigma*(R*c-xmin))+
+    asinh(sigma*(R*c-xmax)), sigma²=b+sigma0², c=co/(b+sigma0²).
+    The same ridge regularizer in c makes the all-zero corner finite;
+    relative change from c=co/b is sigma0²/(b+sigma0²). Mode 2 instead uses
+    the literal c=co/b for b>0, with the regularized convention at b=0
+    where that formula is undefined. k_a=1.
+    Both maps are strictly increasing for R>=0.
+    """
+    co,b=_direction_geometry(l1,l2,eta,lo,hi,linear)
+    sig2=b+1/(hi-lo)**2;sig=math.sqrt(sig2)
+    if mode==0:
+        a=R*co
+        return (math.asinh((a-b*lo)/sig)+math.asinh((a-b*hi)/sig),
+                co*(1/math.hypot(sig,a-b*lo)+1/math.hypot(sig,a-b*hi)))
+    c=co/(b if mode==2 and b>0 else sig2);x0=R*c
+    y=math.asinh(R*lo)+math.asinh(sig*(x0-lo))+math.asinh(sig*(x0-hi))
+    d=lo/math.hypot(1.,R*lo)+sig*c*(1/math.hypot(1.,sig*(x0-lo))+1/math.hypot(1.,sig*(x0-hi)))
+    return y,d
+
+
+@njit(cache=True)
+def transition_s(R,l1,l2,eta,lo,hi,mode=1,geometry_mode=0):
+    """Monotone s3 (mode=1) or old s (0), optionally average two angles.
+
+    geometry_mode=1 averages coordinates from the regularized ridge and
+    theta=eta. At q=1 these coincide; no arbitrary eigenvector is chosen.
+    """
+    y,d=_transition_s_dR(R,l1,l2,eta,lo,hi,mode)
+    if geometry_mode:
+        y2,d2=_transition_s_dR(R,l1,l2,eta,lo,hi,mode,True)
+        return .5*(y+y2),.5*(d+d2)
+    return y,d
+
+
+@njit(cache=True)
+def _transition_polish(R,s,l1,l2,eta,lo,hi,Rcap,mode,geometry_mode):
+    """Remove log-coordinate rounding with three physical-R Newton steps."""
+    for _ in range(3):
+        got,d=transition_s(R,l1,l2,eta,lo,hi,mode,geometry_mode)
+        R=min(Rcap,max(0.,R+(s-got)/d))
+    return R
+
+
+@njit(cache=True)
+def transition_R(s,l1,l2,eta,lo,hi,Rcap,mode=1,geometry_mode=0):
+    """Invert a monotone transition sum with bracketed Newton; 0<=R<=Rcap."""
+    s0=transition_s(0.,l1,l2,eta,lo,hi,mode,geometry_mode)[0]
+    stop=transition_s(Rcap,l1,l2,eta,lo,hi,mode,geometry_mode)[0]
+    if s<=s0:return 0.
+    if s>=stop:return Rcap
+    if mode==2:
+        # Literal co/b can span >50 decades near a null eigenvector.
+        # Newton in y=asinh(R/scale), bracketed in y, resolves those roots
+        # without a linear-R bisection losing its entire iteration budget.
+        scale=1/transition_s(0.,l1,l2,eta,lo,hi,mode,geometry_mode)[1]
+        ymax=math.asinh(Rcap/scale);left=0.;right=ymax
+        y=ymax*(s-s0)/(stop-s0)
+        for _ in range(100):
+            R=scale*math.sinh(y)
+            got,d=transition_s(R,l1,l2,eta,lo,hi,mode,geometry_mode)
+            if abs(got-s)<2e-14*max(1.,abs(s)):
+                return _transition_polish(R,s,l1,l2,eta,lo,hi,Rcap,mode,geometry_mode)
+            if got>s:right=y
+            else:left=y
+            candidate=y+(s-got)/(d*scale*math.cosh(y))
+            if _%2==1 or candidate<=left or candidate>=right:
+                candidate=(left+right)/2
+            if candidate==y:return _transition_polish(R,s,l1,l2,eta,lo,hi,Rcap,mode,geometry_mode)
+            y=candidate
+        return _transition_polish(scale*math.sinh(y),s,l1,l2,eta,lo,hi,Rcap,mode,geometry_mode)
+    left=0.;right=Rcap;R=Rcap*(s-s0)/(stop-s0)
+    for _ in range(80):
+        got,d=transition_s(R,l1,l2,eta,lo,hi,mode,geometry_mode)
+        if abs(got-s)<2e-14*max(1.,abs(s)):break
+        if got>s:right=R
+        else:left=R
+        candidate=R+(s-got)/d
+        if candidate<=left or candidate>=right:candidate=(left+right)/2
+        if candidate==R:break
+        R=candidate
+    return R
+
+
+@njit(cache=True)
+def weak_q_coordinate(q,l1,hi):
+    """Two-ended asinh stretch of q in [0,1], eps=1/(1+lam1*xmax²)."""
+    eps=1/(1+l1*hi*hi);a=math.asinh(1/eps)
+    return (math.asinh(q/eps)-math.asinh((1-q)/eps)+a)/(2*a)
+
+
+@njit(cache=True)
+def weak_q_inverse(w,l1,hi):
+    """Analytic inverse of the two-ended stretch, retaining small q precision."""
+    if w<=0:return 0.
+    if w>=1:return 1.
+    eps=1/(1+l1*hi*hi);h=-abs(w-.5)*math.asinh(1/eps)
+    small=eps*math.sinh(math.asinh(1/(2*eps*math.cosh(h)))+h)
+    return min(1.,max(0.,1-small if w>.5 else small))
+
+
+@njit(cache=True)
+def from_unit_options(z,bmax,smax,lo,hi,radial_mode=0,weak_mode=0,angle_mode=0,geometry_mode=0):
+    """Selectable slice coordinates; weak_mode 1 is a valid triangle in a box.
+
+    weak_mode=0: v2/v1; 1: absolute v2/vmax (requires z1<=z0);
+    2: two-ended stretched q. angle_mode=1: (1-cos(2*eta))/2.
+    All radial choices share the old s<=smax physical R envelope.
+    """
+    vmax=math.asinh(bmax*hi*hi);v1=z[0]*vmax;l1=math.sinh(v1)/hi**2
+    if weak_mode==1:
+        if z[1]>z[0]+1e-13:raise ValueError('absolute weak coordinate requires z1<=z0')
+        l2=min(l1,math.sinh(z[1]*vmax)/hi**2)
+    elif weak_mode==2:l2=l1*weak_q_inverse(z[1],l1,hi)
+    else:l2=math.sinh(z[1]*v1)/hi**2
+    eta=math.acos(max(-1.,min(1.,1-2*z[3])))/2 if angle_mode else z[3]*math.pi/2
+    if not radial_mode and not geometry_mode:
+        s0=radial_geometry(l1,l2,eta,lo,hi)[2]
+        R=radial_R(s0+z[2]*(smax-s0),l1,l2,eta,lo,hi)
+    else:
+        cap=radial_R(smax,l1,l2,eta,lo,hi)
+        s0=transition_s(0.,l1,l2,eta,lo,hi,radial_mode,geometry_mode)[0]
+        stop=transition_s(cap,l1,l2,eta,lo,hi,radial_mode,geometry_mode)[0]
+        R=transition_R(s0+z[2]*(stop-s0),l1,l2,eta,lo,hi,cap,radial_mode,geometry_mode)
+    return l1,l2,R,eta
+
+
+@njit(cache=True)
+def to_unit_options(l1,l2,R,eta,bmax,smax,lo,hi,radial_mode=0,weak_mode=0,angle_mode=0,geometry_mode=0):
+    """Inverse of from_unit_options on the ordered-eigenvalue annular domain."""
+    vmax=math.asinh(bmax*hi*hi);v1=math.asinh(l1*hi*hi);v2=math.asinh(l2*hi*hi)
+    w=v2/v1 if v1 else 0.
+    if weak_mode==1:w=v2/vmax
+    elif weak_mode==2:w=weak_q_coordinate(l2/l1 if l1 else 0.,l1,hi)
+    if not radial_mode and not geometry_mode:
+        s0=radial_geometry(l1,l2,eta,lo,hi)[2]
+        u=(radial_s(R,l1,l2,eta,lo,hi)-s0)/(smax-s0)
+    else:
+        cap=radial_R(smax,l1,l2,eta,lo,hi)
+        s0=transition_s(0.,l1,l2,eta,lo,hi,radial_mode,geometry_mode)[0]
+        stop=transition_s(cap,l1,l2,eta,lo,hi,radial_mode,geometry_mode)[0]
+        u=(transition_s(R,l1,l2,eta,lo,hi,radial_mode,geometry_mode)[0]-s0)/(stop-s0)
+    return np.array([v1/vmax,w,u,(1-math.cos(2*eta))/2 if angle_mode else eta*2/math.pi])

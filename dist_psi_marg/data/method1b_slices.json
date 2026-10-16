@@ -1,0 +1,4003 @@
+{
+ "base_count": 220,
+ "random_seed": 501,
+ "fine_count": 1025,
+ "counts": [
+  8,
+  12,
+  16,
+  24,
+  32,
+  48,
+  64,
+  96,
+  128,
+  192,
+  256,
+  384,
+  512
+ ],
+ "bmax": 100000000.0,
+ "smax": 24.0,
+ "tolerances": [
+  0.001,
+  0.0001
+ ],
+ "design_options": {
+  "baseline": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "norm_integral_raw": [
+   3,
+   0,
+   0,
+   0,
+   0
+  ],
+  "norm_softmax_raw": [
+   4,
+   0,
+   0,
+   0,
+   0
+  ],
+  "norm_integral": [
+   1,
+   0,
+   0,
+   0,
+   0
+  ],
+  "norm_softmax": [
+   2,
+   0,
+   0,
+   0,
+   0
+  ],
+  "radial3": [
+   0,
+   1,
+   0,
+   0,
+   0
+  ],
+  "radial3_exact": [
+   0,
+   2,
+   0,
+   0,
+   0
+  ],
+  "weak_absolute": [
+   0,
+   0,
+   1,
+   0,
+   0
+  ],
+  "weak_q": [
+   0,
+   0,
+   2,
+   0,
+   0
+  ],
+  "symmetric": [
+   0,
+   0,
+   0,
+   0,
+   1
+  ],
+  "angle_cos": [
+   0,
+   0,
+   0,
+   1,
+   0
+  ],
+  "combined": [
+   1,
+   1,
+   2,
+   1,
+   1
+  ],
+  "combined_exact": [
+   1,
+   2,
+   2,
+   1,
+   1
+  ]
+ },
+ "designs": {
+  "baseline": {
+   "axes": {
+    "v1": {
+     "catmull": {
+      "0.001": {
+       "median": 256,
+       "p99": null,
+       "max": null,
+       "unresolved": 51
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 129
+      },
+      "max_error512": 0.24735535975863598
+     },
+     "natural": {
+      "0.001": {
+       "median": 192,
+       "p99": null,
+       "max": null,
+       "unresolved": 32
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 115
+      },
+      "max_error512": 0.24733629500186183
+     },
+     "linear": {
+      "0.001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 103
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 194
+      },
+      "max_error512": 0.24832441633972024
+     },
+     "worst_slices": [
+      {
+       "name": "random_54",
+       "physical": [
+        42389306.26707732,
+        0.0,
+        11579.395630666251,
+        0.007885670211349782
+       ],
+       "q": 0.0,
+       "snr": 135.1489278205334,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 0.8410143200564448
+      }
+     ]
+    },
+    "w": {
+     "catmull": {
+      "0.001": {
+       "median": 192,
+       "p99": null,
+       "max": null,
+       "unresolved": 90
+      },
+      "0.0001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 105
+      },
+      "max_error512": 2.650117498088388
+     },
+     "natural": {
+      "0.001": {
+       "median": 128,
+       "p99": null,
+       "max": null,
+       "unresolved": 90
+      },
+      "0.0001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 104
+      },
+      "max_error512": 2.6104754037209155
+     },
+     "linear": {
+      "0.001": {
+       "median": 384,
+       "p99": null,
+       "max": null,
+       "unresolved": 101
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 133
+      },
+      "max_error512": 2.484019183102184
+     },
+     "worst_slices": [
+      {
+       "name": "random_15",
+       "physical": [
+        2451575.084290601,
+        951244.0635551402,
+        0.0,
+        0.0
+       ],
+       "q": 0.3880134325277647,
+       "snr": 0.0,
+       "peak_radius": 0.1,
+       "regime": "anisotropic; no linear signal",
+       "error64": 3.1397470975938404
+      }
+     ]
+    },
+    "radial": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 157
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 2.5791133431807225
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 137
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 176
+      },
+      "max_error512": 2.3438589082553456
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 2.9706341859703684
+     },
+     "worst_slices": [
+      {
+       "name": "large_lam1_rho_300",
+       "physical": [
+        99999999.99999973,
+        99999999.99999973,
+        5449999.999999999,
+        0.29999999999999993
+       ],
+       "q": 1.0,
+       "snr": 300.00000000000404,
+       "peak_radius": 0.1,
+       "regime": "isotropic; lower radial boundary",
+       "error64": 5.790479767340264
+      }
+     ]
+    },
+    "eta": {
+     "catmull": {
+      "0.001": {
+       "median": 12,
+       "p99": null,
+       "max": null,
+       "unresolved": 59
+      },
+      "0.0001": {
+       "median": 24,
+       "p99": null,
+       "max": null,
+       "unresolved": 65
+      },
+      "max_error512": 5.476834610991091
+     },
+     "natural": {
+      "0.001": {
+       "median": 24,
+       "p99": null,
+       "max": null,
+       "unresolved": 50
+      },
+      "0.0001": {
+       "median": 64,
+       "p99": null,
+       "max": null,
+       "unresolved": 63
+      },
+      "max_error512": 4.3750652713244484
+     },
+     "linear": {
+      "0.001": {
+       "median": 32,
+       "p99": null,
+       "max": null,
+       "unresolved": 53
+      },
+      "0.0001": {
+       "median": 96,
+       "p99": null,
+       "max": null,
+       "unresolved": 69
+      },
+      "max_error512": 4.8661916998505745
+     },
+     "worst_slices": [
+      {
+       "name": "random_71",
+       "physical": [
+        14058666.527169595,
+        0.0,
+        1253.80997838795,
+        0.7071773549662401
+       ],
+       "q": 0.0,
+       "snr": 403.6307393424593,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 9.624887392478655
+      }
+     ]
+    }
+   }
+  },
+  "norm_integral_raw": {
+   "axes": {
+    "v1": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 154
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 181
+      },
+      "max_error512": 1682050.8738336116
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 147
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 175
+      },
+      "max_error512": 1516917.4897082448
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 170
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 218
+      },
+      "max_error512": 2251608.5042144954
+     },
+     "worst_slices": [
+      {
+       "name": "random_48",
+       "physical": [
+        0.10585861075034622,
+        0.09128558299326778,
+        73.4409623018929,
+        0.31867194882774375
+       ],
+       "q": 0.8623349800853987,
+       "snr": 116.80826781043805,
+       "peak_radius": 100.0,
+       "regime": "anisotropic; upper radial boundary",
+       "error64": 10261402.147867814
+      }
+     ]
+    },
+    "w": {
+     "catmull": {
+      "0.001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 100
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 125
+      },
+      "max_error512": 19713027.14505329
+     },
+     "natural": {
+      "0.001": {
+       "median": 384,
+       "p99": null,
+       "max": null,
+       "unresolved": 96
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 123
+      },
+      "max_error512": 18293162.579057124
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 118
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 138
+      },
+      "max_error512": 20455105.969926212
+     },
+     "worst_slices": [
+      {
+       "name": "random_71",
+       "physical": [
+        14058666.527169595,
+        0.0,
+        1253.80997838795,
+        0.7071773549662401
+       ],
+       "q": 0.0,
+       "snr": 403.6307393424593,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 38010249.2282485
+      }
+     ]
+    },
+    "radial": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 180
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 218
+      },
+      "max_error512": 1483048.834469581
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 174
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 197
+      },
+      "max_error512": 1302894.7120998558
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 1822542.3459761743
+     },
+     "worst_slices": [
+      {
+       "name": "random_169",
+       "physical": [
+        96581792.49371888,
+        7164043.560675667,
+        175693.95294887695,
+        0.5727870336189427
+       ],
+       "q": 0.07417592255954014,
+       "snr": 0.0,
+       "peak_radius": 0.1,
+       "regime": "anisotropic; lower radial boundary",
+       "error64": 5828055.006966144
+      }
+     ]
+    },
+    "eta": {
+     "catmull": {
+      "0.001": {
+       "median": 24,
+       "p99": null,
+       "max": null,
+       "unresolved": 67
+      },
+      "0.0001": {
+       "median": 48,
+       "p99": null,
+       "max": null,
+       "unresolved": 75
+      },
+      "max_error512": 34723.74426780373
+     },
+     "natural": {
+      "0.001": {
+       "median": 32,
+       "p99": null,
+       "max": null,
+       "unresolved": 66
+      },
+      "0.0001": {
+       "median": 96,
+       "p99": null,
+       "max": null,
+       "unresolved": 84
+      },
+      "max_error512": 32681.48934468514
+     },
+     "linear": {
+      "0.001": {
+       "median": 48,
+       "p99": null,
+       "max": null,
+       "unresolved": 75
+      },
+      "0.0001": {
+       "median": 192,
+       "p99": null,
+       "max": null,
+       "unresolved": 93
+      },
+      "max_error512": 34565.09170452614
+     },
+     "worst_slices": [
+      {
+       "name": "random_34",
+       "physical": [
+        2215527.448735083,
+        0.0,
+        2430.7240998671477,
+        0.26706804739769796
+       ],
+       "q": 0.0,
+       "snr": 358.1875454141985,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 39472.46920454254
+      }
+     ]
+    }
+   }
+  },
+  "norm_softmax_raw": {
+   "axes": {
+    "v1": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 159
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 183
+      },
+      "max_error512": 2329015.579915881
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 150
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 176
+      },
+      "max_error512": 2712142.834957838
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 174
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 3007104.895582795
+     },
+     "worst_slices": [
+      {
+       "name": "random_53",
+       "physical": [
+        0.0003872574336352572,
+        0.0003404652463036174,
+        5.63900391344188,
+        0.6434593148394061
+       ],
+       "q": 0.8791703314965632,
+       "snr": 33.527551818296715,
+       "peak_radius": 100.0,
+       "regime": "anisotropic; upper radial boundary",
+       "error64": 30004220.142885208
+      }
+     ]
+    },
+    "w": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 111
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 132
+      },
+      "max_error512": 30991508.757340655
+     },
+     "natural": {
+      "0.001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 109
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 132
+      },
+      "max_error512": 29656535.582091555
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 125
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 144
+      },
+      "max_error512": 40771301.58276366
+     },
+     "worst_slices": [
+      {
+       "name": "random_71",
+       "physical": [
+        14058666.527169595,
+        0.0,
+        1253.80997838795,
+        0.7071773549662401
+       ],
+       "q": 0.0,
+       "snr": 403.6307393424593,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 160985699.45580673
+      }
+     ]
+    },
+    "radial": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 193
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 219
+      },
+      "max_error512": 1072118.118136391
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 188
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 199
+      },
+      "max_error512": 1287248.396083869
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 855318.0984579027
+     },
+     "worst_slices": [
+      {
+       "name": "random_39",
+       "physical": [
+        2038217.3029714797,
+        133611.31010037553,
+        4522.681004916615,
+        0.26725036576587513
+       ],
+       "q": 0.06555302513897122,
+       "snr": 0.0,
+       "peak_radius": 0.1,
+       "regime": "anisotropic; lower radial boundary",
+       "error64": 20327095.014048606
+      }
+     ]
+    },
+    "eta": {
+     "catmull": {
+      "0.001": {
+       "median": 32,
+       "p99": null,
+       "max": null,
+       "unresolved": 75
+      },
+      "0.0001": {
+       "median": 96,
+       "p99": null,
+       "max": null,
+       "unresolved": 86
+      },
+      "max_error512": 34723.74426742559
+     },
+     "natural": {
+      "0.001": {
+       "median": 48,
+       "p99": null,
+       "max": null,
+       "unresolved": 73
+      },
+      "0.0001": {
+       "median": 192,
+       "p99": null,
+       "max": null,
+       "unresolved": 97
+      },
+      "max_error512": 32681.4893444165
+     },
+     "linear": {
+      "0.001": {
+       "median": 96,
+       "p99": null,
+       "max": null,
+       "unresolved": 89
+      },
+      "0.0001": {
+       "median": 256,
+       "p99": null,
+       "max": null,
+       "unresolved": 100
+      },
+      "max_error512": 34565.091704190156
+     },
+     "worst_slices": [
+      {
+       "name": "random_34",
+       "physical": [
+        2215527.448735083,
+        0.0,
+        2430.7240998671477,
+        0.26706804739769796
+       ],
+       "q": 0.0,
+       "snr": 358.1875454141985,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 39472.469203878
+      }
+     ]
+    }
+   }
+  },
+  "norm_integral": {
+   "axes": {
+    "v1": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 150
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 172
+      },
+      "max_error512": 1682050.8639348
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 142
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 167
+      },
+      "max_error512": 1516917.4798360467
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 165
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 217
+      },
+      "max_error512": 2251608.494365126
+     },
+     "worst_slices": [
+      {
+       "name": "random_48",
+       "physical": [
+        0.10585861075034622,
+        0.09128558299326778,
+        73.4409623018929,
+        0.31867194882774375
+       ],
+       "q": 0.8623349800853987,
+       "snr": 116.80826781043805,
+       "peak_radius": 100.0,
+       "regime": "anisotropic; upper radial boundary",
+       "error64": 10261402.145210788
+      }
+     ]
+    },
+    "w": {
+     "catmull": {
+      "0.001": {
+       "median": 384,
+       "p99": null,
+       "max": null,
+       "unresolved": 99
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 125
+      },
+      "max_error512": 19713027.14505329
+     },
+     "natural": {
+      "0.001": {
+       "median": 384,
+       "p99": null,
+       "max": null,
+       "unresolved": 95
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 123
+      },
+      "max_error512": 18293162.579057124
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 118
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 137
+      },
+      "max_error512": 20455105.969926212
+     },
+     "worst_slices": [
+      {
+       "name": "random_71",
+       "physical": [
+        14058666.527169595,
+        0.0,
+        1253.80997838795,
+        0.7071773549662401
+       ],
+       "q": 0.0,
+       "snr": 403.6307393424593,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 38010249.22824833
+      }
+     ]
+    },
+    "radial": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 180
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 218
+      },
+      "max_error512": 1483048.8344702995
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 174
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 198
+      },
+      "max_error512": 1302894.7121005775
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 1822542.345976892
+     },
+     "worst_slices": [
+      {
+       "name": "random_169",
+       "physical": [
+        96581792.49371888,
+        7164043.560675667,
+        175693.95294887695,
+        0.5727870336189427
+       ],
+       "q": 0.07417592255954014,
+       "snr": 0.0,
+       "peak_radius": 0.1,
+       "regime": "anisotropic; lower radial boundary",
+       "error64": 5828055.006966144
+      }
+     ]
+    },
+    "eta": {
+     "catmull": {
+      "0.001": {
+       "median": 24,
+       "p99": null,
+       "max": null,
+       "unresolved": 67
+      },
+      "0.0001": {
+       "median": 48,
+       "p99": null,
+       "max": null,
+       "unresolved": 75
+      },
+      "max_error512": 34723.74426672829
+     },
+     "natural": {
+      "0.001": {
+       "median": 32,
+       "p99": null,
+       "max": null,
+       "unresolved": 67
+      },
+      "0.0001": {
+       "median": 96,
+       "p99": null,
+       "max": null,
+       "unresolved": 84
+      },
+      "max_error512": 32681.489343921134
+     },
+     "linear": {
+      "0.001": {
+       "median": 48,
+       "p99": null,
+       "max": null,
+       "unresolved": 75
+      },
+      "0.0001": {
+       "median": 192,
+       "p99": null,
+       "max": null,
+       "unresolved": 93
+      },
+      "max_error512": 34565.0917035706
+     },
+     "worst_slices": [
+      {
+       "name": "random_34",
+       "physical": [
+        2215527.448735083,
+        0.0,
+        2430.7240998671477,
+        0.26706804739769796
+       ],
+       "q": 0.0,
+       "snr": 358.1875454141985,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 39472.46920265257
+      }
+     ]
+    }
+   }
+  },
+  "norm_softmax": {
+   "axes": {
+    "v1": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 157
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 177
+      },
+      "max_error512": 2329015.571568966
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 147
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 171
+      },
+      "max_error512": 2712142.8217579126
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 171
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 219
+      },
+      "max_error512": 3007104.957603812
+     },
+     "worst_slices": [
+      {
+       "name": "random_53",
+       "physical": [
+        0.0003872574336352572,
+        0.0003404652463036174,
+        5.63900391344188,
+        0.6434593148394061
+       ],
+       "q": 0.8791703314965632,
+       "snr": 33.527551818296715,
+       "peak_radius": 100.0,
+       "regime": "anisotropic; upper radial boundary",
+       "error64": 30004220.251743674
+      }
+     ]
+    },
+    "w": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 111
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 132
+      },
+      "max_error512": 30991508.757340655
+     },
+     "natural": {
+      "0.001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 108
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 132
+      },
+      "max_error512": 29656535.582094014
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 124
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 143
+      },
+      "max_error512": 40771301.58276366
+     },
+     "worst_slices": [
+      {
+       "name": "random_71",
+       "physical": [
+        14058666.527169595,
+        0.0,
+        1253.80997838795,
+        0.7071773549662401
+       ],
+       "q": 0.0,
+       "snr": 403.6307393424593,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 160985699.4558094
+      }
+     ]
+    },
+    "radial": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 193
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 219
+      },
+      "max_error512": 1072118.1181362718
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 188
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 200
+      },
+      "max_error512": 1287248.396083653
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 855318.0984581299
+     },
+     "worst_slices": [
+      {
+       "name": "random_39",
+       "physical": [
+        2038217.3029714797,
+        133611.31010037553,
+        4522.681004916615,
+        0.26725036576587513
+       ],
+       "q": 0.06555302513897122,
+       "snr": 0.0,
+       "peak_radius": 0.1,
+       "regime": "anisotropic; lower radial boundary",
+       "error64": 20327095.014048673
+      }
+     ]
+    },
+    "eta": {
+     "catmull": {
+      "0.001": {
+       "median": 32,
+       "p99": null,
+       "max": null,
+       "unresolved": 76
+      },
+      "0.0001": {
+       "median": 96,
+       "p99": null,
+       "max": null,
+       "unresolved": 86
+      },
+      "max_error512": 34723.74426635015
+     },
+     "natural": {
+      "0.001": {
+       "median": 48,
+       "p99": null,
+       "max": null,
+       "unresolved": 73
+      },
+      "0.0001": {
+       "median": 192,
+       "p99": null,
+       "max": null,
+       "unresolved": 97
+      },
+      "max_error512": 32681.489343652494
+     },
+     "linear": {
+      "0.001": {
+       "median": 96,
+       "p99": null,
+       "max": null,
+       "unresolved": 90
+      },
+      "0.0001": {
+       "median": 256,
+       "p99": null,
+       "max": null,
+       "unresolved": 100
+      },
+      "max_error512": 34565.09170323462
+     },
+     "worst_slices": [
+      {
+       "name": "random_34",
+       "physical": [
+        2215527.448735083,
+        0.0,
+        2430.7240998671477,
+        0.26706804739769796
+       ],
+       "q": 0.0,
+       "snr": 358.1875454141985,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 39472.46920198803
+      }
+     ]
+    }
+   }
+  },
+  "radial3": {
+   "axes": {
+    "v1": {
+     "catmull": {
+      "0.001": {
+       "median": 256,
+       "p99": null,
+       "max": null,
+       "unresolved": 50
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 142
+      },
+      "max_error512": 5.135509925216656
+     },
+     "natural": {
+      "0.001": {
+       "median": 256,
+       "p99": null,
+       "max": null,
+       "unresolved": 20
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 115
+      },
+      "max_error512": 5.135510501249826
+     },
+     "linear": {
+      "0.001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 100
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 203
+      },
+      "max_error512": 5.135445769602601
+     },
+     "worst_slices": [
+      {
+       "name": "random_101",
+       "physical": [
+        11.528834248789984,
+        8.188978189399077,
+        568.2569748612636,
+        0.7108113406820289
+       ],
+       "q": 0.710304096032828,
+       "snr": 181.30725334326863,
+       "peak_radius": 58.69538250038935,
+       "regime": "anisotropic; enclosed radial peak",
+       "error64": 5.129739058995266
+      }
+     ]
+    },
+    "w": {
+     "catmull": {
+      "0.001": {
+       "median": 256,
+       "p99": null,
+       "max": null,
+       "unresolved": 100
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 112
+      },
+      "max_error512": 4.520737874701219
+     },
+     "natural": {
+      "0.001": {
+       "median": 192,
+       "p99": null,
+       "max": null,
+       "unresolved": 100
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 110
+      },
+      "max_error512": 4.5207383067310545
+     },
+     "linear": {
+      "0.001": {
+       "median": 384,
+       "p99": null,
+       "max": null,
+       "unresolved": 105
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 132
+      },
+      "max_error512": 4.520681936198251
+     },
+     "worst_slices": [
+      {
+       "name": "random_101",
+       "physical": [
+        11.528834248789984,
+        8.188978189399077,
+        568.2569748612636,
+        0.7108113406820289
+       ],
+       "q": 0.710304096032828,
+       "snr": 181.30725334326863,
+       "peak_radius": 58.69538250038935,
+       "regime": "anisotropic; enclosed radial peak",
+       "error64": 4.77443669648212
+      }
+     ]
+    },
+    "radial": {
+     "catmull": {
+      "0.001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 73
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 216
+      },
+      "max_error512": 3.9921020156290368
+     },
+     "natural": {
+      "0.001": {
+       "median": 384,
+       "p99": null,
+       "max": null,
+       "unresolved": 53
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 211
+      },
+      "max_error512": 4.072400121691743
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 192
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 3.4356275250120802
+     },
+     "worst_slices": [
+      {
+       "name": "random_144",
+       "physical": [
+        0.0796995925346908,
+        0.03875918172135548,
+        12.76103101313719,
+        0.5436916265748923
+       ],
+       "q": 0.48631593322744765,
+       "snr": 43.52025848540251,
+       "peak_radius": 100.0,
+       "regime": "anisotropic; upper radial boundary",
+       "error64": 4.809940667441541
+      }
+     ]
+    },
+    "eta": {
+     "catmull": {
+      "0.001": {
+       "median": 12,
+       "p99": null,
+       "max": null,
+       "unresolved": 57
+      },
+      "0.0001": {
+       "median": 24,
+       "p99": null,
+       "max": null,
+       "unresolved": 64
+      },
+      "max_error512": 5.476834610991091
+     },
+     "natural": {
+      "0.001": {
+       "median": 24,
+       "p99": null,
+       "max": null,
+       "unresolved": 50
+      },
+      "0.0001": {
+       "median": 64,
+       "p99": null,
+       "max": null,
+       "unresolved": 62
+      },
+      "max_error512": 4.304306084618673
+     },
+     "linear": {
+      "0.001": {
+       "median": 32,
+       "p99": null,
+       "max": null,
+       "unresolved": 54
+      },
+      "0.0001": {
+       "median": 96,
+       "p99": null,
+       "max": null,
+       "unresolved": 67
+      },
+      "max_error512": 4.8661916998505745
+     },
+     "worst_slices": [
+      {
+       "name": "random_71",
+       "physical": [
+        14058666.527169595,
+        0.0,
+        1253.80997838795,
+        0.7071773549662401
+       ],
+       "q": 0.0,
+       "snr": 403.6307393424593,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 9.624887392478655
+      }
+     ]
+    }
+   }
+  },
+  "radial3_exact": {
+   "axes": {
+    "v1": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 198
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 199
+      },
+      "max_error512": 11.26497202453013
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 198
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 198
+      },
+      "max_error512": 10.313898934176148
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 198
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 211
+      },
+      "max_error512": 12.803824406225568
+     },
+     "worst_slices": [
+      {
+       "name": "random_181",
+       "physical": [
+        0.0005207513574137714,
+        0.0,
+        0.06298460225258311,
+        0.9840865642852691
+       ],
+       "q": 0.0,
+       "snr": 3.4113514252437716,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 23.213787303211515
+      }
+     ]
+    },
+    "w": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 157
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 181
+      },
+      "max_error512": 12.397043587878791
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 157
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 178
+      },
+      "max_error512": 11.310859710028133
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 160
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 186
+      },
+      "max_error512": 14.18352620379476
+     },
+     "worst_slices": [
+      {
+       "name": "random_93",
+       "physical": [
+        38.939762795461625,
+        1.7159865656460203,
+        436.39570560770693,
+        0.5886593667772289
+       ],
+       "q": 0.04406772004902958,
+       "snr": 186.07442863772872,
+       "peak_radius": 100.0,
+       "regime": "anisotropic; upper radial boundary",
+       "error64": 26.739261427034094
+      }
+     ]
+    },
+    "radial": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 162
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 8.273365141030848
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 153
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 201
+      },
+      "max_error512": 8.317323320964476
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 218
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 7.378358961279233
+     },
+     "worst_slices": [
+      {
+       "name": "random_50",
+       "physical": [
+        0.32839631515515544,
+        0.068442580996483,
+        37.4050130887879,
+        0.48565283959371014
+       ],
+       "q": 0.20841458274020627,
+       "snr": 71.92846475048594,
+       "peak_radius": 100.0,
+       "regime": "anisotropic; upper radial boundary",
+       "error64": 7.323564873968255
+      }
+     ]
+    },
+    "eta": {
+     "catmull": {
+      "0.001": {
+       "median": 12,
+       "p99": null,
+       "max": null,
+       "unresolved": 59
+      },
+      "0.0001": {
+       "median": 24,
+       "p99": null,
+       "max": null,
+       "unresolved": 66
+      },
+      "max_error512": 18.379810007158063
+     },
+     "natural": {
+      "0.001": {
+       "median": 24,
+       "p99": null,
+       "max": null,
+       "unresolved": 50
+      },
+      "0.0001": {
+       "median": 64,
+       "p99": null,
+       "max": null,
+       "unresolved": 63
+      },
+      "max_error512": 13.03023814505794
+     },
+     "linear": {
+      "0.001": {
+       "median": 32,
+       "p99": null,
+       "max": null,
+       "unresolved": 55
+      },
+      "0.0001": {
+       "median": 128,
+       "p99": null,
+       "max": null,
+       "unresolved": 68
+      },
+      "max_error512": 16.31043689526557
+     },
+     "worst_slices": [
+      {
+       "name": "random_52",
+       "physical": [
+        96.08281802945862,
+        0.0,
+        72.75013458457471,
+        1.077375215947591
+       ],
+       "q": 0.0,
+       "snr": 113.2552015761001,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 32.37558182378319
+      }
+     ]
+    }
+   }
+  },
+  "weak_absolute": {
+   "axes": {
+    "v1": {
+     "catmull": {
+      "0.001": {
+       "median": 96,
+       "p99": null,
+       "max": null,
+       "unresolved": 42
+      },
+      "0.0001": {
+       "median": 384,
+       "p99": null,
+       "max": null,
+       "unresolved": 70
+      },
+      "max_error512": 0.7430127051270823
+     },
+     "natural": {
+      "0.001": {
+       "median": 64,
+       "p99": null,
+       "max": null,
+       "unresolved": 38
+      },
+      "0.0001": {
+       "median": 256,
+       "p99": null,
+       "max": null,
+       "unresolved": 65
+      },
+      "max_error512": 0.6666294860937878
+     },
+     "linear": {
+      "0.001": {
+       "median": 192,
+       "p99": null,
+       "max": null,
+       "unresolved": 54
+      },
+      "0.0001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 102
+      },
+      "max_error512": 0.8740950193549217
+     },
+     "worst_slices": [
+      {
+       "name": "random_15",
+       "physical": [
+        2451575.084290601,
+        951244.0635551402,
+        0.0,
+        0.0
+       ],
+       "q": 0.3880134325277647,
+       "snr": 0.0,
+       "peak_radius": 0.1,
+       "regime": "anisotropic; no linear signal",
+       "error64": 1.9980351747831033
+      }
+     ]
+    },
+    "w": {
+     "catmull": {
+      "0.001": {
+       "median": 192,
+       "p99": null,
+       "max": null,
+       "unresolved": 90
+      },
+      "0.0001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 105
+      },
+      "max_error512": 2.650117498088413
+     },
+     "natural": {
+      "0.001": {
+       "median": 128,
+       "p99": null,
+       "max": null,
+       "unresolved": 90
+      },
+      "0.0001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 104
+      },
+      "max_error512": 2.6104754037209403
+     },
+     "linear": {
+      "0.001": {
+       "median": 384,
+       "p99": null,
+       "max": null,
+       "unresolved": 101
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 133
+      },
+      "max_error512": 2.4840191831022054
+     },
+     "worst_slices": [
+      {
+       "name": "random_15",
+       "physical": [
+        2451575.084290601,
+        951244.0635551402,
+        0.0,
+        0.0
+       ],
+       "q": 0.3880134325277647,
+       "snr": 0.0,
+       "peak_radius": 0.1,
+       "regime": "anisotropic; no linear signal",
+       "error64": 3.139747097594338
+      }
+     ]
+    },
+    "radial": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 157
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 2.5791133431807225
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 137
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 176
+      },
+      "max_error512": 2.3438589082553456
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 2.9706341859703684
+     },
+     "worst_slices": [
+      {
+       "name": "large_lam1_rho_300",
+       "physical": [
+        99999999.99999973,
+        99999999.99999973,
+        5449999.999999999,
+        0.29999999999999993
+       ],
+       "q": 1.0,
+       "snr": 300.00000000000404,
+       "peak_radius": 0.1,
+       "regime": "isotropic; lower radial boundary",
+       "error64": 5.790479767340264
+      }
+     ]
+    },
+    "eta": {
+     "catmull": {
+      "0.001": {
+       "median": 12,
+       "p99": null,
+       "max": null,
+       "unresolved": 59
+      },
+      "0.0001": {
+       "median": 24,
+       "p99": null,
+       "max": null,
+       "unresolved": 65
+      },
+      "max_error512": 5.476834610991091
+     },
+     "natural": {
+      "0.001": {
+       "median": 24,
+       "p99": null,
+       "max": null,
+       "unresolved": 50
+      },
+      "0.0001": {
+       "median": 64,
+       "p99": null,
+       "max": null,
+       "unresolved": 63
+      },
+      "max_error512": 4.3750652713244484
+     },
+     "linear": {
+      "0.001": {
+       "median": 32,
+       "p99": null,
+       "max": null,
+       "unresolved": 53
+      },
+      "0.0001": {
+       "median": 96,
+       "p99": null,
+       "max": null,
+       "unresolved": 69
+      },
+      "max_error512": 4.8661916998505745
+     },
+     "worst_slices": [
+      {
+       "name": "random_71",
+       "physical": [
+        14058666.527169595,
+        0.0,
+        1253.80997838795,
+        0.7071773549662401
+       ],
+       "q": 0.0,
+       "snr": 403.6307393424593,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 9.624887392478655
+      }
+     ]
+    }
+   }
+  },
+  "weak_q": {
+   "axes": {
+    "v1": {
+     "catmull": {
+      "0.001": {
+       "median": 256,
+       "p99": null,
+       "max": null,
+       "unresolved": 55
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 127
+      },
+      "max_error512": 0.11973456826507878
+     },
+     "natural": {
+      "0.001": {
+       "median": 192,
+       "p99": null,
+       "max": null,
+       "unresolved": 27
+      },
+      "0.0001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 107
+      },
+      "max_error512": 0.12014993001107932
+     },
+     "linear": {
+      "0.001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 98
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 194
+      },
+      "max_error512": 0.1098258826894174
+     },
+     "worst_slices": [
+      {
+       "name": "random_54",
+       "physical": [
+        42389306.26707732,
+        0.0,
+        11579.395630666251,
+        0.007885670211349782
+       ],
+       "q": 0.0,
+       "snr": 135.1489278205334,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 0.8410143200564448
+      }
+     ]
+    },
+    "w": {
+     "catmull": {
+      "0.001": {
+       "median": 192,
+       "p99": null,
+       "max": null,
+       "unresolved": 75
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 117
+      },
+      "max_error512": 2.799464431341523
+     },
+     "natural": {
+      "0.001": {
+       "median": 192,
+       "p99": null,
+       "max": null,
+       "unresolved": 75
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 110
+      },
+      "max_error512": 2.7570650045918264
+     },
+     "linear": {
+      "0.001": {
+       "median": 384,
+       "p99": null,
+       "max": null,
+       "unresolved": 93
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 151
+      },
+      "max_error512": 2.683180364873575
+     },
+     "worst_slices": [
+      {
+       "name": "random_121",
+       "physical": [
+        436.9806221743664,
+        432.8751907446809,
+        262.7129741203938,
+        0.3852833779545691
+       ],
+       "q": 0.9906050034684437,
+       "snr": 12.575959129419019,
+       "peak_radius": 0.6020091279602532,
+       "regime": "anisotropic; enclosed radial peak",
+       "error64": 2.421642502570805
+      }
+     ]
+    },
+    "radial": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 157
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 2.5791133431807225
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 137
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 176
+      },
+      "max_error512": 2.3438589082553456
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 2.9706341859703684
+     },
+     "worst_slices": [
+      {
+       "name": "large_lam1_rho_300",
+       "physical": [
+        99999999.99999973,
+        99999999.99999973,
+        5449999.999999999,
+        0.29999999999999993
+       ],
+       "q": 1.0,
+       "snr": 300.00000000000404,
+       "peak_radius": 0.1,
+       "regime": "isotropic; lower radial boundary",
+       "error64": 5.790479767340264
+      }
+     ]
+    },
+    "eta": {
+     "catmull": {
+      "0.001": {
+       "median": 12,
+       "p99": null,
+       "max": null,
+       "unresolved": 59
+      },
+      "0.0001": {
+       "median": 24,
+       "p99": null,
+       "max": null,
+       "unresolved": 65
+      },
+      "max_error512": 5.476834610991091
+     },
+     "natural": {
+      "0.001": {
+       "median": 24,
+       "p99": null,
+       "max": null,
+       "unresolved": 50
+      },
+      "0.0001": {
+       "median": 64,
+       "p99": null,
+       "max": null,
+       "unresolved": 63
+      },
+      "max_error512": 4.3750652713244484
+     },
+     "linear": {
+      "0.001": {
+       "median": 32,
+       "p99": null,
+       "max": null,
+       "unresolved": 53
+      },
+      "0.0001": {
+       "median": 96,
+       "p99": null,
+       "max": null,
+       "unresolved": 69
+      },
+      "max_error512": 4.8661916998505745
+     },
+     "worst_slices": [
+      {
+       "name": "random_71",
+       "physical": [
+        14058666.527169595,
+        0.0,
+        1253.80997838795,
+        0.7071773549662401
+       ],
+       "q": 0.0,
+       "snr": 403.6307393424593,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 9.624887392478655
+      }
+     ]
+    }
+   }
+  },
+  "symmetric": {
+   "axes": {
+    "v1": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 148
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 191
+      },
+      "max_error512": 5.952345063357846
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 140
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 186
+      },
+      "max_error512": 5.883230570163121
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 168
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 209
+      },
+      "max_error512": 5.884001047423368
+     },
+     "worst_slices": [
+      {
+       "name": "random_16",
+       "physical": [
+        0.0020492071592729385,
+        0.001522482907434892,
+        1.5785052797822645,
+        0.8751657780530602
+       ],
+       "q": 0.7429619306888772,
+       "snr": 17.272960669107988,
+       "peak_radius": 100.0,
+       "regime": "anisotropic; upper radial boundary",
+       "error64": 10.252080463106488
+      }
+     ]
+    },
+    "w": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 116
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 122
+      },
+      "max_error512": 5.204761578821973
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 116
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 121
+      },
+      "max_error512": 5.125471055406244
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 120
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 144
+      },
+      "max_error512": 4.997909814119723
+     },
+     "worst_slices": [
+      {
+       "name": "random_54",
+       "physical": [
+        42389306.26707732,
+        0.0,
+        11579.395630666266,
+        0.007885670211349782
+       ],
+       "q": 0.0,
+       "snr": 135.14892782053352,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 7.593534241613355
+      }
+     ]
+    },
+    "radial": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 164
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 219
+      },
+      "max_error512": 5.231040637596067
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 139
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 186
+      },
+      "max_error512": 5.488063296200011
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 4.540374242441089
+     },
+     "worst_slices": [
+      {
+       "name": "random_25",
+       "physical": [
+        191.6602812067883,
+        14.094541368192775,
+        93.54313106936591,
+        0.7964493469726883
+       ],
+       "q": 0.07353918756377974,
+       "snr": 18.428202203405647,
+       "peak_radius": 4.7567839268815275,
+       "regime": "anisotropic; enclosed radial peak",
+       "error64": 7.932949673768256
+      }
+     ]
+    },
+    "eta": {
+     "catmull": {
+      "0.001": {
+       "median": 12,
+       "p99": null,
+       "max": null,
+       "unresolved": 62
+      },
+      "0.0001": {
+       "median": 24,
+       "p99": null,
+       "max": null,
+       "unresolved": 69
+      },
+      "max_error512": 5.476834610991091
+     },
+     "natural": {
+      "0.001": {
+       "median": 24,
+       "p99": null,
+       "max": null,
+       "unresolved": 53
+      },
+      "0.0001": {
+       "median": 64,
+       "p99": null,
+       "max": null,
+       "unresolved": 63
+      },
+      "max_error512": 3.8908182121141053
+     },
+     "linear": {
+      "0.001": {
+       "median": 32,
+       "p99": null,
+       "max": null,
+       "unresolved": 56
+      },
+      "0.0001": {
+       "median": 96,
+       "p99": null,
+       "max": null,
+       "unresolved": 73
+      },
+      "max_error512": 4.8661916998505745
+     },
+     "worst_slices": [
+      {
+       "name": "random_71",
+       "physical": [
+        14058666.527169595,
+        0.0,
+        1253.80997838795,
+        0.7071773549662401
+       ],
+       "q": 0.0,
+       "snr": 403.6307393424593,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 9.624887392478655
+      }
+     ]
+    }
+   }
+  },
+  "angle_cos": {
+   "axes": {
+    "v1": {
+     "catmull": {
+      "0.001": {
+       "median": 256,
+       "p99": null,
+       "max": null,
+       "unresolved": 51
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 129
+      },
+      "max_error512": 0.24735535975863598
+     },
+     "natural": {
+      "0.001": {
+       "median": 192,
+       "p99": null,
+       "max": null,
+       "unresolved": 32
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 115
+      },
+      "max_error512": 0.24733629500186183
+     },
+     "linear": {
+      "0.001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 103
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 194
+      },
+      "max_error512": 0.24832441633972024
+     },
+     "worst_slices": [
+      {
+       "name": "random_54",
+       "physical": [
+        42389306.26707732,
+        0.0,
+        11579.395630667072,
+        0.007885670211349224
+       ],
+       "q": 0.0,
+       "snr": 135.14892782053258,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 0.8410143199505171
+      }
+     ]
+    },
+    "w": {
+     "catmull": {
+      "0.001": {
+       "median": 192,
+       "p99": null,
+       "max": null,
+       "unresolved": 90
+      },
+      "0.0001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 105
+      },
+      "max_error512": 2.6501174980883917
+     },
+     "natural": {
+      "0.001": {
+       "median": 128,
+       "p99": null,
+       "max": null,
+       "unresolved": 90
+      },
+      "0.0001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 104
+      },
+      "max_error512": 2.6104754037209155
+     },
+     "linear": {
+      "0.001": {
+       "median": 384,
+       "p99": null,
+       "max": null,
+       "unresolved": 101
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 133
+      },
+      "max_error512": 2.484019183102184
+     },
+     "worst_slices": [
+      {
+       "name": "random_15",
+       "physical": [
+        2451575.084290601,
+        951244.0635551402,
+        0.0,
+        0.0
+       ],
+       "q": 0.3880134325277647,
+       "snr": 0.0,
+       "peak_radius": 0.1,
+       "regime": "anisotropic; no linear signal",
+       "error64": 3.1397470975938404
+      }
+     ]
+    },
+    "radial": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 157
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 2.5791133431444138
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 137
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 176
+      },
+      "max_error512": 2.343858908210535
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 2.9706341859413214
+     },
+     "worst_slices": [
+      {
+       "name": "large_lam1_rho_100",
+       "physical": [
+        99999999.99999973,
+        99999999.99999973,
+        5049999.999999978,
+        0.3
+       ],
+       "q": 1.0,
+       "snr": 99.99999999999069,
+       "peak_radius": 0.1,
+       "regime": "isotropic; lower radial boundary",
+       "error64": 5.7904797673343165
+      }
+     ]
+    },
+    "eta": {
+     "catmull": {
+      "0.001": {
+       "median": 24,
+       "p99": null,
+       "max": null,
+       "unresolved": 76
+      },
+      "0.0001": {
+       "median": 64,
+       "p99": null,
+       "max": null,
+       "unresolved": 84
+      },
+      "max_error512": 4.871727019717085
+     },
+     "natural": {
+      "0.001": {
+       "median": 16,
+       "p99": null,
+       "max": null,
+       "unresolved": 76
+      },
+      "0.0001": {
+       "median": 64,
+       "p99": null,
+       "max": null,
+       "unresolved": 82
+      },
+      "max_error512": 4.397052394783049
+     },
+     "linear": {
+      "0.001": {
+       "median": 24,
+       "p99": null,
+       "max": null,
+       "unresolved": 77
+      },
+      "0.0001": {
+       "median": 96,
+       "p99": null,
+       "max": null,
+       "unresolved": 85
+      },
+      "max_error512": 5.665468374801007
+     },
+     "worst_slices": [
+      {
+       "name": "strong_anisotropy",
+       "physical": [
+        10000.0,
+        10.000000000000007,
+        30.000000000000018,
+        1.560796326794896
+       ],
+       "q": 0.0010000000000000007,
+       "snr": 9.486359117158491,
+       "peak_radius": 2.999850001399998,
+       "regime": "anisotropic; enclosed radial peak",
+       "error64": 11.44281686950605
+      }
+     ]
+    }
+   }
+  },
+  "combined": {
+   "axes": {
+    "v1": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 132
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 158
+      },
+      "max_error512": 2854.535932854026
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 119
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 152
+      },
+      "max_error512": 2869.7412799128556
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 149
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 208
+      },
+      "max_error512": 2719.1247109694314
+     },
+     "worst_slices": [
+      {
+       "name": "random_198",
+       "physical": [
+        235868.91321631602,
+        1409.3930829766662,
+        55363.71477664855,
+        0.7448919156380795
+       ],
+       "q": 0.005975323597154611,
+       "snr": 1003.207039263194,
+       "peak_radius": 26.629495652519125,
+       "regime": "anisotropic; enclosed radial peak",
+       "error64": 8860.992669577243
+      }
+     ]
+    },
+    "w": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 123
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 130
+      },
+      "max_error512": 26106189.999529704
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 121
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 127
+      },
+      "max_error512": 23832916.79545534
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 130
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 149
+      },
+      "max_error512": 27137720.25648611
+     },
+     "worst_slices": [
+      {
+       "name": "random_71",
+       "physical": [
+        14058666.527169595,
+        0.0,
+        1253.80997838795,
+        0.7071773549662401
+       ],
+       "q": 0.0,
+       "snr": 403.6307393424593,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 38818867.85394868
+      }
+     ]
+    },
+    "radial": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 181
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 219
+      },
+      "max_error512": 1167859.8682759162
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 172
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 201
+      },
+      "max_error512": 1016851.9323893869
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 1497926.0445328308
+     },
+     "worst_slices": [
+      {
+       "name": "random_169",
+       "physical": [
+        96581792.49371888,
+        7164043.560675656,
+        175693.95294887607,
+        0.5727870336189427
+       ],
+       "q": 0.07417592255954003,
+       "snr": 0.0,
+       "peak_radius": 0.1,
+       "regime": "anisotropic; lower radial boundary",
+       "error64": 17324314.585501254
+      }
+     ]
+    },
+    "eta": {
+     "catmull": {
+      "0.001": {
+       "median": 64,
+       "p99": null,
+       "max": null,
+       "unresolved": 95
+      },
+      "0.0001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 107
+      },
+      "max_error512": 41013.54248782626
+     },
+     "natural": {
+      "0.001": {
+       "median": 48,
+       "p99": null,
+       "max": null,
+       "unresolved": 94
+      },
+      "0.0001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 107
+      },
+      "max_error512": 32062.997884768178
+     },
+     "linear": {
+      "0.001": {
+       "median": 64,
+       "p99": null,
+       "max": null,
+       "unresolved": 99
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 110
+      },
+      "max_error512": 56809.966604470974
+     },
+     "worst_slices": [
+      {
+       "name": "random_198",
+       "physical": [
+        235868.91321631602,
+        1409.3930829766662,
+        55363.71477664855,
+        0.7448919156380795
+       ],
+       "q": 0.005975323597154611,
+       "snr": 1003.207039263194,
+       "peak_radius": 26.629495652519125,
+       "regime": "anisotropic; enclosed radial peak",
+       "error64": 220836.3621514563
+      }
+     ]
+    }
+   }
+  },
+  "combined_exact": {
+   "axes": {
+    "v1": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 189
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 197
+      },
+      "max_error512": 2899.2738975216994
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 189
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 197
+      },
+      "max_error512": 2914.7169674251854
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 189
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 216
+      },
+      "max_error512": 2761.7643776969517
+     },
+     "worst_slices": [
+      {
+       "name": "random_198",
+       "physical": [
+        235868.91321631602,
+        1409.3930829766662,
+        55363.71477664846,
+        0.7448919156380795
+       ],
+       "q": 0.005975323597154611,
+       "snr": 1003.2070392631924,
+       "peak_radius": 26.629495652519086,
+       "regime": "anisotropic; enclosed radial peak",
+       "error64": 8860.98748447881
+      }
+     ]
+    },
+    "w": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 153
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 164
+      },
+      "max_error512": 26106189.99954164
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 152
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 162
+      },
+      "max_error512": 23832916.79546781
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 157
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 176
+      },
+      "max_error512": 27137720.256497554
+     },
+     "worst_slices": [
+      {
+       "name": "random_71",
+       "physical": [
+        14058666.527169595,
+        0.0,
+        1253.80997838795,
+        0.7071773549662401
+       ],
+       "q": 0.0,
+       "snr": 403.6307393424593,
+       "peak_radius": 100.0,
+       "regime": "null weak eigenvalue; upper radial boundary",
+       "error64": 38818867.85394866
+      }
+     ]
+    },
+    "radial": {
+     "catmull": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 187
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 219
+      },
+      "max_error512": 2582740.3589164275
+     },
+     "natural": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 180
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 203
+      },
+      "max_error512": 2590341.3620374054
+     },
+     "linear": {
+      "0.001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 220
+      },
+      "max_error512": 2376549.7532131462
+     },
+     "worst_slices": [
+      {
+       "name": "random_169",
+       "physical": [
+        96581792.49371888,
+        7164043.560675656,
+        175693.9529488759,
+        0.5727870336189427
+       ],
+       "q": 0.07417592255954003,
+       "snr": 0.0,
+       "peak_radius": 0.1,
+       "regime": "anisotropic; lower radial boundary",
+       "error64": 17324314.587683707
+      }
+     ]
+    },
+    "eta": {
+     "catmull": {
+      "0.001": {
+       "median": 64,
+       "p99": null,
+       "max": null,
+       "unresolved": 97
+      },
+      "0.0001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 107
+      },
+      "max_error512": 41013.54106151496
+     },
+     "natural": {
+      "0.001": {
+       "median": 48,
+       "p99": null,
+       "max": null,
+       "unresolved": 95
+      },
+      "0.0001": {
+       "median": 512,
+       "p99": null,
+       "max": null,
+       "unresolved": 106
+      },
+      "max_error512": 32062.99672498979
+     },
+     "linear": {
+      "0.001": {
+       "median": 96,
+       "p99": null,
+       "max": null,
+       "unresolved": 99
+      },
+      "0.0001": {
+       "median": null,
+       "p99": null,
+       "max": null,
+       "unresolved": 110
+      },
+      "max_error512": 56809.96464638651
+     },
+     "worst_slices": [
+      {
+       "name": "random_198",
+       "physical": [
+        235868.91321631602,
+        1409.3930829766662,
+        55363.71477664846,
+        0.7448919156380795
+       ],
+       "q": 0.005975323597154611,
+       "snr": 1003.2070392631924,
+       "peak_radius": 26.629495652519086,
+       "regime": "anisotropic; enclosed radial peak",
+       "error64": 220836.35439698378
+      }
+     ]
+    }
+   }
+  }
+ },
+ "generator_checks": {
+  "n": 20,
+  "max_abs_error": 9.966578545572702e-06
+ },
+ "notes": [
+  "Null = no resolution <=512 passes all finer tested grids. Sampled diagnostics, not certificates.",
+  "Old physical radial envelope is retained for every design. Exterior bases are projected.",
+  "Weak absolute uses valid triangular intervals, rescaled to [0,1] separately on each slice; counts are optimistic for a global rectangle.",
+  "Weak absolute and baseline weak slices are mathematically identical at fixed lam1; their v1 slices differ.",
+  "s3 uses c=co/(b+sigma0^2), k_a=1, sigma0=1/(xmax-xmin), to include b=0 continuously.",
+  "radial3_exact uses literal c=co/b for b>0 and the regularized convention only at b=0; its inverse uses bracketed Newton in asinh(R/scale).",
+  "Two-ended q stretch has eps=1/(1+lam1*xmax^2); symmetric averages ridge and linear-direction coordinates.",
+  "Proxy normalizations pair signed angles, use b+2*T/xmax^2 and add T to remove radial degeneracy. Fixed angular scans are not certified upper envelopes.",
+  "Integral proxy is 64 paired angles on [0,pi); softmax is 64 full-circle angles, T=1.",
+  "Uniform eta uses even-reflected Catmull tangents. Cos(2eta) uses ordinary edge tangents; even symmetry does not imply zero derivative there."
+ ],
+ "reused_previous_elapsed_s": 713.7477411380005,
+ "reused_designs": [
+  "baseline",
+  "norm_integral_raw",
+  "norm_softmax_raw",
+  "norm_integral",
+  "norm_softmax",
+  "radial3",
+  "weak_absolute",
+  "weak_q",
+  "symmetric",
+  "angle_cos",
+  "combined"
+ ],
+ "diagnostics": {
+  "cusp_slopes": {
+   "0": [
+    {
+     "epsilon": 0.001,
+     "right": -99.99997342864341,
+     "left": 99.99997342864341
+    },
+    {
+     "epsilon": 0.0001,
+     "right": -99.99999893489874,
+     "left": 99.99999893490762
+    },
+    {
+     "epsilon": 9.999999999999999e-06,
+     "right": -99.99999996965771,
+     "left": 99.99999996965771
+    },
+    {
+     "epsilon": 1e-06,
+     "right": -100.00000002285958,
+     "left": 100.00000002285958
+    },
+    {
+     "epsilon": 1e-07,
+     "right": -100.00000005838672,
+     "left": 100.00000005838672
+    },
+    {
+     "epsilon": 1e-08,
+     "right": -99.99999921461722,
+     "left": 99.99999921461722
+    }
+   ],
+   "1": [
+    {
+     "epsilon": 0.001,
+     "right": -0.23415749710808953,
+     "left": 0.23415749710808953
+    },
+    {
+     "epsilon": 0.0001,
+     "right": -0.015585739387979913,
+     "left": 0.015585739387979913
+    },
+    {
+     "epsilon": 9.999999999999999e-06,
+     "right": -2.0206059048177852e-08,
+     "left": 2.025046796916286e-08
+    },
+    {
+     "epsilon": 1e-06,
+     "right": -3.6415315207705135e-08,
+     "left": 3.597122599785507e-08
+    },
+    {
+     "epsilon": 1e-07,
+     "right": -4.440892098500626e-09,
+     "left": 4.440892098500626e-09
+    },
+    {
+     "epsilon": 1e-08,
+     "right": 1.3322676295501878e-07,
+     "left": -1.7763568394002505e-07
+    }
+   ],
+   "2": [
+    {
+     "epsilon": 0.001,
+     "right": -0.4682651240068836,
+     "left": 0.4682651240068836
+    },
+    {
+     "epsilon": 0.0001,
+     "right": -0.03117185750411977,
+     "left": 0.031171857513001555
+    },
+    {
+     "epsilon": 9.999999999999999e-06,
+     "right": -2.0161650127192846e-08,
+     "left": 2.0161650127192846e-08
+    },
+    {
+     "epsilon": 1e-06,
+     "right": -3.552713678800501e-08,
+     "left": 3.552713678800501e-08
+    },
+    {
+     "epsilon": 1e-07,
+     "right": 0.0,
+     "left": 0.0
+    },
+    {
+     "epsilon": 1e-08,
+     "right": 1.7763568394002505e-07,
+     "left": -1.7763568394002505e-07
+    }
+   ],
+   "3": [
+    {
+     "epsilon": 0.001,
+     "right": -10.183106801058273,
+     "left": 10.183106801058273
+    },
+    {
+     "epsilon": 0.0001,
+     "right": -9.775518959225238,
+     "left": 9.775518959229679
+    },
+    {
+     "epsilon": 9.999999999999999e-06,
+     "right": -9.735828684798165,
+     "left": 9.735828684842573
+    },
+    {
+     "epsilon": 1e-06,
+     "right": -9.731870162177358,
+     "left": 9.731870162177358
+    },
+    {
+     "epsilon": 1e-07,
+     "right": -9.731474381879934,
+     "left": 9.731474386320826
+    },
+    {
+     "epsilon": 1e-08,
+     "right": -9.731434591486732,
+     "left": 9.731434591486732
+    }
+   ],
+   "4": [
+    {
+     "epsilon": 0.001,
+     "right": -20.26356693884601,
+     "left": 20.26356693884601
+    },
+    {
+     "epsilon": 0.0001,
+     "right": -19.54149129756999,
+     "left": 19.541491297578872
+    },
+    {
+     "epsilon": 9.999999999999999e-06,
+     "right": -19.470709300684064,
+     "left": 19.470709300684064
+    },
+    {
+     "epsilon": 1e-06,
+     "right": -19.463645303474664,
+     "left": 19.463645303474664
+    },
+    {
+     "epsilon": 1e-07,
+     "right": -19.46293901156082,
+     "left": 19.46293901156082
+    },
+    {
+     "epsilon": 1e-08,
+     "right": -19.462868294795044,
+     "left": 19.462868205977202
+    }
+   ]
+  },
+  "q1_limit": [
+   {
+    "q": 1.0,
+    "geometry": 0,
+    "F_range": 9.458744898438454e-11,
+    "u_range": 5.551115123125783e-17
+   },
+   {
+    "q": 1.0,
+    "geometry": 1,
+    "F_range": 9.458744898438454e-11,
+    "u_range": 5.551115123125783e-17
+   },
+   {
+    "q": 0.999999999999,
+    "geometry": 0,
+    "F_range": 2.6193447411060333e-10,
+    "u_range": 2.42861286636753e-14
+   },
+   {
+    "q": 0.999999999999,
+    "geometry": 1,
+    "F_range": 2.6193447411060333e-10,
+    "u_range": 2.42861286636753e-14
+   },
+   {
+    "q": 0.999999999,
+    "geometry": 0,
+    "F_range": 3.8562575355172157e-10,
+    "u_range": 2.4165752732230317e-11
+   },
+   {
+    "q": 0.999999999,
+    "geometry": 1,
+    "F_range": 3.8562575355172157e-10,
+    "u_range": 2.4165752732230317e-11
+   },
+   {
+    "q": 0.999999,
+    "geometry": 0,
+    "F_range": 3.629102138802409e-07,
+    "u_range": 2.4165718703894612e-08
+   },
+   {
+    "q": 0.999999,
+    "geometry": 1,
+    "F_range": 3.629102138802409e-07,
+    "u_range": 2.4165718703894612e-08
+   },
+   {
+    "q": 0.999,
+    "geometry": 0,
+    "F_range": 0.00036531584191834554,
+    "u_range": 2.41980180709922e-05
+   },
+   {
+    "q": 0.999,
+    "geometry": 1,
+    "F_range": 0.00036531584191834554,
+    "u_range": 2.41980180709922e-05
+   }
+  ],
+  "q1_transition": [
+   {
+    "R": 0.0,
+    "q": 1.0,
+    "delta_lambda_xmin2": 0.0,
+    "F": -12.716903268301394,
+    "F_minus_q1": 0.0,
+    "radial_u": [
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "R": 0.0,
+    "q": 0.999999999999,
+    "delta_lambda_xmin2": 1e-06,
+    "F": -12.716903518303297,
+    "F_minus_q1": -2.500019036233425e-07,
+    "radial_u": [
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "R": 0.0,
+    "q": 0.99999999999,
+    "delta_lambda_xmin2": 9.999999999999999e-06,
+    "F": -12.716905768378638,
+    "F_minus_q1": -2.5000772438943386e-06,
+    "radial_u": [
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "R": 0.0,
+    "q": 0.9999999999,
+    "delta_lambda_xmin2": 0.0001,
+    "F": -12.71692826814251,
+    "F_minus_q1": -2.499984111636877e-05,
+    "radial_u": [
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "R": 0.0,
+    "q": 0.999999999,
+    "delta_lambda_xmin2": 0.001,
+    "F": -12.71715325221885,
+    "F_minus_q1": -0.00024998391745612025,
+    "radial_u": [
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "R": 0.0,
+    "q": 0.99999999,
+    "delta_lambda_xmin2": 0.01,
+    "F": -12.719401700771414,
+    "F_minus_q1": -0.0024984324700199068,
+    "radial_u": [
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "R": 0.0,
+    "q": 0.9999999,
+    "delta_lambda_xmin2": 0.09999999999999999,
+    "F": -12.741746973770205,
+    "F_minus_q1": -0.024843705468811095,
+    "radial_u": [
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "R": 0.0,
+    "q": 0.999999,
+    "delta_lambda_xmin2": 1.0,
+    "F": -12.951338320970535,
+    "F_minus_q1": -0.23443505266914144,
+    "radial_u": [
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "R": 0.0,
+    "q": 0.99999,
+    "delta_lambda_xmin2": 10.0,
+    "F": -14.026055772148538,
+    "F_minus_q1": -1.3091525038471445,
+    "radial_u": [
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "R": 0.0,
+    "q": 0.9999,
+    "delta_lambda_xmin2": 100.0,
+    "F": -15.240076269372366,
+    "F_minus_q1": -2.5231730010709725,
+    "radial_u": [
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "R": 0.0,
+    "q": 0.999,
+    "delta_lambda_xmin2": 1000.0,
+    "F": -16.395071762963198,
+    "F_minus_q1": -3.6781684946618043,
+    "radial_u": [
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "R": 0.0,
+    "q": 0.99,
+    "delta_lambda_xmin2": 10000.0,
+    "F": -17.53776552178897,
+    "F_minus_q1": -4.820862253487576,
+    "radial_u": [
+     0.0,
+     0.0
+    ]
+   },
+   {
+    "R": 5450000.0,
+    "q": 1.0,
+    "delta_lambda_xmin2": 0.0,
+    "F": -19.45266397423984,
+    "F_minus_q1": 0.0,
+    "radial_u": [
+     0.017089775815661606,
+     0.0170897758156616
+    ]
+   },
+   {
+    "R": 5450000.0,
+    "q": 0.999999999999,
+    "delta_lambda_xmin2": 1e-06,
+    "F": -19.45266397427622,
+    "F_minus_q1": -3.637978807091713e-11,
+    "radial_u": [
+     0.01708977581566387,
+     0.017089775815663864
+    ]
+   },
+   {
+    "R": 5450000.0,
+    "q": 0.99999999999,
+    "delta_lambda_xmin2": 9.999999999999999e-06,
+    "F": -19.452663974290772,
+    "F_minus_q1": -5.093170329928398e-11,
+    "radial_u": [
+     0.017089775815684657,
+     0.017089775815684657
+    ]
+   },
+   {
+    "R": 5450000.0,
+    "q": 0.9999999999,
+    "delta_lambda_xmin2": 0.0001,
+    "F": -19.45266397415253,
+    "F_minus_q1": 8.731149137020111e-11,
+    "radial_u": [
+     0.01708977581589175,
+     0.017089775815891745
+    ]
+   },
+   {
+    "R": 5450000.0,
+    "q": 0.999999999,
+    "delta_lambda_xmin2": 0.001,
+    "F": -19.452663973315794,
+    "F_minus_q1": 9.240466170012951e-10,
+    "radial_u": [
+     0.01708977581796369,
+     0.01708977581796369
+    ]
+   },
+   {
+    "R": 5450000.0,
+    "q": 0.99999999,
+    "delta_lambda_xmin2": 0.01,
+    "F": -19.452663964730164,
+    "F_minus_q1": 9.509676601737738e-09,
+    "radial_u": [
+     0.01708977583868211,
+     0.0170897758386821
+    ]
+   },
+   {
+    "R": 5450000.0,
+    "q": 0.9999999,
+    "delta_lambda_xmin2": 0.09999999999999999,
+    "F": -19.452663879354077,
+    "F_minus_q1": 9.488576324656606e-08,
+    "radial_u": [
+     0.017089776045866527,
+     0.01708977604586648
+    ]
+   },
+   {
+    "R": 5450000.0,
+    "q": 0.999999,
+    "delta_lambda_xmin2": 1.0,
+    "F": -19.45266302517848,
+    "F_minus_q1": 9.490613592788577e-07,
+    "radial_u": [
+     0.01708977811771401,
+     0.017089778117715893
+    ]
+   },
+   {
+    "R": 5450000.0,
+    "q": 0.99999,
+    "delta_lambda_xmin2": 10.0,
+    "F": -19.45265448289865,
+    "F_minus_q1": 9.491341188549995e-06,
+    "radial_u": [
+     0.017089798836499984,
+     0.017089798836679618
+    ]
+   },
+   {
+    "R": 5450000.0,
+    "q": 0.9999,
+    "delta_lambda_xmin2": 100.0,
+    "F": -19.45256905572751,
+    "F_minus_q1": 9.49185123317875e-05,
+    "radial_u": [
+     0.01709000605545034,
+     0.017090006073412854
+    ]
+   },
+   {
+    "R": 5450000.0,
+    "q": 0.999,
+    "delta_lambda_xmin2": 1000.0,
+    "F": -19.45171424491855,
+    "F_minus_q1": 0.0009497293212916702,
+    "radial_u": [
+     0.017092081358243905,
+     0.017092083156458278
+    ]
+   },
+   {
+    "R": 5450000.0,
+    "q": 0.99,
+    "delta_lambda_xmin2": 10000.0,
+    "F": -19.443112390305032,
+    "F_minus_q1": 0.00955158393480815,
+    "radial_u": [
+     0.01711314996089768,
+     0.017113332053319993
+    ]
+   }
+  ],
+  "normalization_median_ns": {
+   "0": 3012.203636363636,
+   "1": 1643.4936363636364,
+   "2": 893.3531818181818
+  },
+  "isotropic_eta_remainder_range": {
+   "0": 5.842885002493858e-07,
+   "1": 163.45066280425817,
+   "2": 655.7832210006673
+  }
+ },
+ "prototype": {
+  "eligible": false,
+  "p99_counts": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "p99_entry_lower_bound": 69257922561,
+  "literal_p99_counts": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "reason": "Combined 99th-percentile axis counts exceed ~70; skip prototype."
+ },
+ "elapsed_s": 222.40152566599863,
+ "worst_slice_generator_checks": {
+  "n": 3,
+  "max_abs_error": 3.0522261385002025e-08
+ }
+}
