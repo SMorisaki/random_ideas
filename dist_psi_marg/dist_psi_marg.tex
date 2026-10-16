@@ -1,0 +1,358 @@
+\documentclass[12pt]{article}
+
+\setlength{\textwidth}{16.1cm}
+\setlength{\textheight}{21.5cm}
+\setlength{\oddsidemargin}{0.cm}
+\setlength{\evensidemargin}{0.cm} 
+\setlength{\topmargin}{0.cm}
+\setlength{\footskip}{1cm}
+\setlength{\arraycolsep}{2pt}
+%\usepackage{epsf}
+\usepackage{amsmath}
+%\usepackage{cite}
+\usepackage{siunitx}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{latexsym}
+\usepackage{color}
+%\usepackage[dvips]{graphicx}
+%\usepackage{cite}
+\usepackage{amssymb}
+\usepackage{multirow}
+\usepackage{bm}
+%\usepackage{authblk}
+\usepackage{mathtools}
+
+\renewcommand{\L}{\mathcal{L}}
+\newcommand{\Lmarg}{\mathcal{L}^{\mathrm{marg}}}
+
+\newcommand{\flow}{f_{\mathrm{low}}}
+\newcommand{\fhigh}{f_{\mathrm{high}}}
+
+\newcommand{\Dref}{D_{\mathrm{ref}}}
+\newcommand{\DL}{D_{\mathrm{L}}}
+\newcommand{\hk}{h_k}
+\newcommand{\hp}{h_+}
+\newcommand{\hc}{h_{\times}}
+\newcommand{\thk}{\tilde{h}_k}
+\newcommand{\thp}{\tilde{h}_+}
+\newcommand{\thc}{\tilde{h}_{\times}}
+\renewcommand{\th}{\tilde{h}}
+
+\newcommand{\hpk}{h_{+, k}}
+\newcommand{\hck}{h_{\times, k}}
+\newcommand{\Fpk}{F_{+, k}}
+\newcommand{\Fck}{F_{\times, k}}
+\newcommand{\bFpk}{\bar{F}_{+, k}}
+\newcommand{\bFck}{\bar{F}_{\times, k}}
+\newcommand{\bFpl}{\bar{F}_{+, l}}
+\newcommand{\bFcl}{\bar{F}_{\times, l}}
+\newcommand{\bFk}{\bar{F}_k}
+
+\newcommand{\Lpk}{L_{+,k}}
+\newcommand{\Lck}{L_{\times,k}}
+\newcommand{\Qppk}{Q_{++,k}}
+\newcommand{\Qpck}{Q_{+\times,k}}
+\newcommand{\Qcck}{Q_{\times\times,k}}
+\newcommand{\Qppl}{Q_{++,l}}
+
+\newcommand{\Dmin}{D_{\mathrm{min}}}
+\newcommand{\Dmax}{D_{\mathrm{max}}}
+
+\newcommand{\RAB}{R_{AB}}
+\newcommand{\RCD}{R_{CD}}
+\newcommand{\phiAB}{\phi_{AB}}
+\newcommand{\phiCD}{\phi_{CD}}
+
+\newcommand{\erfc}{\mathrm{erfc}}
+
+\newcommand{\e}{\mathrm{e}}
+\newcommand{\iu}{\mathrm{i}}
+
+\begin{document}
+
+This document describes an efficient method to marginalize likelihood-ratio $\L$ over luminosity distance $\DL$ and polarization angle $\psi$.
+The marginalized likelihood-ratio is given by
+\begin{equation}
+\Lmarg = \frac{3}{\pi (\Dmax^3 - \Dmin^3)} \int^{\Dmax}_{\Dmin} \DL^2 d \DL \int^{\pi}_0 d \psi \L. \label{eq:Lmarg}
+\end{equation}
+
+
+\section{Likelihood ratio}
+
+The logarithm of likelihood is given by
+\begin{equation}
+\ln \L = \sum_k \left[ (d_k, h_k)_k - \frac{1}{2} (h_k, h_k)_k \right],
+\end{equation}
+where $k$ indexes each detector, $d_k$ represents data from the $k$-th detector, and $h_k$ represents a signal model at the $k$-th detector.
+The inner product is defined as
+\begin{equation}
+(x, y)_k \equiv 4 \Re \left[ \int^{\fhigh}_{\flow} df \frac{\tilde{x}^\ast (f) \tilde{y}(f)}{S_k(f)} \right],
+\end{equation}
+where $\flow$ and $\fhigh$ are the low-frequency and high-frequency cutoffs of the analysis, and $S_k(f)$ is the one-sided power spectral density of the $k$-th detector.
+
+The signal model is given by
+\begin{equation}
+\thk(f) = \frac{\Dref}{\DL} \left( \Fpk \thp(f) + \Fck \thc(f) \right) \e^{-2 \pi \iu f t_k},
+\end{equation}
+where $\Dref$ is a reference luminosity distance, $\Fpk$ and $\Fck$ are the beam pattern functions of the $k$-th detector, and $t_k$ is the arrival time at the $k$-th detector.
+The beam pattern functions depend on $\psi$ as follows,
+\begin{equation}
+\Fpk = \bFpk \cos 2 \psi + \bFck \sin 2 \psi,~~~\Fck = - \bFpk \sin 2 \psi + \bFck \cos 2 \psi, \label{eq:beampatterns}
+\end{equation}
+where $\bFpk$ and $\bFpk$ are the values of $\Fpk$ and $\Fck$ at $\psi=0$ respectively.
+Their squares and product are given by
+\begin{equation}
+\begin{aligned}
+&(\Fpk)^2 = s_k + d_k \cos 4 \psi + p_k  \sin 4 \psi, \\
+&(\Fck)^2 = s_k - d_k \cos 4 \psi - p_k  \sin 4 \psi, \\
+&\Fpk \Fck = p_k \cos 4 \psi - d_k \sin 4 \psi,
+\end{aligned} \label{eq:beampatternsquares}
+\end{equation}
+where
+\begin{equation}
+s_k \equiv \frac{1}{2} \left[ (\bFpk)^2 + (\bFck)^2 \right],~~~d_k \equiv \frac{1}{2} \left[ (\bFpk)^2 - (\bFck)^2 \right],~~~p_k \equiv \bFpk  \bFck.
+\end{equation}
+
+Substituting \eqref{eq:beampatterns} into the linear inner product $(d_k, h_k)_k$, we obtain
+\begin{equation}
+(d_k, h_k)_k = \frac{\Dref}{\DL} \left( A_k \cos 2 \psi + B_k \sin 2 \psi \right),
+\end{equation}
+where 
+\begin{equation}
+A_k \equiv \bFpk \Lpk + \bFck \Lck,~~~B_k \equiv \bFck \Lpk - \bFpk \Lck,
+\end{equation}
+and
+\begin{equation}
+\begin{aligned}
+&\Lpk \equiv 4 \Re \left[ \int^{\fhigh}_{\flow} df \frac{\tilde{d}^\ast_k (f) \thp(f)}{S_k(f)} \e^{-2 \pi \iu f t_k} \right],\\
+&\Lck \equiv 4 \Re \left[ \int^{\fhigh}_{\flow} df \frac{\tilde{d}^\ast_k (f) \thc(f)}{S_k(f)} \e^{-2 \pi \iu f t_k} \right].
+\end{aligned}
+\end{equation}
+Substituting \eqref{eq:beampatternsquares} into the quadratic inner product $(h_k, h_k)_k$, we obtain
+\begin{equation}
+(h_k, h_k)_k = \left(\frac{\Dref}{\DL}\right)^2 \left( C_k \cos 4 \psi + D_k \sin 4 \psi + E_k \right),
+\end{equation}
+where
+\begin{equation}
+\begin{aligned}
+&C_k \equiv d_k ( \Qppk - \Qcck ) + 2 p_k \Qpck, \\
+&D_k \equiv p_k ( \Qppk - \Qcck ) - 2 d_k \Qpck, \\
+&E_k \equiv  s_k ( \Qppk + \Qcck ),
+\end{aligned}
+\end{equation}
+and
+\begin{equation}
+\Qppk \equiv (\hp, \hp)_k,~~~\Qcck \equiv (\hc, \hc)_k,~~~\Qpck \equiv (\hp, \hc)_k.
+\end{equation}
+We have the following inequality for $C_k$, $D_k$ and $E_k$,
+\begin{equation}
+E^2_k - C^2_k - D^2_k = 4 s^2_k (\Qppk \Qcck - \Qpck^2) \geq 0, \label{eq:inequality_Ck_Dk_Ek}
+\end{equation}
+where the last inequality follows from the Schwartz inequality.
+The equality is established iff
+\begin{equation}
+\bFpk = \bFck = 0, \label{eq:equality_cond_single_det_1}
+\end{equation}
+or there exist $\tilde{h}(f)$ and $0\leq\phi\leq\pi$ such that
+\begin{equation}
+\thp(f) = \cos \phi \th(f),~~~\thc(f) = \sin \phi \th(f). \label{eq:equality_cond_single_det_2}
+\end{equation}
+
+Summing them up over detectors, we obtain
+\begin{equation}
+\ln \L = \frac{\Dref}{\DL} \left( A \cos 2 \psi + B \sin 2 \psi \right) - \frac{1}{2} \left(\frac{\Dref}{\DL}\right)^2 \left(C \cos 4 \psi + D \sin 4 \psi + E\right),
+\end{equation}
+where
+\begin{equation}
+A = \sum_k A_k,~~~B \equiv \sum_k B_k,~~~ C \equiv \sum_k C_k, ~~~ D \equiv \sum_k D_k,~~~ E \equiv \sum_k E_k.
+\end{equation}
+Eq. \eqref{eq:inequality_Ck_Dk_Ek} leads to the following inequality,
+\begin{align}
+E^2 - C^2 - D^2 &= \sum_k (E^2_k - C^2_k - D^2_k) + 2 \sum_{k>l} (E_k E_l - C_k C_l - D_k D_l) \\
+&\geq 2 \sum_{k>l} \left(\sqrt{C^2_k + D^2_k} \sqrt{C^2_l + D^2_l} - C_k C_l - D_k D_l\right).
+\end{align}
+We also have the following inequality,
+\begin{equation}
+(C^2_k + D^2_k) (C^2_l + D^2_l) - (C_k C_l + D_k D_l)^2 = (C_k D_l - C_l D_k)^2 \geq 0.
+\end{equation}
+Thus, the following inequality is established,
+\begin{equation}
+E^2 - C^2 - D^2 \geq 0, \label{eq:inequality_C_D_E}
+\end{equation}
+where the equality is established iff
+\begin{equation}
+C_k D_l - C_l D_k=0,~~~C_k C_l + D_k D_l \geq 0, \label{eq:equality_cond_multiple_det}
+\end{equation}
+are satisfied for each pair $(k,l)$ in addition to \eqref{eq:equality_cond_single_det_1} or \eqref{eq:equality_cond_single_det_2}.
+
+Let us investigate in which case the equality of \eqref{eq:inequality_C_D_E} is established in more detail.
+If \eqref{eq:equality_cond_single_det_1} is satisfied for each detector, \eqref{eq:equality_cond_multiple_det} is satisfied, and the equality is trivially established.
+If \eqref{eq:equality_cond_single_det_2} is satisfied, the quadratic inner products are given as follows,
+\begin{equation}
+\Qppk = \cos^2 \phi Q_k,~~~\Qpck = \cos \phi \sin \phi Q_k,~~~\Qcck = \sin^2 \phi Q_k,
+\end{equation}
+where $Q_k \equiv (h, h)_k$.
+Thus, $C_k$ and $D_k$ are given by
+\begin{equation}
+C_k = (\cos 2 \phi d_k + \sin 2 \phi p_k) Q_k,~~~D_k = (\cos 2 \phi p_k - \sin 2 \phi d_k) Q_k.
+\end{equation}
+Thus, the first condition of \eqref{eq:equality_cond_multiple_det} leads to
+\begin{equation}
+C_k D_l - C_l D_k = (d_k p_l - d_l p_k) Q_k Q_l = 0.
+\end{equation}
+We do not consider the case where gravitational waves are vanishing and assume $Q_k > 0$.
+Then, we obtain
+\begin{equation}
+d_k p_l - d_l p_k = \frac{1}{2} (\bFpk \bFpl + \bFck \bFcl) (\bFpk \bFcl -\bFck \bFpl) = 0. \label{eq:cond1}
+\end{equation}
+
+The second condition of \eqref{eq:equality_cond_multiple_det} leads to
+\begin{equation}
+C_k C_l + D_k D_l = (d_k d_l + p_k p_l) Q_k Q_l \geq 0,
+\end{equation}
+which leads to
+\begin{equation}
+d_k d_l + p_k p_l = \frac{1}{4} \left(\bFpk \bFpl + \bFck \bFcl\right)^2 - \frac{1}{4} \left(\bFpk \bFcl - \bFck \bFpl\right)^2 \geq 0. \label{eq:cond2}
+\end{equation}
+Eq. \eqref{eq:cond1} and \eqref{eq:cond2} lead to
+\begin{equation}
+\bFpk \bFcl - \bFck \bFpl = 0.
+\end{equation}
+Substituting the following representations of beam pattern functions into this equation,
+\begin{equation}
+\bFpk = \bFk \cos \theta_k,~~~\bFck = \bFk \sin \theta_k,
+\end{equation}
+we obtain
+\begin{equation}
+\theta_l = \theta_k + n \pi.~~(n\in\mathbb{Z})
+\end{equation}
+Since it is satisfied for each pair $(k, l)$, there exists a common phase $\theta$ such that
+\begin{equation}
+\bFpk = (-1)^{s_k} \bFk \cos \theta,~~~\bFck = (-1)^{s_k} \bFk \sin \theta, \label{eq:equality_cond}
+\end{equation}
+where $s_k=0~\text{or}~1$.
+Thus, in the case where \eqref{eq:equality_cond_single_det_1} is not satisfied, the equality of \eqref{eq:inequality_C_D_E} is established iff \eqref{eq:equality_cond_single_det_2} and \eqref{eq:equality_cond} are satisfied. 
+
+\section{Coordinate transformation}
+
+To simply the likelihood, we express it in the following $x$--$y$ coordinate,
+\begin{equation}
+x \equiv \frac{\Dref}{\DL} \cos 2 \psi,~~~~~~y \equiv \frac{\Dref}{\DL} \sin 2 \psi.
+\end{equation}
+In addition, we use the following parametrization of $(A, B)$ and $(C, D)$,
+\begin{align}
+&A = R \cos \zeta,~~~B=R \sin \zeta,~~~(R>0,~0\leq\zeta<2\pi) \\
+&C = S \cos 2 \xi,~~~D=S \sin 2 \xi.~~~(S>0,~0\leq\xi<\pi)
+\end{align}
+With the coordinate transformation, likelihood is simplified to Gaussian distribution,
+\begin{equation}
+\ln \L = - \frac{1}{2} \left(\begin{array}{cc} x & y\end{array}\right) \Gamma \left(\begin{array}{c} x \\ y\end{array}\right) + R \left(\begin{array}{cc} \cos \zeta \ & \sin \zeta \end{array}\right) \left(\begin{array}{c} x \\ y\end{array}\right),
+\end{equation}
+where
+\begin{equation}
+\Gamma = \left(\begin{array}{cc} E + S \cos 2 \xi & S \sin 2 \xi \\ S \sin 2 \xi & E - S \cos 2 \xi \end{array}\right).
+\end{equation}
+
+$\Gamma$ is diagonalized as follows,
+\begin{equation}
+\Gamma = U^T \Lambda U,~~~U=\left(\begin{array}{cc} \cos \xi  & \sin \xi \\ - \sin \xi  & \cos \xi  \end{array}\right),~~~\Lambda = \left(\begin{array}{cc} \lambda_1 & 0 \\ 0 & \lambda_2 \end{array}\right),
+\end{equation}
+where
+\begin{equation}
+\lambda_1 = E + S,~~~\lambda_2 = E - S.
+\end{equation}
+Thus, with the following coordinate transformation,
+\begin{equation}
+\left(\begin{array}{c} s \\ t\end{array}\right) \equiv U \left(\begin{array}{c} x \\ y\end{array}\right),
+\end{equation}
+$\ln \L$ can be simplified as follows,
+\begin{equation}
+\ln \L = - \frac{\lambda_1}{2} s^2 - \frac{\lambda_2}{2} t^2 + R \cos(\zeta - \xi) s + R \sin(\zeta - \xi) t.
+\end{equation}
+The coefficients of the linear terms are calculated as
+\begin{equation}
+U \left(\begin{array}{c} \cos \zeta \\ \sin \zeta\end{array}\right) = \left(\begin{array}{c} \cos (\zeta-\xi) \\ \sin (\zeta-\xi)\end{array}\right).
+\end{equation}
+
+Eq. \eqref{eq:inequality_C_D_E} leads to
+\begin{equation}
+\lambda_1 \geq \lambda_2 \geq 0.
+\end{equation}
+If $\lambda_2 > 0$, the squares can be completed as follows,
+\begin{equation}
+\ln \L = - \frac{\lambda_1}{2} (s - \bar{s})^2 - \frac{\lambda_2}{2} (t - \bar{t})^2 + \frac{\lambda_1}{2} \bar{s}^2 + \frac{\lambda_2}{2} \bar{t}^2,
+\end{equation}
+where
+\begin{equation}
+\bar{s} = \frac{R \cos(\zeta - \xi)}{\lambda_1},~~~~~~\bar{t} = \frac{R \sin(\zeta - \xi)}{\lambda_2}.
+\end{equation}
+
+Next, we consider the case of $\lambda_1>0,~\lambda_2=0$.
+$\lambda_2$ vanishes iff \eqref{eq:equality_cond_single_det_1} is satisfied, or \eqref{eq:equality_cond_single_det_2} and \eqref{eq:equality_cond} are satisfied.
+Since $\lambda_1$ also vanishes for the first case, the second conditions need to be satisfied.
+Eq \eqref{eq:equality_cond_single_det_2} and \eqref{eq:equality_cond} lead to
+\begin{align}
+&\frac{A}{\sqrt{A^2+B^2}} = \cos (\theta - \phi),~~~\frac{B}{\sqrt{A^2+B^2}} = \sin (\theta - \phi), \\
+&\frac{C}{\sqrt{C^2+D^2}} = \cos 2 (\theta - \phi),~~~\frac{D}{\sqrt{C^2+D^2}} = \sin 2 (\theta - \phi).
+\end{align}
+Thus, we have 
+\begin{equation}
+\zeta = \xi = \theta - \phi,
+\end{equation}
+and the linear term of $t$ in $\ln L$ vanishes.
+After the square is completed, $\ln L$ is given by
+\begin{equation}
+\ln \L = - \frac{\lambda_1}{2} (s - \bar{s})^2 + \frac{\lambda_1}{2} \bar{s}^2.
+\end{equation}
+
+Finally, we consider the case of $\lambda_1=\lambda_2=0$. 
+This leads to $E=0$, which is satisfied iff \eqref{eq:equality_cond_single_det_1} is satisfied for each detector.
+Thus, all of $A$, $B$, $C$ and $D$ vanish, and $\ln \L$ vanishes,
+\begin{equation}
+\ln \L = 0.
+\end{equation}
+In summary, $\ln \L$ is given by
+\begin{equation}
+\ln \L = \begin{cases}
+- \frac{\lambda_1}{2} (s - \bar{s})^2 - \frac{\lambda_2}{2} (t - \bar{t})^2 + \frac{\lambda_1}{2} \bar{s}^2 + \frac{\lambda_2}{2} \bar{t}^2, & (\lambda_1\geq\lambda_2>0) \\
+- \frac{\lambda_1}{2} (s - \bar{s})^2 + \frac{\lambda_1}{2} \bar{s}^2, & (\lambda_1>\lambda_2=0) \\
+0. & (\lambda_1=\lambda_2=0)
+\end{cases}
+\end{equation}
+
+
+\section{Marginalization}
+
+Finally, we calculate $\Lmarg$.
+Since the likelihood for $\lambda_1=\lambda_2=0$ is trivial, we focus on the case of $\lambda_1>0$. 
+Considering $\bar{t}$ as a free parameter which does not depend on $\lambda_2$, we can treat the case of $\lambda_1>\lambda_2=0$ as a limit of $\lambda_1>\lambda_2>0$ with $\lambda_2 \to +0$.
+Thus, we consider the following form of $\ln \L$,
+\begin{equation}
+\ln \L = - \frac{\lambda_1}{2} (s - \bar{s})^2 - \frac{\lambda_2}{2} (t - \bar{t})^2 + \frac{\lambda_1}{2} \bar{s}^2 + \frac{\lambda_2}{2} \bar{t}^2.~~(\lambda_1 \geq \lambda_2 \geq 0,~\lambda_1>0)
+\end{equation}
+Substituting this into \eqref{eq:Lmarg}, we obtain
+\begin{equation}
+\Lmarg = \frac{3 \Dref^3}{2 \pi (\Dmax^3 - \Dmin^3)} \e^{\frac{\lambda_1}{2} \bar{s}^2 + \frac{\lambda_2}{2} \bar{t}^2} I, 
+\end{equation}
+where
+\begin{equation}
+I \equiv \int_{\Dref / \Dmax < \sqrt{(s+\bar{s})^2 + (t+\bar{t})^2} < \Dref / \Dmin} \frac{\e^{-\frac{\lambda_1}{2} s^2 - \frac{\lambda_2}{2} t^2}}{\left[(s+\bar{s})^2 + (t+\bar{t})^2 \right]^{\frac{5}{2}}} ds dt.
+\end{equation}
+Here we have performed the translation: $s \to s + \bar{s},~t \to t + \bar{t}$.
+
+Typically, $\Dmin$ is small enough to encompass the true value of $\DL$.
+It means likelihood is exponentially suppressed at $\DL < \Dmin$. 
+Thus, extending the upper limit of integral to infinity $\Dref / \Dmin \to \infty$ gives negligible differences in the results.
+On the other hand, the integral is divergent in the limit of $\Dref / \Dmax \to 0$.
+This reflects the fact that likelihood-ratio converges to unity while we get infinite prior volume at $\DL > \Dmax$.
+To prevent from getting the infinite prior volume, we add a regulator term $k (\Dref / \Dmax)^2$ in the denominator, where $k>0,~k=\mathcal{O}(1)$.
+Then, we obtain the following approximate form,
+\begin{equation}
+I \simeq \int_{-\infty}^\infty \frac{\e^{-\frac{\lambda_1}{2} s^2 - \frac{\lambda_2}{2} t^2}}{\left[(s+\bar{s})^2 + (t+\bar{t})^2 + k (\Dref / \Dmax)^2 \right]^{\frac{5}{2}}} ds dt.
+\end{equation}
+{\color{red} (What value should be used as $k$? Do we need to subtract something compensating for the extension?)}
+
+\end{document}
+
