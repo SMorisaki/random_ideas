@@ -123,6 +123,34 @@ def _geometry(l1, l2, R, eta, lo, hi):
                 heights[count] = _proxy(t, l1, l2, R, eta, lo, hi)
                 count += 1
     order = np.argsort(heights[:count])[::-1]
+    # A narrow distant-radius island can lie below the broad xmin proxy
+    # peaks, and even below both adjacent scan samples. Its radial volume
+    # can nevertheless make it significant (seed-808 cases 44 and 915).
+    # When the scanned geometry is broad, retain this analytic weak-axis
+    # seed and stretch the entire period about it. This also resolves the
+    # broad contribution, without adding a quadrature-budget exception.
+    broad = True
+    for j in range(min(count, 2)):
+        if _peak_width(centers[order[j]], l1, l2, R, eta, lo, hi) < WIDTH_SWITCH:
+            broad = False
+    if broad:
+        seed = PI/2
+        width = _peak_width(seed, l1, l2, R, eta, lo, hi)
+        height = _proxy(seed, l1, l2, R, eta, lo, hi)
+        if (width < WIDTH_SWITCH and height >= heights[order[0]]-40
+                and height >= _proxy(seed-width, l1, l2, R, eta, lo, hi)
+                and height >= _proxy(seed+width, l1, l2, R, eta, lo, hi)):
+            local = _refine(seed-2*width, seed+2*width,
+                            l1, l2, R, eta, lo, hi, 1)
+            if _proxy(local, l1, l2, R, eta, lo, hi) > height:
+                seed = local
+            # Re-evaluate curvature at the refined maximum. At a minimum
+            # or a radial-clipping cusp the seed's absolute curvature can
+            # suggest a spurious narrow mode (mock-posterior 124 and 876).
+            width = _peak_width(seed, l1, l2, R, eta, lo, hi)
+            if width < WIDTH_SWITCH:
+                return (np.array([seed]), np.array([width]),
+                        np.array([seed-PI/2, seed+PI/2]))
     t1 = centers[order[0]]
     w1 = _peak_width(t1, l1, l2, R, eta, lo, hi)
     if count < 2 or heights[order[1]] < heights[order[0]]-40:
@@ -277,6 +305,10 @@ def _compute_core(A, B, C, D, E, xmin, xmax, n_nodes, table=None):
         for i in range(n):
             total += weights[i]*math.exp(logs[i*stride]-shift)
         value = norm+shift+math.log(total)
+        # Preserve the exact normalized unit likelihood despite interpolation
+        # roundoff at the single a=b=0 table coordinate.
+        if A == 0 and B == 0 and C == 0 and D == 0 and E == 0:
+            value = 0.0
         if stride == 1 or abs(value-previous) < CONVERGENCE_ATOL:
             return value, count, mode, nodes, weights, fallbacks
         previous = value

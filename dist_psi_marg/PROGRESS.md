@@ -324,3 +324,35 @@ Orchestrator verification:
   The practical form of "table + numerical integration" is method 2.
 - Next: iteration 008 — synthesis: `dpmarg.fast` dispatcher (method 2 table + gated 2-D Laplace
   branch), final benchmark on identical sets, `REPORT.md`.
+
+## Iteration 008 — synthesis: `dpmarg.fast`, final benchmark, REPORT.md (accepted)
+
+Codex report (summarized): `dpmarg/fast.py` dispatches to the order-4 2-D Laplace formula when
+the gate passes (`lam2/lam1 >= 1e-3`, three-sigma interior guard, `rho >= 1.5 rho_break(q)` with
+log-log interpolation through (0.001, 422), (0.01, 133), (0.1, 42), (0.3, 18)), else to the
+table-backed method 2. Final benchmark on identical inputs (40 regression + 300 stored random +
+2000 fresh random (seed 808) + 2000 mock-posterior points, references cached): method 2 table
+worst 4.8e-5, median 20 µs (p99 170–180 µs); direct kernel 210–290 µs; dispatcher worst 3.3e-4,
+no point above 1e-3, median 21 µs, Laplace serves 10–23% of calls (no median gain, mean gain
+only); method 3 2-D alone is unsafe where its native guard passes at low SNR (errors up to 12.6);
+method 1 prototype errors up to 5.3. The fresh sweep exposed one more method-2 geometry failure
+(a narrow weak-axis island at large radius below two broad proxy peaks; errors 0.59 and 0.012 on
+two seed-808 points), repaired by checking the analytic weak-axis seed when the scanned peaks are
+broad; regression tests added. 448 tests. `REPORT.md` written (English with a Japanese summary).
+
+Orchestrator verification:
+- Read the `method2.py` repair, `fast.py` (gate, branch codes, bound checks) and `REPORT.md`;
+  numbers in the report match `data/final_benchmark.md`; `python -m pytest tests -q`: 448
+  passed (112 s). Extended the Japanese summary of `REPORT.md` with the key numbers.
+- TASK.md §4 completion criteria: reference (two independent integrators, 3e-11 agreement) —
+  met; three methods measured on the same sets with figures — met (method 1 only on the main
+  prior, since the design was rejected); best method implemented with pytest and benchmark —
+  met (median 20–21 µs is within the "few to tens of µs" target; p99 tails of ~180 µs noted);
+  `REPORT.md` with the recommendation, breakdown SNRs and table design — met.
+
+**Stop reason: completion criteria of TASK.md §4 achieved (2026-10-16).** Optional follow-ups
+left to the owner: (1) reduce method-2 cost further (geometry 3.7 µs and ~8 µs of overhead per
+call; p99 tails from two-peak and fallback cases); (2) guard-free radial table via coordinates
+that include the prior slope `4/x`; (3) tables for other `xmax/xmin` ratios and priors other
+than `D_L^2`; (4) a smooth switch between the Laplace and method-2 branches for gradient-based
+samplers.
