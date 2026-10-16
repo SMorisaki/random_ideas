@@ -1,0 +1,14 @@
+# Conda environment for this repository (used by .devcontainer/setup-env.sh locally
+# and by cloud sessions). Update this file whenever a package is added/removed.
+name: random_ideas
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - numpy
+  - scipy
+  - matplotlib
+  - numba
+  - h5py
+  - pytest

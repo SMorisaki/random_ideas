@@ -1,2 +1,3 @@
 *.bbl
 *.synctex.gz
+dist_psi_marg/logs/
