@@ -1,0 +1,71 @@
+{
+  "name": "Claude Code Sandbox",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "TZ": "${localEnv:TZ:America/Los_Angeles}",
+      "CLAUDE_CODE_VERSION": "latest",
+      "GIT_DELTA_VERSION": "0.18.2",
+      "ZSH_IN_DOCKER_VERSION": "1.2.0"
+    }
+  },
+  "runArgs": [
+    "--cap-add=NET_ADMIN",
+    "--cap-add=NET_RAW"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "eamodio.gitlens"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "bash",
+            "icon": "terminal-bash"
+          },
+          "zsh": {
+            "path": "zsh"
+          }
+        }
+      }
+    }
+  },
+  "remoteUser": "node",
+  "mounts": [
+    "source=claude-code-bashhistory-${devcontainerId},target=/commandhistory,type=volume",
+    "source=claude-code-config-${devcontainerId},target=/home/node/.claude,type=volume",
+    "source=codex-config-${devcontainerId},target=/home/node/.codex,type=volume",
+    // Mac で import が遅いときは、env を bind mount ではなく volume に置く（パスは同じまま）:
+    // "source=conda-env-${devcontainerId},target=/workspace/.conda-linux,type=volume",
+    "source=/Users/morisakisouichirou/projects,target=/projects,type=bind,readonly"
+  ],
+  "containerEnv": {
+    "NODE_OPTIONS": "--max-old-space-size=4096",
+    "CLAUDE_CONFIG_DIR": "/home/node/.claude",
+    "POWERLEVEL9K_DISABLE_GITSTATUS": "true",
+    "LAL_DATA_PATH": "/projects/libraries/lalsuite-extra/data/lalsimulation:/projects/libraries/lalsuite-waveform-data/waveform_data",
+    "BASH_MAX_TIMEOUT_MS": "1800000"
+  },
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
+  "workspaceFolder": "/workspace",
+  // Runs on the host before the container starts: load the SSH key(s) whose
+  // passphrase is stored in the macOS Keychain into the ssh-agent, so that the
+  // agent forwarded into the container can push over SSH. One-time setup on the
+  // host: `ssh-add --apple-use-keychain ~/.ssh/id_ed25519`. No-op elsewhere.
+  "initializeCommand": "ssh-add --apple-load-keychain 2>/dev/null || true",
+  "postCreateCommand": "bash .devcontainer/setup-env.sh",
+  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh && bash .devcontainer/claude-setup.sh && bash .devcontainer/codex-check.sh",
+  "waitFor": "postStartCommand",
+  // VS Code を閉じてもコンテナを止めない（tmux 内の claude remote-control を生かすため）
+  "shutdownAction": "none"
+}
