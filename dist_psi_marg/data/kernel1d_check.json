@@ -1,0 +1,165 @@
+{
+  "gl_nodes_per_panel": 24,
+  "window_eps": 1e-12,
+  "grid_points_per_bounds": 1598,
+  "timing_seed": 2,
+  "timing_total_points_per_bounds": 100000,
+  "timing_repeats": 7,
+  "reference_refactor_max_change": 0.0,
+  "bounds": [
+    {
+      "xmin": 0.1,
+      "xmax": 100.0,
+      "worst_by_regime": {
+        "x0 < xmin": {
+          "abs_error": 8.776979143476638e-11,
+          "error": -8.776979143476638e-11,
+          "a": -10000000.0,
+          "b": 31622776.60168379
+        },
+        "inside": {
+          "abs_error": 6.235012506294879e-13,
+          "error": -6.235012506294879e-13,
+          "a": 10000000.0,
+          "b": 1000000.0
+        },
+        "x0 > xmax": {
+          "abs_error": 6.718678946526779e-10,
+          "error": 6.718678946526779e-10,
+          "a": 100000.0,
+          "b": 0.01
+        },
+        "b = 0": {
+          "abs_error": 2.9755398145425715e-10,
+          "error": 2.9755398145425715e-10,
+          "a": 100000.0,
+          "b": 0.0
+        }
+      },
+      "max_discarded_fraction": 4.2213403647211295e-23,
+      "timing": {
+        "x0 < xmin": {
+          "count": 50329,
+          "median_ns_per_call": 3837.1012140118023,
+          "panel_min": 3,
+          "panel_max": 15,
+          "panel_median": 6.0,
+          "panel_p10_p90": [
+            6.0,
+            15.0
+          ]
+        },
+        "inside": {
+          "count": 6909,
+          "median_ns_per_call": 6779.147054566508,
+          "panel_min": 5,
+          "panel_max": 18,
+          "panel_median": 9.0,
+          "panel_p10_p90": [
+            8.0,
+            16.0
+          ]
+        },
+        "x0 > xmax": {
+          "count": 17737,
+          "median_ns_per_call": 3790.5384788859446,
+          "panel_min": 4,
+          "panel_max": 18,
+          "panel_median": 6.0,
+          "panel_p10_p90": [
+            6.0,
+            15.0
+          ]
+        },
+        "b = 0": {
+          "count": 25025,
+          "median_ns_per_call": 7357.624295704296,
+          "panel_min": 9,
+          "panel_max": 22,
+          "panel_median": 11.0,
+          "panel_p10_p90": [
+            10.0,
+            15.0
+          ]
+        }
+      }
+    },
+    {
+      "xmin": 0.1,
+      "xmax": 10.0,
+      "worst_by_regime": {
+        "x0 < xmin": {
+          "abs_error": 8.776979143476638e-11,
+          "error": -8.776979143476638e-11,
+          "a": -10000000.0,
+          "b": 31622776.60168379
+        },
+        "inside": {
+          "abs_error": 6.199485369506874e-13,
+          "error": -6.199485369506874e-13,
+          "a": 10000000.0,
+          "b": 1000000.0
+        },
+        "x0 > xmax": {
+          "abs_error": 8.349161362275481e-10,
+          "error": -8.349161362275481e-10,
+          "a": 1000000.0,
+          "b": 1e-08
+        },
+        "b = 0": {
+          "abs_error": 8.349161362275481e-10,
+          "error": -8.349161362275481e-10,
+          "a": 1000000.0,
+          "b": 0.0
+        }
+      },
+      "max_discarded_fraction": 1.4626655247798926e-15,
+      "timing": {
+        "x0 < xmin": {
+          "count": 50329,
+          "median_ns_per_call": 3180.7917105446163,
+          "panel_min": 3,
+          "panel_max": 10,
+          "panel_median": 6.0,
+          "panel_p10_p90": [
+            5.0,
+            10.0
+          ]
+        },
+        "inside": {
+          "count": 4590,
+          "median_ns_per_call": 4580.971459694989,
+          "panel_min": 4,
+          "panel_max": 14,
+          "panel_median": 9.0,
+          "panel_p10_p90": [
+            8.0,
+            12.0
+          ]
+        },
+        "x0 > xmax": {
+          "count": 20056,
+          "median_ns_per_call": 3811.678450339051,
+          "panel_min": 4,
+          "panel_max": 13,
+          "panel_median": 6.0,
+          "panel_p10_p90": [
+            6.0,
+            10.0
+          ]
+        },
+        "b = 0": {
+          "count": 25025,
+          "median_ns_per_call": 5932.637322677323,
+          "panel_min": 9,
+          "panel_max": 17,
+          "panel_median": 10.0,
+          "panel_p10_p90": [
+            10.0,
+            11.0
+          ]
+        }
+      }
+    }
+  ]
+}

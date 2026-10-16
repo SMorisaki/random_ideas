@@ -52,6 +52,54 @@ def _angular_points(func, peaks, scale):
     return sorted(set(points))
 
 
+def _lnI_scaled(a, b, xmin, xmax, rtol):
+    """Log integral (xmin/x)^4 exp(f(x)-fmax) dx, full-domain quad.
+
+    Shared by lnI_ref and the angular reference; rtol is the inner quad
+    tolerance. Gaussian/endpoint and geometric prior breakpoints are retained
+    unchanged from iteration 001. Domain: finite a, b>=0, 0<xmin<xmax.
+    """
+    _, r = _radial_peak(a, b, xmin, xmax)
+    points = _radial_points(a, b, xmin, xmax)
+
+    def integrand(x):
+        delta = x-r
+        return (xmin/x)**4 * math.exp(delta*(a-b*r)-0.5*b*delta*delta)
+
+    width = min(1/math.sqrt(b) if b else math.inf,
+                1/abs(a-b*r) if a != b*r else math.inf)
+    if width < 1e-7*r:
+        # Float x-r loses digits for e.g. a=1e7 at xmax=100. Integrate
+        # offsets directly, retaining the same physical breakpoints and full
+        # interval. Ordinary iteration-001 cases keep their original arithmetic.
+        def offset_integrand(delta):
+            return (xmin/(r+delta))**4 * math.exp(
+                delta*(a-b*r)-0.5*b*delta*delta)
+
+        integral = quad(offset_integrand, xmin-r, xmax-r,
+                        points=[p-r for p in points[1:-1]],
+                        epsabs=0, epsrel=rtol, limit=400)[0]
+    else:
+        integral = quad(integrand, xmin, xmax, points=points[1:-1],
+                        epsabs=0, epsrel=rtol, limit=400)[0]
+    return math.log(integral)
+
+
+def lnI_ref(a, b, xmin, xmax, rtol=1e-11):
+    """Return log integral x^-4 exp(a*x-b*x²/2-fmax) dx by SciPy quad.
+
+    Integrates the full finite interval with the same breakpoints and inner
+    implementation as lnL_marg_ref. Domain: finite a, b>=0, 0<xmin<xmax,
+    0<rtol<1. No tail truncation or asymptotic approximation is applied.
+    """
+    _bounds(xmin, xmax)
+    if not (math.isfinite(a) and math.isfinite(b) and b >= 0):
+        raise ValueError("require finite a and b>=0")
+    if not 0 < rtol < 1:
+        raise ValueError("require 0 < rtol < 1")
+    return _lnI_scaled(a, b, xmin, xmax, rtol)-4*math.log(xmin)
+
+
 def lnL_marg_ref(A, B, C, D, E, xmin, xmax, rtol=1e-10):
     """Float64 nested quad of the normalized r^-4 exp(lnL) integral.
 
@@ -74,16 +122,8 @@ def lnL_marg_ref(A, B, C, D, E, xmin, xmax, rtol=1e-10):
     def g(theta):
         a = R * math.cos(theta-eta)
         b = lam2 + (lam1-lam2) * math.cos(theta)**2
-        f, r = _radial_peak(a, b, xmin, xmax)
-        points = _radial_points(a, b, xmin, xmax)
-
-        def integrand(x):
-            delta = x-r
-            return (xmin/x)**4 * math.exp(delta*(a-b*r)-0.5*b*delta*delta)
-
-        integral = quad(integrand, xmin, xmax, points=points[1:-1],
-                        epsabs=0, epsrel=rtol*0.2, limit=400)[0]
-        return f + math.log(integral)
+        f, _ = _radial_peak(a, b, xmin, xmax)
+        return f + _lnI_scaled(a, b, xmin, xmax, rtol*0.2)
 
     peaks = _periodic_maxima(g, n=720,
                              extra=(0, math.pi/2, math.pi, 3*math.pi/2, eta))

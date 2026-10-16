@@ -142,3 +142,26 @@ Numerical details for the next iteration:
   SNR >= 1000, so "very large lam1" at moderate SNR necessarily means a peak below `xmin`.
 - Next: iteration 002 — numba 1-D distance kernel `lnI(a, b; xmin, xmax)` parametrized by
   `(a, b)` so that `b = 0` and `|a| -> large` are regular inputs.
+
+## Iteration 002 — numba 1-D distance kernel `lnI_direct(a, b, xmin, xmax)` (accepted)
+
+Codex report (summarized): `dpmarg/kernel1d.py` integrates in the peak-centred log coordinate
+`v = ln(x/r)` with 24-point Gauss–Legendre panels whose widths start at
+`min(r/4, 1/sqrt(b), 1/|f'(r)|)` and double up to 0.5; the window is cut where the exponent drop
+reaches `H = 1 - ln(1e-12) + 4 ln(xmax/xmin)`, with a convexity argument certifying a relative
+truncation `<= 1e-12` (no erfcx/erfcinv needed). `reference.py` gained `lnI_ref` sharing the inner
+integral with `lnL_marg_ref` (plus an offset-coordinate path for layers thinner than `1e-7 r`,
+where `x - r` cancels); the 40 regression values are unchanged (max change 0.0).
+
+Orchestrator verification:
+- Read `kernel1d.py` (window bound, panel scheme, extreme fallback) and the `reference.py` diff.
+- `python -m pytest tests -q`: 262 passed in 75 s.
+- `python scripts/check_kernel1d.py` re-run: worst `|Delta lnI|` per regime for `(0.1, 100)` /
+  `(0.1, 10)`: below `xmin` 8.8e-11, inside 6.2e-13, above `xmax` 6.7e-10 / 8.3e-10, `b = 0`
+  3.0e-10 / 8.3e-10 (target 1e-8). The worst cells (`a ~ 1e5–1e6`, `b << 1`) are the thin
+  `xmax`-endpoint layer where the scipy reference itself is near its `rtol = 1e-11` limit.
+- Cost: median 3.2–7.5 µs per call (6–11 panels x 24 nodes = 150–260 exponentials). A method-2
+  call with ~64 theta nodes will therefore cost ~0.3–0.6 ms with the direct kernel; the 2-D table
+  of this kernel (iteration 004) is what brings it to the µs range.
+- Next: iteration 003 — method 2 (adaptive theta quadrature over the kernel), accuracy and node
+  count first, speed later via the table.
