@@ -61,3 +61,84 @@ How to unblock (either):
   breaks. Coefficients must cover everything a sampler can produce, not only typical GW values.
 - Network note: `api.openai.com` is denied by the environment's network policy (CONNECT 403), but
   Codex with ChatGPT auth uses `chatgpt.com` / `auth.openai.com`, which are reachable.
+
+## Iteration 001 — package, independent reference integrals, regression set
+
+Completed the requested package and the full 40-point regression run (20 named
+cases and 20 random cases, seed 1). No package installation, specification edits,
+commits, or other git state changes were made.
+
+Files created:
+- `dpmarg/__init__.py`, `dpmarg/params.py`: coefficient validation, canonical
+  reduction and expansion, finite-domain global likelihood maximum, and SNR.
+- `dpmarg/reference.py`: full-circle nested SciPy adaptive quadrature and an
+  independent arbitrary-precision nested mpmath tanh-sinh integral.
+- `dpmarg/regimes.py`: documented named extremes and reproducible random inputs.
+- `scripts/make_regression_points.py`: generates the regression JSON, prints the
+  complete table, and raises with input parameters if a point fails.
+- `tests/test_reference.py`, `pytest.ini`: normalization, symmetry, round trips,
+  independent Bessel integrals, mpmath comparisons, and 2-D grid maximum checks.
+- `data/regression_points.json`: all inputs, reduced parameters, actual and proxy
+  SNR, reference values, errors, and elapsed times.
+- `data/regression_table.txt`: complete printed table and generator summary.
+- `data/reference_timings.json`: repeated timing samples and per-case medians.
+
+Verification:
+- `python -m pytest tests -q`: **41 passed in 69.68 s**, including the slow tests.
+- `python scripts/make_regression_points.py`: completed successfully. Every point
+  has `abs(ref - mp) <= 1e-8`; worst error **3.3946179200938786e-11**, at
+  `large_lam1_rho_0.5`. Total per-point elapsed time was 1208.79 s (about 20 min);
+  the median was 30.36 s. The earlier tests ran concurrently with its first cases.
+- After generation, reloaded all 40 saved points and compared each to the saved
+  mpmath result during repeated SciPy timings; all remained within `1e-8`.
+- Timing protocol: one warm-up call and three measured calls per point, median
+  wall-clock per point. There is no JIT in these reference methods. Median across
+  the 40 per-point medians: **0.137804 s/evaluation**; maximum per-point median:
+  **0.290291 s**. The exact zero case takes about 5 microseconds.
+
+Numerical details for the next iteration:
+- Both integrations use the same float64 canonical coefficient reduction and
+  tiny-negative-eigenvalue clipping convention; their quadrature values are
+  independent. The mpmath integrand and normalization use 25-digit arithmetic.
+  In isotropic cases the quadratic axes are arbitrary, so eta itself is not an
+  invariant under expansion with arbitrary xi.
+- Radial partitions include Gaussian widths, exponential endpoint widths
+  `1/abs(a-b*r_star)`, and geometric prior-resolution points. The endpoint widths
+  are necessary when a high-curvature exponent peaks outside the prior interval.
+- Angular searches use a dense scan and bounded refinement. For mpmath partition
+  selection, including the radial prior in the peak estimate avoids generating
+  hundreds of redundant peaks on a flat degenerate exponent ridge.
+- The mpmath integral uses the exact four-quadrant identity
+  `4*cosh(R*r*cos(eta)*cos(theta))*cosh(R*r*sin(eta)*sin(theta))`
+  on `[0, pi/2]`. It uses a single constant log shift including the prior weight,
+  preventing an absolute-error stopping rule from overlooking a small amplitude
+  near xmax. Outer tanh-sinh degree increases until its estimated relative error
+  is at most `1e-15` at the default precision. No integration tails are truncated.
+- Float64 isotropic evaluation uses `b = lam2 + (lam1-lam2)*cos(theta)**2` to
+  avoid false angular peaks from roundoff in `cos(theta)**2+sin(theta)**2`.
+- The four named `lam1=1e8` cases have actual annular SNR 0.5, 10, 100, 300.
+  Random inputs follow the requested proxy `R/sqrt(lam1)` distribution; their
+  actual SNR can exceed 300 (the seed-1 maximum is about 655.5). Both quantities
+  are stored explicitly. All named and random cases passed without exceptions.
+
+### Orchestrator verification of iteration 001 (accepted)
+
+- Read `dpmarg/params.py`, `dpmarg/reference.py`, `dpmarg/regimes.py`, the tests and the script.
+  The coefficient reduction, the normalization `ln[3/(2 pi (xmin^-3 - xmax^-3))]` (checked
+  against the `(xmin/x)^4` rescaling used inside the inner integral) and the four-quadrant identity
+  `4 cosh(u r) cosh(v r)` used by the mpmath integrand are correct.
+- `python -m pytest tests -q`: 41 passed in 69 s (run by the orchestrator, conda env).
+- Independent orchestrator check (not using any `dpmarg` quadrature): trapezoid rule on a dense
+  grid in `u = ln r` (20001 points) times a 4096-point periodic rule in theta, for six smooth cases
+  and both `(xmin, xmax) = (0.1, 100), (0.1, 10)`. Differences from `lnL_marg_ref` are
+  `9.0e-8` / `4.0e-8` uniformly across the cases *including the exact-zero case*, i.e. they are the
+  discretization error of the crude check, not of the reference. The pure-quadratic case
+  `E = 1` agrees with an exact 1-D mpmath integral to 12 digits for `ref` and `mp`.
+- Regression set: 40 points, worst `|ref - mp| = 3.4e-11`, actual SNR up to 655, `lam1` up to
+  `3.7e7`, `lam2 = 0` cases, peaks outside the prior range on both sides. Reference cost
+  0.12–0.29 s per call, so the reference is for validation only; the fast engine for sweeps is the
+  goal of iterations 002–003.
+- Note for later iterations: with `xmin = 0.1` any interior distance peak at `lam1 = 1e8` has
+  SNR >= 1000, so "very large lam1" at moderate SNR necessarily means a peak below `xmin`.
+- Next: iteration 002 — numba 1-D distance kernel `lnI(a, b; xmin, xmax)` parametrized by
+  `(a, b)` so that `b = 0` and `|a| -> large` are regular inputs.
