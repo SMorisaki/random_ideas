@@ -12,3 +12,4 @@ dependencies:
   - numba
   - h5py
   - pytest
+  - mpmath   # high-precision independent reference (dpmarg.reference)

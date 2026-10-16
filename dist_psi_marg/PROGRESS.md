@@ -41,3 +41,23 @@ How to unblock (either):
    never printed, logged or committed.
 2. Or run `sh .devcontainer/run_codex.sh login --device-auth` in a session and approve the device
    code in a browser while the session is attended.
+
+## Session 2026-10-16 (cloud, second session): authentication resolved, loop started
+
+- Branch `LLM`, working tree clean, `git pull --ff-only` up to date (f5041f8). Push access verified
+  (`check_repo_access`: push_check ok).
+- `sh .devcontainer/run_codex.sh login --device-auth` was approved by the owner in a browser;
+  `sh .devcontainer/run_codex.sh login status` -> "Logged in using ChatGPT". Codex 0.163.0.
+- Codex sandbox probe in this container: `codex sandbox -c 'sandbox_mode="workspace-write"'` can write
+  in the cwd and is denied outside it ("Read-only file system"), so `--sandbox workspace-write` is used.
+- Conda env rebuilt with `bash dist_psi_marg/tools/cloud_setup.sh` at `/home/user/conda-env`
+  (python 3.12.15, numpy 2.5.4, scipy 1.18.1, numba 0.68.0). `mpmath` added by the orchestrator
+  (`micromamba install -c conda-forge mpmath`) for the independent high-precision reference;
+  `environment.yml` updated in the same commit.
+- `/projects/data_release` is not mounted in the cloud container; experiments use synthetic coefficients.
+- Owner instructions (2026-10-16) recorded in `TASK.md` §1, §3, §7, §8: compare three methods
+  (full 4-D lookup table / partial table + numerical integration / Gaussian approximation in the steep
+  direction + table), find the best one, and determine the SNR below which the Gaussian approximation
+  breaks. Coefficients must cover everything a sampler can produce, not only typical GW values.
+- Network note: `api.openai.com` is denied by the environment's network policy (CONNECT 403), but
+  Codex with ChatGPT auth uses `chatgpt.com` / `auth.openai.com`, which are reachable.

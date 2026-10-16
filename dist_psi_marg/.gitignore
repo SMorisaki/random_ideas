@@ -1,0 +1,10 @@
+# generated / cache files inside dist_psi_marg (logs/ is ignored from the repo-root .gitignore)
+__pycache__/
+*.pyc
+.pytest_cache/
+.codex_sandbox_probe
+# large generated tables and raw experiment outputs (keep small JSON summaries)
+data/*.npz
+data/*.npy
+data/*.h5
+data/*.hdf5
