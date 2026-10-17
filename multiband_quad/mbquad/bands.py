@@ -35,6 +35,11 @@ class BandSetup:
     mchirp_ref is the prior's minimum chirp mass, and m_max its largest
     positive mode m. The Newtonian tau (Eqs. 53, 55) sets internal edges by
     Eq. (51) and widths by Eq. (47); Eq. (56) sets the final upper taper.
+    rule='paper' preserves those edges. Optional 'hh_half' and 'hh_full'
+    raise each internal edge to the first root of the additional lag-support
+    condition (method_idea §10.3). L_hh controls its tail margin, m_min the
+    smallest positive m present. These are Newtonian support prescriptions,
+    not rigorous bounds on PN/spin corrections or finite-window tails.
 
     T_b, N_b, dt_b, M_b, K_s, K_e and K_b have B entries; f_b and Df_b have
     B+1 entries, including the final edge f_high + Df_b[B]. N_b is not capped
@@ -44,7 +49,8 @@ class BandSetup:
     """
 
     def __init__(self, T, dt, f_low, f_high, durations, mchirp_ref,
-                 m_max, L, tc_min_minus_T=-2.12, T_minus_tc_max=1.9):
+                 m_max, L, tc_min_minus_T=-2.12, T_minus_tc_max=1.9,
+                 rule="paper", L_hh=5.0, m_min=1):
         self.N = sample_count(T, dt)
         frequency_limits(f_low, f_high, dt)
         self.T, self.dt = float(T), float(dt)
@@ -63,6 +69,13 @@ class BandSetup:
             raise ValueError("m_max must be a positive integer")
         if not np.isfinite(L) or L <= 0:
             raise ValueError("L must be finite and positive")
+        if rule not in ("paper", "hh_half", "hh_full"):
+            raise ValueError("rule must be 'paper', 'hh_half' or 'hh_full'")
+        if not np.isfinite(L_hh) or L_hh < 0:
+            raise ValueError("L_hh must be finite and nonnegative")
+        if not np.isfinite(m_min) or int(m_min) != m_min or not 1 <= m_min <= m_max:
+            raise ValueError("m_min must be an integer in [1, m_max]")
+        self.rule, self.L_hh, self.m_min = rule, float(L_hh), int(m_min)
         if not np.isfinite(tc_min_minus_T):
             raise ValueError("tc_min_minus_T must be finite")
         if not np.isfinite(T_minus_tc_max) or T_minus_tc_max <= 0:
@@ -92,6 +105,35 @@ class BandSetup:
             self.Df_b[b] = 1 / np.sqrt(-self.dtau_df(self.f_b[b]))
         self.Df_b[-1] = 100 / self.T_minus_tc_max
         self.f_b[-1] = self.f_high + self.Df_b[-1]
+        self.paper_f_b = self.f_b.copy()
+        self.binding = ["full_grid"] + ["paper"] * (self.B - 1)
+        # Descend: hh_full uses the FINAL upper edge of the next band.
+        # f-1/sqrt(-tau') is not globally monotone. Search only the first
+        # decreasing-residual branch, before the support start turns over.
+        if rule != "paper":
+            for b in range(self.B - 1, 0, -1):
+                lower = self.f_b[b]
+                def residual_hh(f):
+                    return self.hh_extent(f, self.f_b[b + 1]) - self.T_b[b]
+                if residual_hh(lower) <= 0:
+                    continue
+                upper = lower
+                flo_previous = lower - 1 / np.sqrt(-self.dtau_df(lower))
+                while True:
+                    upper *= 1.02
+                    flo = upper - 1 / np.sqrt(-self.dtau_df(upper))
+                    if flo <= flo_previous or upper >= self.f_b[b + 1]:
+                        raise ValueError(f"Band {b}: {rule} has no feasible support root; "
+                                         "adjust durations, margins or frequency limits")
+                    if residual_hh(upper) <= 0:
+                        break
+                    flo_previous = flo
+                root = brentq(residual_hh, lower, upper, xtol=1e-12)
+                # A tiny outward rounding keeps an equality root admissible
+                # to B1's <= comparison, without changing paper defaults.
+                self.f_b[b] = root * (1 + 1e-12)
+                self.Df_b[b] = 1 / np.sqrt(-self.dtau_df(self.f_b[b]))
+                self.binding[b] = rule
         for b in range(self.B):
             if not self.f_b[b] < self.f_b[b + 1] - self.Df_b[b + 1]:
                 raise ValueError(
@@ -126,6 +168,24 @@ class BandSetup:
         """Derivative of Eq. (55), including the chain factor 2/m_max, f > 0."""
         return ((2 / self.m_max)
                 * dtau_0pn_df(2 * np.asarray(f, dtype=float) / self.m_max, self.mchirp_ref))
+
+    def hh_extent(self, f_edge, f_hi, rule=None):
+        """Required lag width in seconds at an Eq. (47) lower edge.
+
+        hh_half: 2[Lambda_max(f_lo)+L_hh sigma_mmax(f_lo)].
+        hh_full: Lambda_max(f_lo)+L_hh[sigma_mmax(f_lo)+sigma_mmax(f_hi)].
+        Lambda=tau_mmax-tau_mmin, sigma=sqrt(-tau'_mmax),
+        f_lo=f_edge-1/sigma(f_edge). Only positive support starts are valid.
+        b=0 uses the full circular grid and requires no such inequality.
+        """
+        rule = self.rule if rule is None else rule
+        if rule not in ("hh_half", "hh_full"):
+            raise ValueError("hh_extent requires hh_half or hh_full")
+        flo = f_edge - 1 / np.sqrt(-self.dtau_df(f_edge))
+        lag = self.lag_pair(flo, self.m_max, self.m_min)
+        margin = self.L_hh * np.sqrt(-self.dtau_df(flo))
+        return (2 * (lag + margin) if rule == "hh_half" else
+                lag + margin + self.L_hh * np.sqrt(-self.dtau_df(f_hi)))
 
     def _check_band(self, b):
         if not isinstance(b, (int, np.integer)) or not 0 <= b < self.B:
@@ -190,11 +250,16 @@ class BandSetup:
                      f_hi=float(self.f_b[b + 1]), Df_lo=float(self.Df_b[b]),
                      Df_hi=float(self.Df_b[b + 1]), N_b=int(self.N_b[b]),
                      M_b=int(self.M_b[b]), K_s=int(self.K_s[b]),
-                     K_e=int(self.K_e[b]), K_b=int(self.K_b[b])) for b in range(self.B)]
+                     K_e=int(self.K_e[b]), K_b=int(self.K_b[b]),
+                     rule=self.rule, binding=self.binding[b], K_MB=self.K_MB,
+                     hh_half_width=(None if b == 0 else float(self.hh_extent(
+                         self.f_b[b], self.f_b[b + 1], "hh_half"))),
+                     hh_full_width=(None if b == 0 else float(self.hh_extent(
+                         self.f_b[b], self.f_b[b + 1], "hh_full")))) for b in range(self.B)]
 
     def format_summary(self):
         """Format summary_table() as Markdown, with Hz edges and second durations."""
-        columns = ["b", "T_b", "f_lo", "f_hi", "Df_lo", "Df_hi", "N_b", "M_b", "K_s", "K_e", "K_b"]
+        columns = ["b"] + list(self.summary_table()[0])
         lines = ["| " + " | ".join(columns) + " |", "| " + " | ".join(["---"] * len(columns)) + " |"]
         for b, row in enumerate(self.summary_table()):
             cells = [str(b)] + [f"{value:.6f}" if isinstance(value, float) else str(value)

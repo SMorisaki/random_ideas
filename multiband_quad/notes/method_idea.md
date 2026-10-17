@@ -339,3 +339,15 @@ its period-`2T_b` folding of the `sqrt(w)` tails interacts with the long PSD ker
 4e-16; IFFT-FFT and B1 vary by 1-2e-6 over the `t_c` prior. Conclusion for the total-waveform case: B0 with a slightly more
 conservative band rule (L = 50 or the `hh_half` rule of iteration 008) is the simplest and cheapest adequate method; B1 is
 the fallback when the band rule cannot be changed; method A adds `t_c` independence and the extrinsic factorisation.
+
+## 12. Band rule for the total waveform (iteration 008)
+
+`hh_half`: choose each band edge `f^(b)` (b >= 1) as the larger of the Eq. 51 root and the root of
+`2 [Lambda_max(f_lo) + L_hh sigma_mmax(f_lo)] = T_b`, `f_lo = f^(b) - Df^(b)`, `Lambda_max = tau_0pn(2 f_lo/m_max) - tau_0pn(2 f_lo/m_min)`.
+Then the two-sided lag support of `w |h|^2` fits in the centred block of length `M_b` and B0 (one real weight vector per band,
+no FFT, no modes) is exact up to tails. Cost: K_MB +23% (BNS, where the chirp time dominates `T_b`) and +2-3% for 16 s signals
+(where the 2.12 s `t_c` slack dominates). Accuracy: 4e-10 (BNS) to 1.6e-7 (GW190814-like) relative, at or below the
+paper-band IFFT-FFT. Route cost relative to the IFFT-FFT route: 0.82 (one detector), 0.50-0.59 (three detectors).
+`hh_full` (one-sided block of the extreme class fits) also binds in some BNS bands with the paper's `L = 5`; method A keeps
+the paper bands, whose prior-corner blocks were audited with the model's own phase (no negative slack over the
+(Mc, q, chi_eff) grids; measured lags near merger are shorter than the Newtonian prediction, i.e. inside the blocks).

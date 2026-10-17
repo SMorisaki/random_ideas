@@ -68,7 +68,8 @@ def test_lag_uses_support_start(toy_case):
 def test_summary_and_print(bbh_bands, capsys):
     rows = bbh_bands.summary_table()
     assert len(rows) == bbh_bands.B
-    assert set(rows[0]) == {"T_b", "f_lo", "f_hi", "Df_lo", "Df_hi", "N_b", "M_b", "K_s", "K_e", "K_b"}
+    assert set(rows[0]) == {"T_b", "f_lo", "f_hi", "Df_lo", "Df_hi", "N_b", "M_b", "K_s", "K_e", "K_b",
+                            "rule", "binding", "K_MB", "hh_half_width", "hh_full_width"}
     assert rows[0]["T_b"] == 8
     bbh_bands.print_summary()
     assert capsys.readouterr().out == bbh_bands.format_summary() + "\n"

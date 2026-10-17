@@ -256,3 +256,32 @@ criteria in absolute terms (median `|Delta ln Lambda| <= 2e-4` at SNR 25 for L =
 the ratios, and treat the L = 50 (or HOM-aware) band rule as the recommended configuration for B0/B1.
 
 Next: iteration 008 (band rules, L scaling, prior slack audit, B0-compatible rule).
+
+## Iteration 008 — band rules for HOM: L scan, B0-compatible rule, slack audit (PASS; C3 evidence)
+
+Codex (~40 min) added `BandSetup(rule="paper"|"hh_half"|"hh_full", L_hh, m_min)`, `mbquad/slack.py` (phase-based lag audit
+from the model's own `d arg h_lm / df`), two scripts, figures and `tests/test_bandrules.py`; 146 tests pass; defaults unchanged.
+
+Orchestrator verification (tables inspected):
+- `hh_half` (edges chosen so that `2 [Lambda_max(f_lo) + L_hh sigma_mmax(f_lo)] <= T_b`), `L = 5`, `L_hh = 5`: adaptive B1 selects
+  B0 in every truncated band; K_MB +22.8% (BNS 20167 -> 24770), +2.7% (GW190814-like), +2.0% (BBH), +3.0% (strong NSBH).
+  Relative errors (median / worst over the two PSDs) of B0 = B1: BNS 4.4e-10 / 8.1e-10, GW190814-like 1.6e-7 / 1.8e-7,
+  BBH 2.0e-8 / 3.6e-8, strong NSBH 4.8e-9 / 6.1e-9, negative-spin BBH 3.4e-8 / 6.4e-8 (paper-band IFFT-FFT: 2.5e-8, 1.6e-7,
+  6.2e-8, 3.4e-8, 1.2e-7). Worst `|Delta ln Lambda|` at SNR 25: 5.7e-5. `L_hh = 3` or `8` is not consistently better.
+  Estimated route costs (1 / 3 detectors, ms, iteration-006 component costs): BNS IFFT-FFT 9.76 / 16.36 vs B0-hh_half
+  8.00 / 8.15 vs pairwise-paper 8.61 / 9.78; GW190814-like 3.04 / 4.28 vs 2.50 / 2.54 vs 3.42 / 3.73; BBH 2.78 / 3.91 vs
+  2.27 / 2.31 vs 5.22 / 5.53. **For the total waveform, B0 with the `hh_half` rule is the recommended configuration:
+  no FFT, no modes, 0.82x (1 detector) / 0.50-0.59x (3 detectors) of the IFFT-FFT route, IFFT-FFT-level or better accuracy.**
+- L scan (paper rule, L = 5, 10, 20, 50; medians over PSDs): pairwise improves from 1e-8..4e-7 to 6e-10..1e-8, IFFT-FFT from
+  4e-8..2e-7 to 8e-9..5e-8; fitted slopes are not the tail-envelope -3 / -2 (moving edges, cancellations, PSD lines,
+  diagonal fold) but pairwise steepens faster (GW190814-like: -2.8 vs -1.0).
+- Slack vs error: shifting the blocks by +-1 sigma leaves the floor unchanged; forcing the support outside the block
+  (-5.9 s slack) gives 8.4e-4 relative error (0.26 in ln Lambda at SNR 25), i.e. the design margins matter and are adequate.
+- Prior slack audit with the model's own time-frequency relation over (Mc, q, chi_eff) grids (42 / 45 / 54 points): no
+  negative measured slack in any truncated band; worst slack 1.01 / 0.96 / 0.87 s (m_max = 4) and 1.41 / 1.36 / 1.29 s
+  (m_max = 5, Newtonian prediction: the XHM (5,5) one-mode probe crashed inside LAL); measured/Newtonian lag ratios at the
+  lower band edges 0.94-1.02 (BNS) down to 0.07-0.13 (NSBH/BBH near merger: measured lags are shorter than the Newtonian
+  prediction, hence inside the blocks); non-dyadic durations {T, T/4, T/16, T/64} keep coverage.
+
+Next: iteration 009 (numba kernels, final timing tables, C2); then 010 = documents (METHOD_NOTE.md, REPORT.md, incl. the
+final full-scale BNS table, merged from the former 010/011).
