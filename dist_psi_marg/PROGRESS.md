@@ -356,3 +356,19 @@ call; p99 tails from two-peak and fallback cases); (2) guard-free radial table v
 that include the prior slope `4/x`; (3) tables for other `xmax/xmin` ratios and priors other
 than `D_L^2`; (4) a smooth switch between the Laplace and method-2 branches for gradient-based
 samplers.
+
+## Session 2026-10-17 (cloud): owner follow-up — analytic theta geometry
+
+- Startup: branch `LLM`, clean, `git pull --ff-only` up to date, `run_codex.sh login status` ->
+  "Logged in using ChatGPT", conda env and tables present.
+- Owner request: use the analytic (Laplace-in-distance) prediction of the theta peak and width;
+  Gauss–Hermite quadrature when the peak is sharp, a fixed precomputed grid when it is broad
+  (reference: Roulet et al. 2024, arXiv:2404.02435 — there the fixed grid is the regular
+  `N_phi = 128` orbital-phase grid with trapezoid rule and precomputed phase factors, §II.3;
+  polarization itself is importance-sampled from its uniform prior, §II.4).
+- Orchestrator derivation (checked numerically on 3000 interior cases, SNR 10–316): the interior
+  Laplace proxy `R^2 cos^2(theta-eta)/(2 b)` is maximized at `phi* = 2 theta* = delta +
+  asin(S sin 2eta/rho')`, `rho' = sqrt((E cos 2eta - S)^2 + E^2 sin^2 2eta)`,
+  `delta = atan2(E sin 2eta, E cos 2eta - S)`; median offset from the scanned maximum 0.8% of the
+  width (99%: 21%), scaling as `O(1)/rho^2`; width ratio median 0.999.
+- Iteration 009 prompt written (`prompts/iter_009.md`).
