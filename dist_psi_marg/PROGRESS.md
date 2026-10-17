@@ -372,3 +372,51 @@ samplers.
   `delta = atan2(E sin 2eta, E cos 2eta - S)`; median offset from the scanned maximum 0.8% of the
   width (99%: 21%), scaling as `O(1)/rho^2`; width ratio median 0.999.
 - Iteration 009 prompt written (`prompts/iter_009.md`).
+
+## Iteration 009 — analytic theta geometry: Gauss–Hermite for sharp peaks, fixed grid otherwise (accepted after 2 fix rounds)
+
+Codex (round 0, `prompts/iter_009.md`): `dpmarg/geometry.py` replaces the 64-point proxy scan by
+analytic candidates (closed-form interior maximum `theta* = atan2(lam1 sin eta, lam2 cos eta)`,
+the stable form of `(delta + asin(S sin 2eta/rho'))/2`; weak-axis and clipping seeds) refined by
+safeguarded Newton on the Laplace proxy with analytic first/second derivatives; width
+`w = 1/sqrt(-p'')`. Rules: GH12 for isolated sharp peaks (`w < 0.2`), precomputed periodic grid
+otherwise, sinh fallback. All 4,347 shared points <= 1e-4, median 6.4 µs — but p99 497 µs and
+the sampler-like mean 51 µs (worse than scan).
+Fix round 1 (`prompts/iter_009b.md`, orchestrator diagnosis from the per-point dump): 12–20% of
+the grid/sinh radial lookups hit guarded table cells (direct quadrature) at pedestal nodes with
+negligible contribution, and the sinh96 fallback fired on 19% of calls although most of those
+widths (0.03–0.19) are grid-resolvable. Changes: certified negligible-node skipping (proxy gap
+`M = 40` plus a rigorous upper/lower integral bound, discarded mass <= e^-25; ~4% of nodes
+skipped, max change 3.6e-15), width-selected grids (spacing <= 1.3 w, 48/64/96/128; sinh64 only
+for `w < 0.017`; split GL32 for overlapping peaks), GH acceptance by pedestal mass (16 probes),
+and a precomputed composite GL12 log-radius rule for guarded cells (8.9e-12 vs the direct kernel
+on 57k probes). Result: every set's mean and p99 below scan; overall median 6.4 µs, mean 15 µs,
+p99 65 µs.
+Fix round 2 (`prompts/iter_009c.md`, orchestrator's independent degenerate-corner sweep of 144
+points: `lam2/lam1 in {0, 1e-8, 1e-6, 1e-4}`, `eta in {0, 1e-3, 1e-2, 0.1}`): the analytic rule
+had 11 points > 1e-3 (worst 0.63) on the `lam2 ~ 0, eta = 0` flat ridge — the maximum is a
+clipping cusp at `theta_c = acos(R/(lam1 xmin))` whose width is the radial transition mapped to
+theta, `w_cusp = (1/sqrt(b))/|dx0/dtheta|`, but the geometry gave it the broad one-sided curvature
+width and centred a sinh patch on a spurious tiny-width candidate at the `xmax` crossing; the
+legacy scan rule had 4 points > 1e-3 (worst 57) for `eta ~ 1e-3, lam2/lam1 ~ eta^2` where the
+weak-axis island (height twice the ridge, width ~eta) is invisible to the scan. Changes: cusp
+widths and kink handling (sinh, never GH), mass-based patch selection, finite `a = b = 0`
+geometry (pair mass `2V`, exact finite curvature for `R^2 <= lam1`), nodes at significant `xmax`
+shoulders, GH32 in the corner, analytic seeds for the scan rule, `scripts/check_degenerate.py`
+(300 grid + 300 random near-degenerate points, references cached). 507 tests.
+
+Orchestrator verification (final state):
+- `python -m pytest tests -q`: 507 passed (109 s).
+- Orchestrator degenerate sweep re-run (300 points, `xi = 0.3`): analytic max 7.5e-5, none
+  > 1e-4; scan max 1.3e-4 (2 points > 1e-4, none > 1e-3).
+- Orchestrator spot check (16 cases x 2 rotations): worst 5.5e-5 (the former 0.10 flat-ridge case).
+- Shared sets (Codex's `data/method2b_summary.md`, reproduced structure): analytic max error
+  3.4e-5 / 5.0e-7 / 9.4e-5 / 1.6e-5 (regression / stored random / fresh / sampler-like), all
+  <= 1e-4; median / mean / p99 µs: 12.6/16.3/60, 13.9/18.6/53, 13.0/18.7/79, 5.0/17.2/85 versus
+  scan 20.6/31.2/147, 20.4/23.6/73, 20.9/27.1/162, 21.4/38.9/172. Overall analytic median 6.7 µs,
+  mean 18 µs, p99 84 µs. Branches: GH 51–75%, grid 25–47%, sinh/GL <= 2.5% (28% on the 7
+  repaired cases).
+- `dpmarg.fast` now uses `rule='analytic'`; `rule='scan'` kept as the legacy comparison.
+- Residual: the degenerate corner costs more (median 25–27 µs there, GH32 and 128-point grids);
+  the geometry mismatch audit versus the old scan proxy is large by construction (cusp widths
+  changed) but the integral audit passes. Both are documented in REPORT.md.

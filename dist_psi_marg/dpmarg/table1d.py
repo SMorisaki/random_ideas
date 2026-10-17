@@ -17,6 +17,46 @@ from scipy.ndimage import spline_filter
 from .kernel1d import lnI_direct, fmax_1d
 
 
+# Precomputed composite GL12 in log radius for the two validated priors.
+# This optional analytic-rule fallback avoids repeated expm1 evaluations
+# and panel construction in the moderate-SNR guarded-table region.
+_GUARD_X=np.zeros((2,168))
+_GUARD_W=np.zeros((2,168))
+_GUARD_N=np.zeros(2,dtype=np.int64)
+_gx,_gw=np.polynomial.legendre.leggauss(12)
+for _i,_hi in enumerate((10.,100.)):
+    _length=math.log(_hi/.1)
+    _panels=int(math.ceil(_length/.5))
+    _step=_length/_panels
+    _v=(np.arange(_panels)[:,None]+.5)*_step+_gx[None,:]*_step/2
+    _xx=.1*np.exp(_v.ravel())
+    _ww=np.tile(_gw*_step/2,_panels)*_xx**-3
+    _GUARD_N[_i]=len(_xx)
+    _GUARD_X[_i,:len(_xx)]=_xx
+    _GUARD_W[_i,:len(_xx)]=_ww
+
+
+@njit(cache=True)
+def _guard_integral(a,b,lo,hi):
+    """Peak-shifted log integral via fixed log-radius composite GL12.
+
+    Formula: sum w_j x_j^-3 exp(a*x_j-b*x_j²/2-fmax).
+    Used only for lo=.1, hi=10 or 100, fmax<=100, |a|*lo<=100 and b*lo²<=100;
+    beyond that moderate-curvature region use lnI_direct. Each log panel
+    has width <=.5. Accuracy is checked against the general direct kernel
+    on every unsafe table cell and the actual angular-node workloads.
+    """
+    peak=fmax_1d(a,b,lo,hi)
+    if lo!=.1 or (hi!=10. and hi!=100.) or peak>100 or abs(a)*lo>100 or b*lo*lo>100:
+        return lnI_direct(a,b,lo,hi)
+    index=0 if hi==10. else 1
+    total=0.
+    for k in range(_GUARD_N[index]):
+        x=_GUARD_X[index,k]
+        total+=_GUARD_W[index,k]*math.exp(x*(a-.5*b*x)-peak)
+    return math.log(total)
+
+
 @njit(cache=True)
 def _erfcx(z):
     """exp(z*z)*erfc(z), z>=0; asymptotic series above 20 avoids overflow."""
@@ -194,7 +234,7 @@ def _endpoint_series(a,b,lo,hi):
 
 
 @njit(cache=True,inline='always')
-def _lookup_count(a,b,table):
+def _lookup_count(a,b,table,quick_guard=False):
     values,s0,ds,v0,dv,sigma0,bref,lo,hi,bmax,mode,order,unsafe=table
     if not (math.isfinite(a) and math.isfinite(b) and b>=0):
         raise ValueError('require finite a,b and b>=0')
@@ -211,6 +251,8 @@ def _lookup_count(a,b,table):
         return lnI_direct(a,b,lo,hi),1
     i=min(int(u),ns-2); j=min(int(w),nv-2)
     if unsafe[i,j]:
+        if quick_guard:
+            return _guard_integral(a,b,lo,hi),1
         return lnI_direct(a,b,lo,hi),1
     t=u-i; z=w-j
     if order==1:
@@ -299,19 +341,19 @@ def _guard_cells(table,tolerance):
 
 
 @njit(cache=True)
-def _lnJ_pair_table_count(a,b,table):
+def _lnJ_pair_table_count(a,b,table,quick_guard=False):
     """Paired radial integral, same certified sign skip as kernel1d.lnJ_pair."""
     lo,hi=table[7],table[8]
     a=abs(a)
     fp=fmax_1d(a,b,lo,hi); fm=fmax_1d(-a,b,lo,hi)
-    positive,fb=_lookup_count(a,b,table)
+    positive,fb=_lookup_count(a,b,table,quick_guard)
     positive+=fp
     if a==0:
         return positive+math.log(2.),1,fb
     logvolume=-3*math.log(lo)+math.log1p(-(lo/hi)**3)-math.log(3.)
     if fm-fp < -40 and (2*a*lo>40 or fm+logvolume-positive < -40):
         return positive,1,fb
-    negative,fb2=_lookup_count(-a,b,table)
+    negative,fb2=_lookup_count(-a,b,table,quick_guard)
     negative+=fm
     top=max(positive,negative)
     return top+math.log1p(math.exp(min(positive,negative)-top)),2,fb+fb2

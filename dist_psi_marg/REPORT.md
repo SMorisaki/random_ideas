@@ -7,8 +7,11 @@
 4次の2次元Laplace近似へ切り替える。通常の4次元格子は、遷移に合わせた座標と滑らかな
 正規化を導入しても必要な精度とメモリ制約を満たさなかった。
 以下の比較は同じ参照値を使用し、近似が適用できない点の割合も明記する。
+反復009では、走査を行わない解析的な角度予測とGH12／固定48点格子を既定とした。
+全4,340点と修復例で最大誤差5.27e-5、全体の中央値6.43 µs（旧方式20.8 µs）を得た。
+ただし幾何計算の中央値1.53 µsは1 µsの目標を超え、フォールバックの99%コストも増加した。
 
-主要な数値（事前分布 $D_{\max}/D_{\min}=1000$、$(x_{\min},x_{\max})=(0.1,100)$、単一スレッド、JIT ウォームアップ後）:
+以下は反復008の比較値であり、反復009の更新結果は末尾に示す。主要な数値（事前分布 $D_{\max}/D_{\min}=1000$、$(x_{\min},x_{\max})=(0.1,100)$、単一スレッド、JIT ウォームアップ後）:
 
 - **手法 2（推奨）**: 距離カーネルの $(s,v)$ 2 次元テーブル（996×996、8 MB、構築 20 秒）+ θ 方向 64 節点の適応求積。
   同一の 4,340 点（回帰 40、保存乱数 300、新規乱数 2,000、模擬事後分布 2,000）で最大誤差 4.8e-5、
@@ -294,6 +297,7 @@ The CDF denominator is the full input set, so unavailable methods stop below one
 
 ## 4. Recommendation and table construction
 
+Iteration 009 updates method 2 to the scan-free analytic rule described below.
 Use `dpmarg.lnL_marg_fast(A,B,C,D,E,xmin,xmax,table)` for the measured mixture,
 or `use_laplace=False` for exactly the table-backed method-2 result. Both scalar
 and array functions compile in Numba. `fast_diagnostics` and
@@ -442,3 +446,434 @@ under `data/` and are ignored by git.
 | `data/final_reference_full.json`, `data/final_benchmark_full.json` | Ignored reference cache and per-point measurements |
 | `data/method1*_slices.json`, `data/method2_summary.md`, `data/method3_summary.md` | Prior-iteration numerical evidence |
 | `figures/final_error_cdf.png`, `figures/final_cost_vs_error.png` | Final shared-set comparison figures |
+
+## Iteration 009: analytic geometry, Gauss–Hermite / fixed grid
+
+The new default is `lnL_marg_m2_table(..., rule='analytic')` and the method-2
+branch of `dpmarg.fast` uses it explicitly. `rule='scan'` retains the previous
+64-sample geometry and nested quadrature. The direct-kernel method remains
+unchanged. `use_laplace=False` still returns exactly the default table-backed
+method 2; the separate 2-D Laplace gate and its accuracy limits are unchanged.
+
+### Geometry and its domain
+
+For the paired, pi-periodic integrand, put
+\(a=|R\cos(\theta-\eta)|\),
+\(b=E+S\cos2\theta=\lambda_1\cos^2\theta+\lambda_2\sin^2\theta\).
+The interior leading exponent is \(a^2/(2b)\). Differentiation with
+\(\phi=2\theta\) gives
+
+\[
+ E\sin(\phi-2\eta)-S\sin\phi=S\sin2\eta,
+ \quad \rho'\sin(\phi-\delta)=S\sin2\eta,
+\]
+
+where \(\rho'=\operatorname{hypot}(E\cos2\eta-S,E\sin2\eta)\) and
+\(\delta=\operatorname{atan2}(E\sin2\eta,E\cos2\eta-S)\).
+The maximum is \((\delta+\arcsin(S\sin2\eta/\rho'))/2\), modulo pi;
+the other root is the zero-numerator minimum. The stable implementation is
+
+\[
+ \theta_* = \operatorname{atan2}(\lambda_1\sin\eta,
+                                \lambda_2\cos\eta)\pmod\pi.
+\]
+
+This is the direction of the completed-square Cartesian peak, equivalently
+the maximum of a rank-one generalized Rayleigh quotient. It avoids cancellation
+in the inverse sine near degeneracy. The flat ridge at `lam2=0, eta=0` needs
+the prior and finite radial bounds. Tests compare both closed forms with an
+independent dense-bracketed maximization on 200 random cases to 1e-10 in height.
+
+`dpmarg/geometry.py` first finds extrema of the continuous historical proxy
+\(q=f_{\max}-4\ln r\), \(r=\mathrm{clip}(a/b)\). Its small seed set includes
+both interior stationary directions, the weak and stiff axes, eta, endpoint
+weak-axis offsets and both sides of the zero-numerator direction. Safeguarded
+Newton steps solve a crossed `a=b*xmin` cusp directly. Zero-signal, isotropic,
+well-enclosed high-SNR and wholly lower-clipped sharp cases have analytic fast
+paths. Candidates within 40 log units are retained, merging centers closer
+than their smaller width. Midpoint cuts partition the entire period; no scan,
+golden-section search or distance-kernel call occurs in the new geometry.
+
+The smooth-branch derivatives are analytic. In the interior,
+\(r'=(a'-b'r)/b\), \(r''=(-a-b''r-2b'r')/b\), giving
+
+\[
+ q'=a'r-\tfrac12b'r^2-4r'/r,\qquad
+ q''=-ar-\tfrac12b''r^2+(a'-b'r)r'
+      -4[r''/r-(r'/r)^2].
+\]
+
+The full interior Laplace proxy adds \(\tfrac12\ln(2\pi/b)\), whose
+curvature correction is \(-[b''/b-(b'/b)^2]/2\). At a clipped endpoint it
+adds \(-\ln|a-br|\), whose correction is
+\(-(a''-b''r)/(a-br)+[(a'-b'r)/(a-br)]^2\); the radius is constant there.
+Newton refinement on this full proxy supplies the GH center and
+\(w=\min(0.3,1/\sqrt{-p''})\). GH geometry requires four radial standard
+deviations to both boundaries and \(r\sqrt b>6\), or an endpoint slope
+\(|a-br|>6\sqrt b\) and \(|a-br|r>20\). These are empirical selection guards,
+not approximations to the likelihood value: every retained node uses the radial table
+and its existing certified opposite-sign skip and guarded fallbacks.
+
+The clipped proxy is only continuous at a radial clipping transition;
+\(p''\) does not exist there, and the raw endpoint-layer approximation is
+singular at zero slope. Applying its curvature there would repeat the
+iteration-008 spurious-width failure. Those regimes use the continuous proxy
+and conservative one-sided widths, followed by a grid or full-period sinh rule.
+Neither third nor fourth derivatives are used: the Hermite order is fixed by
+the reference sweep rather than a non-Gaussianity-based order formula.
+
+### Cost-tail repair: rules and certified node pruning
+
+GH retains order **12**, a sharp-width switch of **0.2**, the radial-asymptote
+guards, and the requirement that its nodes fit within one period. Separate
+clusters must be farther apart than six times the sum of their widths.
+Candidates are pruned from the GH mixture only at an 18-log estimated mass
+gap. The old eight-width drop probes have been removed. Instead, **16 uniform
+precomputed probes** estimate the pedestal mass outside the union of
+six-width windows. GH is accepted only when that mass is below **1e-6** of
+\(\exp(p_*)\sqrt{2\pi}w\). This is a selection estimate, checked by the
+reference sweep; it is not a rigorous bound on unsampled angular mass.
+
+Failed GH cases use precomputed periodic grids **48/64/96/128**, selected by
+\(\pi/N\le1.3w\), with a 128-node cap. The non-GH resolution widths include a
+**0.8 safety factor** on proxy widths. Near the weak axis they also resolve
+the fixed-radius angular curvature at the radial exponent mode and the
+prior's RMS scale \(\sqrt3x_{\min}\). Nearly null rays retain the much narrower
+upper-radius core scale \(1/(x_{\max}\sqrt{\lambda_1-\lambda_2})\).
+These additions are necessary: clipping maxima of the continuous proxy can
+hide larger-radius mass, and the zero-linear-signal null-axis profile has
+algebraic Fourier convergence rather than Gaussian convergence. The raw
+curvature width alone produced errors up to 0.0184 with the proposed grids.
+Three selected points reach the 128-node cap with conservative widths below
+\(\pi/(128\times1.3)\); all pass the reference check. This is the only spacing
+cap exception, and their errors are recorded in the full dump.
+
+A single narrow island with significant pedestal retains the iteration-003
+**64-node corrected sinh trapezoid**, only when its conservative resolution
+width is **below 0.017**. Two overlapping narrow peaks with comparable widths
+use **32 Gauss–Legendre nodes per sinh interval**. A third retained peak can
+require a third interval (three of 4,347 evaluations). A narrow island on a
+much broader pedestal uses one full-period sinh patch. There is no nested
+angular refinement. Diagnostic overrides can force a periodic grid or double
+the chosen nodes; grids beyond 128 in this diagnostic evaluate trig directly.
+The production grid uses precomputed sine/cosine factors, evaluating
+\(b=\lambda_2+(\lambda_1-\lambda_2)\cos^2\theta\) to avoid weak-axis cancellation.
+
+Before radial lookups, every node gets a weighted proxy score
+\(p_L+\ln\omega\). `_node_proxy(a,b,...)` reproduces the Laplace proxy where its
+radial asymptote is valid and the continuous proxy elsewhere; it needs no
+trig or derivatives once grid coefficients are available. The chosen margin
+is **M=40**. Width terms are not uniformly bounded at clipping, so the proxy
+alone is not treated as a certificate. A second, cheap bound certifies every
+candidate omission. For \(r=\mathrm{clip}(|a|/b)\),
+
+\[
+ h\le 2x_{\min}^{-4}\exp(f_{\max})G_{\max},\qquad
+ G_{\max}=\min(x_{\max}-x_{\min},\sqrt{2\pi/b},1/|a-br|),
+\]
+
+where the last term is used only at a clipped endpoint. For a lower bound,
+choose \(\delta\le\min[(x_{\max}-x_{\min})/2,1/\sqrt b,1/|a-br|]\) into the
+longer allowed side. The exponent drops by at most 3/2, hence
+\(h\ge\delta\exp(f_{\max}-3/2)\min(x_{\max},r+\delta)^{-4}\).
+The best weighted proxy node supplies a retained lower bound; each omitted
+weighted node must have an upper bound below \(e^{-25}/N\) times that lower
+bound. The sum of omitted true quadrature mass is therefore at most
+**exp(-25)=1.39e-11** of retained mass, independently of the proxy error
+(excluding floating-point error). Both signs are included in the upper bound.
+GH uses the same inexpensive pruning pass.
+
+Pruning cannot remove real pedestal mass. Even after rule selection changed,
+several repaired cases still needed 25–31 guarded radial evaluations. To meet
+the cost target, the analytic rule additionally uses an optional **precomputed
+composite GL12 quadrature in log radius** for unsafe table cells on the two
+validated priors. It evaluates the original varying prior integral, with
+panels no wider than 0.5; exponentials and prior weights at radial nodes are
+precomputed. It applies for \(x_{\min}=0.1\), \(x_{\max}=10\) or 100,
+\(f_{\max}\le100\), \(|a|x_{\min}\le100\), and \(b x_{\min}^2\le100\).
+Other domains, unguarded table interpolation and out-of-table fallbacks keep
+the general kernel. The scan rule retains its historical fallback, providing
+a comparison with the prior implementation. Radial fallback diagnostics still
+count these direct quadratures, even when they use the faster fixed panels.
+`scripts/check_guard_quadrature.py` verifies every unsafe cell at five probes
+against `lnI_direct`, plus the actual angular nodes. Unit tests independently
+compare representative and extreme cases with `dpmarg.reference.lnI_ref`.
+
+`method2_analytic_diagnostics` now returns
+`(value, branch, N, w, kernel_calls, radial_fallbacks, skipped_nodes)`.
+Branches are 3=GH, 4=periodic grid, 5=corrected sinh and 6=partitioned GL32.
+The legacy six-field `method2_table_diagnostics` remains available.
+
+### Accuracy, costs and before/after comparison
+
+All **4,347** benchmark records use cached brute-force references: 40 regression,
+300 stored random, 2,000 fresh seed-808, 2,000 sampler-like, and seven explicit
+repaired records (including duplicates). No point exceeds **1e-4**. The known
+`seed808_44/915`, `posterior_124/876`, null-axis islands and newly exposed
+clipped weak-axis cases are covered by tests. All-zero coefficients return
+exactly zero. The separate 2-D Laplace dispatcher gate is unchanged and still
+has its looser 1e-3 accuracy target.
+
+Costs below are **median / mean / p99 microseconds**, across per-point medians
+of three warmed, single-thread compiled loops of 16 evaluations. The old
+analytic timings are from the saved pre-repair run; scan and the new analytic
+rule are measured together on this run.
+
+| Set | Rule | Max absolute log error | Fraction >1e-4 | Median / mean / p99 us |
+|---|---|---:|---:|---:|
+| regression | scan | 3.78196e-05 | 0.000% | 22.13 / 33.33 / 171.5 |
+| regression | analytic before | 2.23145e-06 | 0.000% | 12.28 / 32.51 / 324.3 |
+| regression | analytic after | 4.29791e-05 | 0.000% | 12.57 / 16.04 / 62.89 |
+| stored_random | scan | 4.6903e-05 | 0.000% | 20.85 / 24.28 / 78.89 |
+| stored_random | analytic before | 6.02489e-06 | 0.000% | 12.32 / 20.56 / 114.5 |
+| stored_random | analytic after | 4.49523e-06 | 0.000% | 12.32 / 15.75 / 38.48 |
+| fresh_random | scan | 4.75703e-05 | 0.000% | 20.89 / 27.08 / 172.3 |
+| fresh_random | analytic before | 5.26649e-05 | 0.000% | 11.06 / 24.88 / 387.1 |
+| fresh_random | analytic after | 5.26649e-05 | 0.000% | 11.79 / 15.73 / 55.5 |
+| sampler_like | scan | 3.31976e-06 | 0.000% | 21.89 / 40.04 / 179.1 |
+| sampler_like | analytic before | 5.08108e-06 | 0.000% | 3.937 / 51.27 / 518.2 |
+| sampler_like | analytic after | 1.59418e-05 | 0.000% | 4.852 / 14.8 / 68.99 |
+| repaired_cases | scan | 9.96658e-06 | 0.000% | 112.8 / 122.9 / 237.9 |
+| repaired_cases | analytic before | 1.05584e-06 | 0.000% | 180.5 / 174.5 / 360.6 |
+| repaired_cases | analytic after | 6.47566e-06 | 0.000% | 56.41 / 41.89 / 71.79 |
+
+Overall scan: **21.2 / 33.1 / 178 us**. Overall analytic: **6.39 / 15.3 / 65.4 us**; historical analytic median / p99 was 6.43 / 497 us. Every set's mean and p99 are now below scan's; overall median is below 8 us.
+
+| Set | GH | Grid | Sinh | Partitioned GL32 | Mean radial fallbacks: before / no skip / after | Nodes skipped |
+|---|---:|---:|---:|---:|---:|---:|
+| regression | 55.000% | 40.000% | 5.000% | 0.000% | 1.825 / 0.9 / 0.9 | 6.129% |
+| stored_random | 50.667% | 47.000% | 1.667% | 0.667% | 0.5833 / 0.55 / 0.4767 | 5.033% |
+| fresh_random | 58.150% | 39.800% | 1.350% | 0.700% | 1.431 / 0.797 / 0.773 | 4.033% |
+| sampler_like | 74.700% | 25.000% | 0.200% | 0.100% | 6.503 / 3.346 / 3.3 | 3.727% |
+| repaired_cases | 28.571% | 42.857% | 28.571% | 0.000% | 19.71 / 16.86 / 16.86 | 0.000% |
+
+Across all sets, **4.005% of angular nodes are skipped**. The maximum difference from the identical unpruned rule is **3.55e-15**, well below 1e-7. Fallback counts per call fall from 3.74 historically to **1.94**. Rule selection and the faster retained radial quadratures account for most of the improvement; pruning alone cannot discard these moderate-SNR pedestals. The per-set historical branch fractions and scan fallback counts are retained in [the summary](data/method2b_summary.md).
+
+The fixed-grid curves below explicitly cover **former fallback cases**, not
+just broad profiles. The full former-fallback domain includes arbitrarily
+narrow islands which a 128-node uniform grid cannot resolve; the production
+selector retains GH or sinh there. Restricting to conservative width >=0.017:
+
+| Fixed grid N | Former fallback points | Max error | Points >1e-4 |
+|---:|---:|---:|---:|
+| 16 | 780 | 4.88911 | 560 |
+| 24 | 780 | 2.65658 | 358 |
+| 32 | 780 | 1.15622 | 233 |
+| 48 | 780 | 0.481101 | 115 |
+| 64 | 780 | 0.102516 | 49 |
+| 96 | 780 | 0.00372046 | 9 |
+| 128 | 780 | 4.1236e-05 | 0 |
+
+| Spacing / conservative width | Former-fallback (point,N) pairs | Worst error | Points >1e-4 |
+|---:|---:|---:|---:|
+| 0.5 | 1493 | 8.90111e-07 | 0 |
+| 0.7 | 2109 | 1.12201e-06 | 0 |
+| 1.0 | 2575 | 1.12201e-06 | 0 |
+| 1.1 | 2676 | 3.28085e-06 | 0 |
+| 1.2 | 2743 | 4.12623e-05 | 0 |
+| 1.3 | 2817 | 9.52766e-05 | 0 |
+| 1.4 | 2870 | 0.00024003 | 5 |
+
+This calibration selects **1.3**: all measured pairs meet 1e-4; 1.4 introduces failures. The safety factor and weak-axis width repairs are part of that calibration.
+
+| GH order | Selected points | Max error |
+|---:|---:|---:|
+| 8 | 2833 | 0.000179428 |
+| 12 | 2833 | 1.59418e-05 |
+| 16 | 2833 | 2.55453e-06 |
+| 20 | 2833 | 5.61459e-07 |
+| 24 | 2829 | 2.04713e-07 |
+| 32 | 2813 | 1.2215e-07 |
+
+Maximum doubled-node diagnostic difference: **4.93728e-05**. This diagnostic is not used in production.
+
+Guard quadrature validation: **57,375 unsafe-cell probes**, maximum absolute log difference **8.9e-12** from the trusted direct kernel; **223,640 actual signed angular-node probes**, maximum **1.99e-12**. No probe exceeds 1e-8.
+
+![Method 2b error versus nodes](figures/method2b_error_vs_nodes.png)
+
+![Method 2b warmed cost distribution](figures/method2b_cost.png)
+
+### Geometry audit, recommendation and verification
+
+The analytic geometry search itself is unchanged. The prior geometry-only
+comparison still has 3,172 raw mismatches out of 100,027 points (3.171%):
+619 global-location disagreements, 507 width failures (only two away from
+clipping), and 29 unmerged peak disagreements. The strict geometry agreement
+target is therefore not claimed: the continuous proxy has no unique second
+derivative at clipping and merging changes the nearest reported center.
+
+The updated integral audit checks all **3,172** mismatches against
+scan256. Its largest difference is **0.000230171**;
+**1** case above the 8e-5 audit threshold reuses an
+independent brute-force reference, giving analytic error
+**2.56671e-08**. There are **zero failures above 1e-4**.
+Other audit cases use scan256 as a comparator, not a new independent reference.
+The largest scan256 disagreement remains the historical missed prior/clipping
+mass at seed 902 #18544; its analytic result is covered by a regression test.
+
+**Recommendation:** keep the analytic rule as default. The repair meets the
+mean and p99 targets on every set and the overall median target, while all
+benchmark and repaired records satisfy 1e-4. Geometry/selection has median **2.01 us** (scan **5.22 us**) and still exceeds
+the aspirational sub-microsecond goal, and the general-set medians remain
+around 12 us. The precomputed guarded radial quadrature is validated for the
+two existing priors; other priors retain the general direct fallback and
+have no new cost guarantee.
+
+Per-point dumps and logs stay under ignored `data/*_full.json` and
+`data/*_run.log`; the JSON and Markdown summaries remain under 100 KB.
+Reproduce with `python scripts/check_method2b.py` and
+`python scripts/check_guard_quadrature.py`. See [the small JSON summary](data/method2b_check.json)
+and [the benchmark tables](data/method2b_summary.md).
+
+Verification: `python -m pytest tests -q` — **482 passed**, one existing reference IntegrationWarning, in **202.17 s**. The final run cleared generated Numba caches inside `dpmarg/` first: cached cross-module callers had retained the previous analytic implementation, causing equality checks to fail until recompiled. `python scripts/check_method2b.py` and `python scripts/check_guard_quadrature.py` completed successfully.
+
+### Fix round 2: degenerate corner and clipping cusps
+
+This section supersedes the historical round-1 measurements above. The
+new audit covers 300 grid points and 300 random near-degenerate points,
+including the flat ridge `lambda2=eta=0`. Its references are independent
+`lnL_marg_ref` evaluations, cached under ignored
+`data/degenerate_reference_full.json`; the random seed is 90092.
+
+For a radial clipping transition, `x0=a/b` and
+`x0'=(a'-b'x0)/b`. Mapping the radial Gaussian transition into angle gives
+
+\[
+w_{\rm cusp}=\frac{1/\sqrt b}{|x_0'|}
+             =\frac{\sqrt b}{|a'-b'x_0|}.
+\]
+
+The geometry uses the minimum of this scale and both one-sided curvature
+widths, and identifies the maximum as a kink. On the flat ridge this is
+`sqrt(lambda1)/(R*tan(theta_c))`. Kinks never use GH. Single patches are
+centred by estimated integrated mass, including a finite radial layer and
+the prior pedestal; a formal zero-slope endpoint cannot determine a sharp
+scale. At `a=b=0`, the pair is exactly `2 V`, with
+`V=(xmin^-3-xmax^-3)/3`. For `lambda2=eta=0` and
+`R^2<=lambda1`, `tanh(z)<=z` proves that the null axis is the exact pair
+maximum. Its finite curvature is
+`(lambda1-R^2)*<r^2>`, with
+`<r^2>=3*xmin^2*(1-xmin/xmax)/(1-(xmin/xmax)^3)`.
+Four additional reference regressions cover this sub-unit-SNR limit.
+Nonstationary xmax crossings and stopped Newton
+iterates are excluded from the maximum candidates. Significant xmax
+shoulders away from a maximum still receive quadrature nodes.
+
+The corner is `lambda2/lambda1<0.01`, `eta<0.1`. Refining the closed-form
+stationary seed with the full radial Laplace proxy retains radial-volume
+islands absent from the exponent/prior maxima. GH uses 32 nodes there,
+and requires separation of at least 20 widths from the weak axis; the
+ordinary branch remains GH12. The 16-probe pedestal guard remains active.
+Fixed grids remain 48/64/96/128, with spacing factor 1.3 and transition to
+sinh below a conservative width of 0.017. Corner grid widths have safety
+factor 0.25; the other regimes retain 0.8.
+
+Every significant unresolved clipping peak receives a 64-node sinh trapezoid patch.
+For multiple patches, positive Euler–Maclaurin endpoint weights replace
+the periodic correction. An integral upper/lower bound identifies
+negligible endpoints (12-log gap), where applying a nonlocal derivative
+stencil would contaminate the null-axis core with ridge samples; its
+correction is suppressed there. Cuts between widths differing by more
+than a factor of 10 use fourth-root width weights. Corner sinh coordinate
+scales are two times the conservative width for a single patch and three
+times for multiple patches. These are fixed rules, without production
+node doubling. Two comparable flat-ridge cusps are both retained.
+
+Outside the corner, `r*sqrt(b)<6` invalidates an isolated radial-saddle
+interpretation. Such formal proxy cusps retain their broad prior/one-sided
+quadrature scale, forbid GH, and use at least grid64. This is essential
+both for accuracy at prior-tail transitions and for avoiding artificial
+sharp patches in the cost tail.
+
+The scan comparison now receives the analytic stationary and clipping
+seeds in the corner. At its default 64-node budget it shares the corrected
+fixed quadrature there, retaining the scan search; elsewhere it keeps the
+legacy nested rule. Thus the remaining cost comparison measures different
+geometry searches with robust corner quadrature. Explicit nondefault
+legacy node budgets and the direct-kernel interface retain their budgets.
+Pruning still uses `M=40` and its separate `exp(-25)` summed relative-loss
+certificate.
+
+#### Round-2 measurements
+
+Absolute errors are in ln L_marg. Costs are median / mean / p99 microseconds, measured as per-point medians of three warmed compiled loops of 16 evaluations. References and parameter sets match round 1.
+
+| Set | Rule | Max error | >1e-4 | Median / mean / p99 us |
+|---|---|---:|---:|---:|
+| regression | analytic | 3.41661e-05 | 0 | 12.55 / 16.31 / 59.76 |
+| regression | scan | 3.41661e-05 | 0 | 20.62 / 31.23 / 146.7 |
+| stored_random | analytic | 5.04145e-07 | 0 | 13.91 / 18.56 / 52.85 |
+| stored_random | scan | 4.6903e-05 | 0 | 20.38 / 23.63 / 72.73 |
+| fresh_random | analytic | 9.3777e-05 | 0 | 12.97 / 18.71 / 78.76 |
+| fresh_random | scan | 9.3777e-05 | 0 | 20.87 / 27.13 / 161.7 |
+| sampler_like | analytic | 1.59418e-05 | 0 | 5.012 / 17.16 / 84.78 |
+| sampler_like | scan | 3.31976e-06 | 0 | 21.43 / 38.92 / 172.2 |
+| repaired_cases | analytic | 3.70451e-08 | 0 | 75.87 / 63.72 / 123 |
+| repaired_cases | scan | 9.96658e-06 | 0 | 125.3 / 122.2 / 224 |
+
+Overall analytic: **6.667 / 18.04 / 83.88 us**; scan: **20.97 / 32.51 / 171.5 us**. Every set has lower analytic mean and p99 than scan, and the overall median remains below 8 us.
+
+The saved round-1 analytic run was 6.389 / 15.35 / 65.4 us. The added prior-layer grid64 guard and resolved clipping features increase mean/p99 relative to that historical analytic run; the per-set cost targets against scan are met. Historical timings are not simultaneous measurements.
+
+| Set | GH | Grid | Sinh | Split GL32 | Mean radial fallbacks | Nodes skipped |
+|---|---:|---:|---:|---:|---:|---:|
+| regression | 55.000% | 42.500% | 2.500% | 0.000% | 1.1 | 5.409% |
+| stored_random | 51.000% | 47.333% | 1.667% | 0.000% | 0.5767 | 5.023% |
+| fresh_random | 58.200% | 39.600% | 1.750% | 0.450% | 0.949 | 3.781% |
+| sampler_like | 74.900% | 24.900% | 0.200% | 0.000% | 4.275 | 3.287% |
+| repaired_cases | 28.571% | 42.857% | 28.571% | 0.000% | 21.43 | 0.000% |
+
+Maximum skip/no-skip change is 3.55e-15; 3.689% of angular nodes are skipped. Geometry/selection median is 2.12 us, versus 5.18 us for scan; the aspirational sub-microsecond geometry goal remains unmet.
+
+## Degenerate corner (300 grid + 300 random points)
+
+Random seed 90092; log10(lam1) uniform [3,7], rho=R/sqrt(lam1) log-uniform [1,300], independent 20% atoms at q=0 and eta=0. Prior (0.1,100); grid xi=0.3, random xi uniform [0,pi]. References: lnL_marg_ref, cached in ignored `data/degenerate_reference_full.json`.
+
+| Set | Rule | Max error before / after | >1e-4 before / after | >1e-3 before / after |
+|---|---|---:|---:|---:|
+| grid | analytic | 0.63138 / 7.54376e-05 | 22 / 0 | 15 / 0 |
+| grid | scan | 57.3999 / 0.000128787 | 12 / 2 | 6 / 0 |
+| random | analytic | 0.522956 / 7.88898e-05 | 23 / 0 | 15 / 0 |
+| random | scan | 37.4921 / 0.0003755 | 15 / 6 | 10 / 0 |
+
+| Set | Rule | Median / mean / p99 us | Branch fractions |
+|---|---|---:|---|
+| grid | analytic | 24.68 / 32.15 / 123.4 | 3: 54.33%, 4: 14.33%, 5: 31.33% |
+| grid | scan | 30.52 / 34.53 / 74.68 | 0: 0.33%, 1: 22.00%, 2: 0.67%, 3: 32.33%, 4: 19.33%, 5: 25.33% |
+| random | analytic | 26.99 / 37.96 / 139.4 | 3: 33.00%, 4: 8.67%, 5: 58.33% |
+| random | scan | 35.15 / 41.95 / 97.91 | 1: 8.67%, 3: 25.00%, 4: 11.00%, 5: 55.33% |
+
+Branches 0/1/2: legacy uniform/sinh/split GL; 3/4/5/6: GH/grid/corrected sinh/split GL. The corner scan uses its seeded search with the same fixed quadrature; outside it the legacy rule is retained.
+
+Analytic >1e-4: none.
+
+| Remaining scan point | lam1 | q | eta | R/lam1 | Error |
+|---|---:|---:|---:|---:|---:|
+| grid_280 | 1e+07 | 0.01 | 0 | 0.05 | 0.000128787 |
+| grid_284 | 1e+07 | 0.01 | 0.0001 | 0.05 | 0.000128405 |
+| random_15 | 1.72457e+06 | 0.000111133 | 0.0285572 | 0.00103027 | 0.000260789 |
+| random_56 | 105789 | 2.404e-09 | 0.000105499 | 0.0088663 | 0.000115031 |
+| random_85 | 3.05219e+06 | 7.13052e-06 | 0.000387647 | 0.00276168 | 0.000154711 |
+| random_145 | 1.23997e+06 | 5.61924e-05 | 0.00123582 | 0.00365066 | 0.000144602 |
+| random_213 | 1.53089e+06 | 5.69683e-05 | 0.00214444 | 0.00364747 | 0.0003755 |
+| random_241 | 143477 | 5.54122e-07 | 0.000201469 | 0.0166247 | 0.000249578 |
+
+All remaining scan failures are near-degenerate weak-axis / clipped-prior regimes; none exceeds 1e-3.
+
+![Degenerate corner accuracy and cost](figures/degenerate_check.png)
+
+#### Geometry audit and verification
+
+The geometry-only audit covers 100,027 points. There are 23,469 raw mismatches (23.463%), 3 global-location disagreements, 4427 smooth-width mismatches and 7 unmerged peak disagreements. Corrected transition widths deliberately differ from the legacy one-sided curvature, and the regular null-axis limit uses the exact pair maximum rather than the singular proxy. Strict geometry equality is not claimed.
+
+All 23,469 raw mismatches were checked at the integral level: max analytic/scan256 difference **4.23009e-05**. The audit reuses **55 independent cached references**, including cases whose scan difference became small after the repair; maximum analytic reference error **1.24104e-05**, with **0 failures above 1e-4**. No new reference request was needed on the final run.
+
+Verification: `python -m pytest tests -q` — **507 passed**, one existing reference IntegrationWarning, in **167.88 s**. `python scripts/check_geometry.py`, `python scripts/check_degenerate.py` and `python scripts/check_method2b.py` all completed successfully. `git diff --check -- .` passed.
+
+**Recommendation:** retain analytic as the default. It resolves all documented corner failures below 1e-4 and keeps the shared-set median/mean/p99 targets against scan. The legacy scan has eight remaining corner points between 1e-4 and 1e-3, listed above; both rules meet 1e-3 everywhere in the 600-point corner audit.
+
+![Updated method 2b costs](figures/method2b_cost.png)
+
+![Updated method 2b grid convergence](figures/method2b_error_vs_nodes.png)
+
+Small summaries: [method2b_check.json](data/method2b_check.json), [degenerate_check.json](data/degenerate_check.json), [method2b_summary.md](data/method2b_summary.md). References, per-point dumps and run logs remain under ignored data paths.

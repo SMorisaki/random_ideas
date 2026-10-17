@@ -80,7 +80,7 @@ def fast_diagnostics(A, B, C, D, E, xmin, xmax, table, use_laplace=True):
         value = lnL_marg_m3_2d(A, B, C, D, E, xmin, xmax, 4)
         if math.isfinite(value):
             return value, BRANCH_LAPLACE
-    return lnL_marg_m2_table(A, B, C, D, E, xmin, xmax, table), BRANCH_METHOD2
+    return lnL_marg_m2_table(A, B, C, D, E, xmin, xmax, table, rule="analytic"), BRANCH_METHOD2
 
 
 @njit(cache=True)
@@ -88,7 +88,8 @@ def lnL_marg_fast(A, B, C, D, E, xmin, xmax, table, use_laplace=True):
     """Normalized log likelihood via the gated order-4 Laplace/method-2 mix.
 
     Domain and empirical accuracy limitations are those of fast_diagnostics.
-    Setting use_laplace=False gives exactly lnL_marg_m2_table at 64 nodes.
+    Setting use_laplace=False gives exactly the default analytic method 2.
+    Its angular rule is selected without scans or nested refinement.
     """
     return fast_diagnostics(A, B, C, D, E, xmin, xmax, table, use_laplace)[0]
 
