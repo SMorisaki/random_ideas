@@ -11,7 +11,10 @@ class BasebandIFFTFFTHH:
     """B1: Eq. (45)'s block quadrature with two length-K' baseband FFTs.
 
     x_j=sqrt(w_b) h((K_s+j)/T_b), y=ifft(x,K'),
-    z=fft(y exp(-i pi n/K')), K'=next_fast_len(K_b). Integer and half
+    z=fft(y exp(-i pi n/K')), K'=next_fast_len(ceil(pad_factor K_b)).
+    all_half_bins sums all K' half bins with weights modulo 2M_b;
+    otherwise only the band's K_b half bins are retained. Defaults p=1
+    and band-only preserve the original discrete interpolant. Integer and half
     powers use Re W for the centred min(2M_b,N_b) block (§3). If
     lag_max+L_margin sigma_mmax(f_lo)<=T_b/2, use B0 instead; M_b=N_b
     always needs only the original samples. force_half_points bypasses
@@ -27,19 +30,24 @@ class BasebandIFFTFFTHH:
     """
 
     def __init__(self, bands, psdgrid, m_values=(1, 2, 3, 4), L_margin=5.0,
-                 force_half_points=False):
+                 force_half_points=False, pad_factor=1, all_half_bins=False):
         self.m_values = _m_values(m_values, bands.m_max)
         if not np.isfinite(L_margin) or L_margin < 0:
             raise ValueError("L_margin must be finite and nonnegative")
         self.bands = bands
         self.L_margin = float(L_margin)
         self.force_half_points = bool(force_half_points)
+        if not np.isfinite(pad_factor) or pad_factor < 1:
+            raise ValueError("pad_factor must be finite and >= 1")
+        self.pad_factor = float(pad_factor)
+        self.all_half_bins = bool(all_half_bins)
         self.centred = CentredBlockHH(bands, psdgrid)
         self.blockweights = self.centred.blockweights
-        self.Kprime_b = tuple(next_fast_len(int(k)) for k in bands.K_b)
+        self.Kprime_b = tuple(next_fast_len(int(np.ceil(pad_factor*k))) for k in bands.K_b)
         self._grids = bands.coarse_frequencies()
         self._phase, self._input, self._sqrt_w, self._power = [], [], [], []
         self.W_even, self.W_odd, self.modes = [], [], []
+        self._half_power = []
         self.lag_max, self.margin = [], []
         for b, grid in enumerate(self._grids):
             M, N = int(bands.M_b[b]), int(bands.N_b[b])
@@ -59,11 +67,14 @@ class BasebandIFFTFFTHH:
             self._phase.append(np.exp(-1j * np.pi * np.arange(Kp) / Kp))
             self._sqrt_w.append(np.sqrt(grid.w))
             self._power.append(np.empty(len(grid.f)))
+            n_half = Kp if self.all_half_bins else len(grid.f)
+            self._half_power.append(np.empty(n_half))
             if mode == "B1":
                 W = self.blockweights.centred(b, 2 * M)
                 self.W_even.append(W[2 * grid.kappa].real * grid.w)
                 # z already includes sqrt(w); applying the window twice is wrong.
-                self.W_odd.append(W[2 * grid.kappa + 1].real.copy())
+                idx = 2 * (grid.kappa[0] + np.arange(n_half)) + 1
+                self.W_odd.append(W[idx % (2*M)].real.copy())
             else:
                 self.W_even.append(self.centred.W[b])
                 self.W_odd.append(None)
@@ -76,7 +87,7 @@ class BasebandIFFTFFTHH:
         # The zero tail is never overwritten by scipy's non-in-place IFFT.
         y = ifft(x, workers=1)
         np.multiply(y, self._phase[b], out=y)
-        return fft(y, workers=1)[:K]
+        return fft(y, workers=1)[:len(self._half_power[b])]
 
     def band_contributions(self, coarse):
         """Return B1/B0 band norms, Eq. (26), each including 4/T."""
@@ -89,9 +100,10 @@ class BasebandIFFTFFTHH:
             value = np.dot(self.W_even[b], power)
             if self.modes[b] == "B1":
                 z = self._half_transform(coarse, b)
-                np.absolute(z, out=power)
-                np.square(power, out=power)
-                value += np.dot(self.W_odd[b], power)
+                half_power = self._half_power[b]
+                np.absolute(z, out=half_power)
+                np.square(half_power, out=half_power)
+                value += np.dot(self.W_odd[b], half_power)
             values[b] = (4 / self.bands.T) * value
         return values
 
@@ -100,13 +112,14 @@ class BasebandIFFTFFTHH:
         return float(np.sum(self.band_contributions(coarse)))
 
     def half_point_frequencies(self, b):
-        """Return (K_s+j+1/2)/T_b, j=0,...,K_b-1, in Hz.
+        """Return (K_s+j+1/2)/T_b for the retained half bins, in Hz.
 
-        Includes the final half point just beyond K_e, as in §7's sum.
+        Band-only includes the final half point beyond K_e (§7); all_half_bins
+        extends to K'-1 with periodic weights (not a new physical band).
         These are half points only, unlike IFFTFFTHH's interleaved grid.
         """
         self.bands._check_band(b)
-        return (self._grids[b].kappa + 0.5) / self.bands.T_b[b]
+        return (self._grids[b].kappa[0] + np.arange(len(self._half_power[b])) + 0.5) / self.bands.T_b[b]
 
     def half_point_waveform(self, coarse, b):
         """Return -z=sqrt(w) h at half points in the physical phase convention.

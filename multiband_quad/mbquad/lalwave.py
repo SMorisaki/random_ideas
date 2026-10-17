@@ -155,3 +155,111 @@ class XHMModel:
         if lm not in self.modes:
             raise KeyError(lm)
         return tau_0pn(2*_positive_f(f)/lm[1], self.mchirp)
+
+
+class XHMCoarseEvaluator:
+    """Prepared XHM samples on the fixed Eq. (24) band grids.
+
+    ``params`` in each evaluation may be an XHMModel or a dict of model
+    parameters (partial dicts override the constructor snapshot). Only the
+    grid, mode array and geometric tail-recovery factors are cached; no
+    waveform results or parameter-dependent phases survive a call.
+    The phase exp(-2 pi i f t_c) is recomputed once per call, without a
+    window. BBH OneMode tails use the same additional LAL calls as XHMModel.
+    Instances share a read-only frequency sequence with LAL.
+    """
+
+    def __init__(self, model_params_or_model, bands, modes=XHM_MODES):
+        self.bands = bands
+        self.modes = tuple(map(tuple, modes))
+        source = (vars(model_params_or_model) if isinstance(model_params_or_model, XHMModel)
+                  else dict(model_params_or_model))
+        self._defaults = {k: v for k, v in source.items() if k != 'modes'}
+        model = XHMModel(**self._defaults, modes=self.modes)
+        self.f = bands.all_coarse_frequencies().f
+        unique, self.inverse = np.unique(self.f, return_inverse=True)
+        self.sequence = lal.CreateREAL8Sequence(len(unique))
+        self.sequence.data[:] = unique
+        edges = np.r_[0, np.cumsum(bands.K_b)]
+        self.band_slices = tuple(slice(int(a), int(b)) for a, b in zip(edges[:-1], edges[1:]))
+        self._phase_argument = -2j * np.pi * self.f
+        self._lal_params = model._params()
+        self._tail_params = {lm: model._params(
+            ((2, 2), lm) if lm == (3, 2) and (2, 2) in self.modes else (lm,))
+            for lm in self.modes if lm != (2, 2)}
+        self._tail_projection = {}
+        for l, m in self._tail_params:
+            ym = lal.SpinWeightedSphericalHarmonic(1., np.pi/2, -2, l, -m)
+            yp = (-1)**l * np.conj(lal.SpinWeightedSphericalHarmonic(1., np.pi/2, -2, l, m))
+            self._tail_projection[l, m] = .5 * (ym + yp)
+
+    def model(self, params=None):
+        """Validate current parameters; partial dicts use the initial snapshot."""
+        if isinstance(params, XHMModel):
+            if params.modes != self.modes:
+                raise ValueError('Model modes must match prepared modes')
+            return params
+        current = {**self._defaults, **({} if params is None else params)}
+        if tuple(map(tuple, current.pop('modes', self.modes))) != self.modes:
+            raise ValueError('Model modes must match prepared modes')
+        return XHMModel(**current, modes=self.modes)
+
+    def phase(self, model):
+        """Window-free exp(-2 pi i f t_c), one vectorized pass per call."""
+        return np.exp(self._phase_argument * model.t_c)
+
+    def lal_polarizations(self, model):
+        """One raw ChooseFD call on the prepared sorted unique sequence."""
+        return lalsim.SimInspiralChooseFDWaveformSequence(
+            model.phi_ref, model.m1*lal.MSUN_SI, model.m2*lal.MSUN_SI,
+            0, 0, model.chi1z, 0, 0, model.chi2z, model.f_ref,
+            model.distance_mpc*1e6*lal.PC_SI, model.inclination,
+            self._lal_params, lalsim.IMRPhenomXHM, self.sequence)
+
+    def lal_one_modes(self, model):
+        """Five raw negative-m calls at 1 Mpc (or the selected mode subset)."""
+        return [lalsim.SimIMRPhenomXHMFrequencySequenceOneMode(
+            self.sequence, model.m1*lal.MSUN_SI, model.m2*lal.MSUN_SI,
+            model.chi1z, model.chi2z, l, -m, 1e6*lal.PC_SI,
+            model.phi_ref, model.f_ref, self._lal_params) for l, m in self.modes]
+
+    def lal_tail_polarizations(self, model):
+        """Additional raw LAL calls needed only above the OneMode Mf=0.3 cut."""
+        if self.sequence.data[-1] <= .3 / ((model.m1+model.m2)*lal.MTSUN_SI):
+            return {}
+        return {lm: lalsim.SimInspiralChooseFDWaveformSequence(
+            model.phi_ref, model.m1*lal.MSUN_SI, model.m2*lal.MSUN_SI,
+            0, 0, model.chi1z, 0, 0, model.chi2z, model.f_ref,
+            1e6*lal.PC_SI, 1., p, lalsim.IMRPhenomXHM, self.sequence)[0]
+            for lm, p in self._tail_params.items()}
+
+    def coarse_modes(self, params=None):
+        """Return projected CoarseModes: one inverse index and phase per mode.
+
+        C removes/restores the nominal orbital phase as in XHMModel.mode;
+        the mixed (3,2) residual and high-frequency tails are retained.
+        """
+        from .coarse import CoarseModes
+        model = self.model(params)
+        series = self.lal_one_modes(model)
+        tails = self.lal_tail_polarizations(model)
+        phase, coefficients = self.phase(model), model.coefficients()
+        tail = self.sequence.data > .3 / ((model.m1+model.m2)*lal.MTSUN_SI)
+        h = np.empty((len(self.modes), len(self.f)), complex)
+        for i, (lm, raw) in enumerate(zip(self.modes, series)):
+            values = raw.data.data
+            if lm in tails:
+                values[tail] = tails[lm].data.data[tail] / self._tail_projection[lm]
+            h[i] = values[self.inverse]
+            h[i] *= coefficients[lm] * np.exp(-1j*lm[1]*model.phi_ref)
+            h[i] *= phase
+        return CoarseModes(self.bands, self.modes, [h[:, s] for s in self.band_slices])
+
+    def coarse_total(self, params=None):
+        """Return F_plus h_plus+F_cross h_cross with one polarization call."""
+        from .coarse import CoarseWaveform
+        model = self.model(params)
+        hp, hc = self.lal_polarizations(model)
+        h = (model.F_plus * hp.data.data + model.F_cross * hc.data.data)[self.inverse]
+        h *= self.phase(model)
+        return CoarseWaveform(self.bands, [h[s] for s in self.band_slices])

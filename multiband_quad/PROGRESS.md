@@ -193,3 +193,29 @@ Method B1 already gives 0.70x (BNS) / 0.85x (GW190814) end-to-end and needs the 
 Next (re-planned): iteration 006 = B1 endpoint correction and zero-padding study on the XHM systems, lean adapter
 (precomputed grid mapping) with re-timed routes, pairwise margin/diag study on the GW190814-like system; iteration 007 =
 population study; 008 = band rule / L-scan / prior grid; 009 = numba kernels; 010 = full-scale BNS; 011 = documents.
+
+## Iteration 006 — lean adapter and re-timed routes, pairwise tuning, B1 variants, L = 50 (PASS)
+
+Codex (~35 min) added `XHMCoarseEvaluator` (prepared sorted-unique LAL sequence, per-band slices, one-pass coefficients
+and phase), `PairwiseHH.band_contributions`, B1 options `pad_factor` / `all_half_bins`, three scripts and
+`tests/test_lean_adapter.py`. 119 tests pass. Defaults unchanged.
+
+Orchestrator verification (tables inspected, numbers cross-checked with iteration 005):
+- Timing with `OMP_NUM_THREADS=1` (the default 4 threads inflated the IFFT-FFT route from 10.5 to 16.3 ms; iteration-005
+  route numbers were affected by this interaction too): raw polarizations 5.9 / 2.3 / 2.0 ms, five `OneMode` 6.8 / 2.9 /
+  2.1 ms (BNS / GW190814-like / BBH), lean `coarse_total` 6.5 / 2.4 / 2.2 ms, lean `coarse_modes` 8.0 / 3.3 / 5.1 ms (BBH
+  includes 2.5 ms of tail-recovery polarization calls). `(h,h)`: IFFT-FFT 3.30 / 0.62 / 0.57, pairwise 0.58 / 0.15 / 0.15,
+  B1 0.47 / 0.13 / 0.14, B0 0.06 / 0.02 / 0.02 ms. Routes (ratio to IFFT-FFT), 1 detector: A 0.81 / 1.13 / 1.82, B1 0.69 /
+  0.85 / 0.84, B0 0.64 / 0.80 / 0.79; 3 detectors: A 0.60 / 0.87 / 1.42, B1 0.48 / 0.66 / 0.67, B0 0.41 / 0.58 / 0.58.
+- Pairwise tuning (GW190814-like, 6 cases): all 16 settings give 3.59-3.68e-7 median (IFFT-FFT 1.54e-7, B1 3.47e-7);
+  `diag="linear"` 1.9e-6. Per-band attribution: band 1 carries -3.0e-7 (pairwise) vs -1.2e-7 (IFFT-FFT); class 0 (|h_22|^2)
+  contributes -2.5e-7 of it; a smooth-PSD control keeps -3.1e-7, so lines are not the cause. Floor = period-`T_b` folding
+  of the diagonal term's finite-window tails onto `A_0`. Default kept.
+- B1 variants: `all_half_bins` (p = 1) 2.1e-7 -> 4.6e-8 (BNS), 2.2e-7 -> 3.8e-8 (GW190814-like), 4.1e-7 -> 4.4e-7 (BBH) at
+  equal cost; `p = 2` all-bins 3.9e-8 on the BBH. Default kept pending the population study (both evaluated in 007).
+- L = 50 with the same durations (K_MB 20167 -> 28543, 4865 -> 6026, 4408 -> 5146): pairwise 2.3e-9 / 8.7e-10 / 4.9e-9,
+  B1 2.3e-9 / 8.7e-10 / 4.9e-9 (adaptive B1 selects B0 in every truncated band), IFFT-FFT 3.4e-9 / 1.6e-8 / 4.1e-8,
+  linear 8e-9 / 8.5e-7 / 2.0e-6. New design option recorded in TASK.md §7 (008) and notes §10.3: HOM-aware band rule
+  so that B0 alone suffices for the total waveform.
+
+Next: iteration 007 (population study, C1/C1'), then 008 (band rule incl. the B0-compatible rule).

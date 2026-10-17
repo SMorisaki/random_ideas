@@ -172,6 +172,16 @@ class PairwiseHH:
                                         grouped[slow].conj() * grouped[fast]).real
         return float((4 / self.bands.T) * total)
 
+    def band_contributions(self, coarse_modes):
+        """Return each §3 quadratic-form band norm, including 4/T.
+
+        This diagnostic uses the Hermitian tensor (also for linear class-0
+        weights); the default runtime pairs kernel is unchanged.
+        """
+        return (4 / self.bands.T) * np.asarray([
+            np.einsum('ik,ijk,jk->', H.conj(), W, H).real
+            for H, W in zip(self._samples(coarse_modes), self.W)])
+
     def mode_matrix(self, coarse_modes):
         """Return Hermitian M_ij=sum_b,k conj(H_i) W_ij H_j (§8.13).
 

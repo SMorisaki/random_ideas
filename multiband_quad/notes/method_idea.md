@@ -307,3 +307,24 @@ set by the tails that violate Eq. 36 and differ by O(1) factors that depend on t
 `(h,h)` step; its accuracy is the same order as the IFFT-FFT (within 2-3x on the toys, within 1.7x on the GW190814-like XHM
 case with the real PSD, 10x on the very accurate BNS case where both are below 4e-7). The remaining lever common to both
 methods is `L` (the band margin), to be scanned in iteration 008.
+
+## 10. Findings of iteration 006 (lean adapter, tuning, L)
+
+1. **Route costs with a prepared evaluator (one OpenMP thread).** One detector, waveform + `(h,h)`, relative to the
+   IFFT-FFT route: method A 0.81 (BNS) / 1.13 (GW190814-like) / 1.82 (BBH, because lalsimulation's `OneMode` truncates
+   the HOM tails at `Mf = 0.3` and four extra polarization calls are needed to recover them); B1 0.69 / 0.85 / 0.84;
+   B0 0.64 / 0.80 / 0.79. With three detectors (one waveform, three `(h,h)` steps): A 0.60 / 0.87 / 1.42; B1 0.48 / 0.66 /
+   0.67; B0 0.41 / 0.58 / 0.58. The paper's IFFT-FFT step is 3.3 ms (BNS) and 0.6 ms (short signals) per detector.
+   The default OpenMP setting (4 threads) inflated the IFFT-FFT route to 16 ms: always pin threads when timing.
+2. **Method A floor on the GW190814-like system** is set by band 1, lag class 0 (the `|h_22|^2` diagonal): the finite-window
+   tails one period (`T_b = 8 s`) away fold onto `A_0`; margins and `sigma` units do not change it (3.6e-7 for all
+   settings vs IFFT-FFT 1.5e-7; `diag = "linear"` is worse, 1.9e-6). The IFFT-FFT folds with period `2 T_b` and so sees
+   half the tail. On the BNS and BBH systems method A is 3-5x better than the IFFT-FFT.
+3. **L = 50 (same durations, +24-42% coarse points):** pairwise and B1 drop to 1-5e-9 (IFFT-FFT 3e-9 to 4e-8, linear
+   1e-8 to 2e-6), and the adaptive B1 selects B0 in every truncated band, i.e. the total waveform needs neither FFT nor
+   modes. This suggests a HOM-aware band rule for the total-waveform case: choose the band edges so that the two-sided lag
+   support of `|h|^2` fits in `T_b/2` (`2 [Lambda_max(f_lo) + L sigma] <= T_b`), which costs ~+30% waveform points and
+   removes the `(h,h)` FFTs entirely (to be quantified in iteration 008 against the per-detector IFFT-FFT cost).
+4. **B1 variant `all_half_bins`** (sum over all `K''` half bins): 5x better median at equal cost on the BNS and GW190814-like
+   systems (2.1e-7 -> 4.6e-8, 2.2e-7 -> 3.8e-8), slightly worse on the BBH (4.1e-7 -> 4.4e-7); `p = 2` helps the BBH only.
+   Decision deferred to the population study (both variants are evaluated there).
