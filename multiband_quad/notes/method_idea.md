@@ -290,3 +290,20 @@ Sec. 3 and attacked Secs. 2 and 4 numerically with their own toys. Verdicts: "so
 15. **Single-mode secondary result.** The centred `M`-block weights are a drop-in replacement for the linear
     interpolation weights of Eq. 29 at identical run-time cost: 2.2e-7 vs 1.4e-6 relative error in the toy for a
     single mode (IMRPhenomD-style analyses, the paper's main use case).
+
+## 9. B1 accuracy floor (orchestrator, after iteration 005; `notes/orchestrator_toy_B1_variants.py`)
+
+On IMRPhenomXHM B1 is 1.7x (GW190814-like) to 10x (BNS) less accurate than the paper's IFFT-FFT, although both compute
+half-point values under the same time-limitation assumption. Tested explanations on the toy (paper IFFT-FFT 1.5e-7 /
+2.2e-7 for quadrupole / five modes; B1 band-only 4.4e-7 / 4.4e-7):
+1. Riemann-sum endpoint error (K' vs M samples per period): the Euler-Maclaurin endpoint correction and zero-padding
+   `p = 2..8` leave B1 at 3.9-4.1e-7 / 5.0-5.5e-7 -> not the cause (the integrand is band-limited near the sampling
+   Nyquist, and in any case both sums are exact for a time-limited signal).
+2. Out-of-band leakage of the cropped signal (the paper sums `I_tilde_c |h_tilde_c|^2` over ALL positive bins, B1 only over
+   the band): summing all `K''` half bins of the baseband period gives +1.2e-7, +4.5e-7, -1.8e-7, -3.3e-7, -2.8e-7 for
+   `p = 1, 2, 4, 8, 16` (quadrupole), i.e. fluctuations of either sign at the same level, no convergence to the paper's value.
+Conclusion: B1 and the IFFT-FFT are two different discrete interpolants of the same approximation; their errors are both
+set by the tails that violate Eq. 36 and differ by O(1) factors that depend on the system. B1 keeps its 5-9x cheaper
+`(h,h)` step; its accuracy is the same order as the IFFT-FFT (within 2-3x on the toys, within 1.7x on the GW190814-like XHM
+case with the real PSD, 10x on the very accurate BNS case where both are below 4e-7). The remaining lever common to both
+methods is `L` (the band margin), to be scanned in iteration 008.
