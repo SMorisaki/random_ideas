@@ -13,3 +13,4 @@ dependencies:
   - h5py
   - pytest
   - mpmath   # high-precision independent reference (dpmarg.reference)
+  - python-lalsimulation   # IMRPhenomXHM / IMRPhenomHM mode-by-mode waveforms (multiband_quad)

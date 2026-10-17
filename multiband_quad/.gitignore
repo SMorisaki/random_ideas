@@ -1,0 +1,14 @@
+# Codex run logs (prompts/ are committed, logs/ are not)
+logs/
+# generated / cache files
+__pycache__/
+*.pyc
+.pytest_cache/
+.codex_sandbox_probe
+# large generated arrays and raw experiment outputs (keep small JSON/MD summaries)
+data/*.npz
+data/*.npy
+data/*.h5
+data/*.hdf5
+data/*_full.json
+data/*_run.log
