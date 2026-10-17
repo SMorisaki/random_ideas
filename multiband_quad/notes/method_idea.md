@@ -254,3 +254,39 @@ Sec. 3 and attacked Secs. 2 and 4 numerically with their own toys. Verdicts: "so
     dropped: the error budget `Delta ln Lambda ~ 1e-4` means relative `(h, h)` error 3e-7). The BBH test system is
     60+20 Msun with `T = 16 s` (with `T = 8 s` the (4,4) signal from 20 Hz does not fit the segment).
     `T^(b) = T/2^j` is required for `M | N^(b)` (enforced by `BandSetup`).
+
+11. **Per-mode waveform cost (implementation reviewer's measurements, lalsimulation 6.2.0, warm calls).**
+    IMRPhenomXHM: 5x `SimIMRPhenomXHMFrequencySequenceOneMode` at 19000 points 11.8 ms vs
+    `SimInspiralChooseFDWaveformSequence` 9.5 ms (BNS grid); 12.8 vs 16.5 ms at 16064 points (GW190814 grid).
+    IMRPhenomHM: `SimIMRPhenomHMGethlmModes` returns all six modes in one call at the cost of the polarization
+    call (45 vs 49 ms). So mode-by-mode evaluation does not penalise method A (the orchestrator's earlier 20 ms
+    figure came from single cold calls). Faithful IFFT-FFT with scipy.fft and preallocated buffers: 3.0 ms (BNS,
+    K_MB = 20169; 2.6 ms in the FFTs) and 0.55 ms (GW190814), so the honest end-to-end gain from replacing it is
+    ~1.25x (BNS, XHM), ~1.03x (GW190814, XHM), < 1.07x (HM). An m-grouped numba kernel for the quadratic form costs
+    0.07 / 0.02 ms (numpy m-grouped 0.84 / 0.19 ms; naive 6-mode einsum 1.56 / 0.49 ms).
+12. **LAL conventions (verified by the reviewer, to be re-verified by test).** XHM `OneMode(freqs, m1, m2, chi1, chi2,
+    ell, emm, distance, phiRef, fRef, params)`: the `emm < 0` output is the one that combines linearly with `h_+, h_x`
+    at `f > 0` (`h_{l,-m}(f) = (-1)^l conj h_{l,m}(f)` at the sampled points); the polarization coefficients are the
+    AddMode factors for `(l, -m)` at azimuth `pi/2`: `c_+ = 0.5 (Y_{l,-m}(iota, pi/2) + (-1)^l conj Y_{l,m}(iota, pi/2))`,
+    `c_x = 0.5 i (Y_{l,-m} - (-1)^l conj Y_{l,m})`; `phiRef` enters each mode as `e^{-i m phiRef}`; XHM has no (4,3).
+    HM `GethlmModes` (deltaF = 0 for a sequence): positive `m` at positive frequencies, AddMode `(l, +m)` at azimuth 0,
+    NOT scaled by `(G M/c^3)^2 c/D_L`. For a regular-grid fine reference use `ChooseFDWaveformSequence` or set
+    `SimInspiralWaveformParamsInsertPhenomXHMThresholdMband(params, 0)` (the sequence path does not use XHM's
+    internal multibanding; with threshold 0 both agree exactly, otherwise they differ by 3.8e-6).
+13. **Factorisation over extrinsic parameters (new capability of method A).** The per-detector matrix
+    `M_{AA'} = sum_kappa conj(h^raw_A) W_kappa(class(A, A')) w(f_kappa) h^raw_{A'}` built from the raw modes is
+    independent of `t_c` (the phase `e^{-2 pi i f t_c}` and the detector delay cancel in every pair product), of the
+    distance, and, with `e^{-i m phi_c}` and the harmonics `Y_{lm}`, `F_+`, `F_x` pulled into coefficients `C_A`, of
+    `phi_c`, inclination, polarisation and sky position: `(h, h) = C^dagger M C`. Modes are evaluated once per intrinsic
+    point and `(h, h)` for any extrinsic parameters costs `O(n_modes^2)`. The IFFT-FFT has no such factorisation.
+    Also, the pairwise result is `t_c`-independent to roundoff while the IFFT-FFT error varies with `t_c` over the prior.
+14. **Block placement, two prescriptions.** "Interval-centred with prior corners" (implemented in iteration 003:
+    `[Lambda_min(Mc_max) - delta_lo, Lambda_max(Mc_min) + delta_hi]`) and the implementation reviewer's "contain-0"
+    block `[-delta_b, M_b - delta_b)` with `delta_b = L sigma_pair(f^(b+1)) + t_floor` coincide when the prior is wide
+    (`Lambda_min(Mc_max) -> 0`); the interval-centred form exploits the slack of narrow priors. Both need a floor on the
+    low-lag margin in the top band (merger-ringdown content at lag 0 +- tens of ms; `t_floor ~ 0.05-0.1 s`), where
+    `sigma_pair(f^(B))` is tiny. Expected tail scaling: error ~ L^-3 (pairwise, window on the product) vs L^-2
+    (IFFT-FFT, sqrt(w) on the waveform); a flat error-vs-L curve indicates a placement bug or PSD-line-dominated error.
+15. **Single-mode secondary result.** The centred `M`-block weights are a drop-in replacement for the linear
+    interpolation weights of Eq. 29 at identical run-time cost: 2.2e-7 vs 1.4e-6 relative error in the toy for a
+    single mode (IMRPhenomD-style analyses, the paper's main use case).
