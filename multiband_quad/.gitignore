@@ -4,6 +4,7 @@ logs/
 __pycache__/
 *.pyc
 .pytest_cache/
+data/pytest_tmp/
 .codex_sandbox_probe
 # large generated arrays and raw experiment outputs (keep small JSON/MD summaries)
 data/*.npz
