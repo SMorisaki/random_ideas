@@ -114,3 +114,33 @@ Orchestrator verification (code read in full, tables and figures inspected):
   0.71 / 0.68 ms: 3.2x / 4.3x faster; the C2 target (5x) is deferred to the numba implementation of iteration 008.
 
 Next: iteration 004 (methods B0 and B1 for the total waveform).
+
+## Iteration 004 — methods B0 and B1 for the total waveform (PASS, with documented deviations from the prompt)
+
+Codex (~16 min) added `mbquad/totalweights.py` (`CentredBlockHH`, B0), `mbquad/baseband.py` (`BasebandIFFTFFTHH`, B1 with the
+adaptive rule, `next_fast_len`, half-sample shift), `tests/test_total_methods.py`, `scripts/accuracy_iter004.py`, the
+extended benchmark, and `skip_dc` in `load_asd_or_psd` (the Welch files contain f = 0). 102 tests pass (1.4 s).
+
+Orchestrator verification (code read in full; tables inspected):
+- B1 (relative `(h,h)` error): toy lines five modes 4.40e-7 (IFFT-FFT 2.22e-7, pairwise 3.53e-7), strong-HOM toy 2.73e-7
+  (1.44e-7), GW190814-like geometry with the real L1 PSD 6.73e-7 (IFFT-FFT 5.99e-7, pairwise 5.80e-7, linear 2.95e-5).
+  B1 is within 2x of the IFFT-FFT everywhere (within 1.1x on the real PSD) but is NOT identical to it: the minimal-K'
+  periodic baseband interpolant and the paper's full-spectrum real-signal interpolant treat the Eq. 36 tails differently
+  (my prompt's expectation of 1e-8 agreement was wrong; Codex documented the correct identity
+  `Re[W(k) + W(-k)] = (T/That) I_tilde(k)`, verified to 7e-16).
+- B0: quadrupole 2.21e-7 (a drop-in improvement over linear interpolation's 1.40e-6 at identical cost), but with HOM and
+  narrow lines ~20x worse than IFFT-FFT (toy 4.40e-6, strong-HOM 8.94e-6, real L1 4.77e-6; 6.9x better on a 16 Hz
+  running-median-smoothed L1 PSD) -> B0 is for quadrupole-only or smooth-PSD use; B1 is the total-only default for HOM.
+  The 5 sigma adaptive rule selects no B0 band in the five-mode geometries (top band 2.12 s > T_b/2 = 2 s).
+- FFT lengths: toy bands 1-5 (594, 432, 350, 360, 825) vs the paper's (8192/16384, ..., 4096/8192), K'/M = 0.07-0.20;
+  GW190814-like (315, 3960) vs (2048/4096, 16384/32768). `(h,h)` step: B1 0.131 / 0.144 ms vs IFFT-FFT fast 0.681 / 0.684 ms
+  (5.2x / 4.7x; C2 for method B met), B0 0.020 ms, pairwise 0.194 / 0.162 ms.
+
+## Design-review workflow: final status
+
+The three adversarial reviewers completed (their findings are in `notes/method_idea.md` §8 and were acted on in
+iterations 003-004). The three proposers and the judge failed with a model usage-limit error ("Fable limit") after
+94 minutes; they are not re-run (the orchestrator's own session is unaffected, and the reviews already covered the design;
+no further workflow/subagent runs will be started in this session).
+
+Next: iteration 005 (IMRPhenomXHM interface, real systems, mode matrix C5, timing breakdown / go-no-go).

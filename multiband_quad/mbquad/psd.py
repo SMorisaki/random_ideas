@@ -47,7 +47,7 @@ def add_lines(psd_fn, lines):
     return psd_with_lines
 
 
-def load_asd_or_psd(path):
+def load_asd_or_psd(path, *, skip_dc=False):
     """Read two columns (Hz, noise) and return a one-sided PSD callable.
 
     Median log10(noise) > -35 identifies strain/sqrt(Hz) ASD, which is
@@ -56,10 +56,18 @@ def load_asd_or_psd(path):
     units. Frequencies must be unique, finite and positive (order is arbitrary),
     with finite positive noise. Interpolate log(S) linearly in log(f) and
     return +inf outside the tabulated range, as in Eq. (6).
+
+    Optional skip_dc=True discards rows at exactly f=0 before validation,
+    for Welch PSD files including DC (unused by Eq. 4). The default retains
+    the original strict validation, including rejection of zero frequency.
     """
     values = np.loadtxt(Path(path), ndmin=2)
     if values.shape[1] != 2 or values.shape[0] < 2:
         raise ValueError("Expected at least two rows of exactly two columns: frequency, ASD/PSD")
+    if skip_dc:
+        values = values[values[:, 0] != 0]
+        if len(values) < 2:
+            raise ValueError("Expected at least two positive-frequency rows after skipping DC")
     if np.any(~np.isfinite(values)) or np.any(values <= 0):
         raise ValueError("Frequencies and ASD/PSD values must be finite and positive")
     values = values[np.argsort(values[:, 0])]

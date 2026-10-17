@@ -11,13 +11,15 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from mbquad.bands import BandSetup  # noqa: E402
+from mbquad.baseband import BasebandIFFTFFTHH  # noqa: E402
 from mbquad.coarse import CoarseModes  # noqa: E402
 from mbquad.ifftfft import IFFTFFTHH  # noqa: E402
 from mbquad.linear import LinearInterpolationHH  # noqa: E402
 from mbquad.pairwise import PairwiseHH  # noqa: E402
-from mbquad.psd import PSDGrid, add_lines, aligo_analytic_psd  # noqa: E402
-from mbquad.testcases import TOY_LINES, toy_small  # noqa: E402
+from mbquad.psd import PSDGrid, load_asd_or_psd  # noqa: E402
+from mbquad.testcases import toy_small  # noqa: E402
 from mbquad.timing import median_time  # noqa: E402
+from mbquad.totalweights import CentredBlockHH  # noqa: E402
 from mbquad.toywave import ToyModes  # noqa: E402
 
 
@@ -26,16 +28,17 @@ def main():
     toy = toy_small()
     gw_bands = BandSetup(T=16, dt=1 / 4096, f_low=20, f_high=1024,
                          durations=[16, 8, 4], mchirp_ref=6.4, m_max=4, L=5)
-    gw_psd = PSDGrid(add_lines(aligo_analytic_psd, TOY_LINES),
+    gw_psd = PSDGrid(load_asd_or_psd(ROOT / "data/psd_L1_GW190814_welch16s.txt", skip_dc=True),
                      gw_bands.T, gw_bands.dt, gw_bands.f_low, gw_bands.f_high)
     cases = [("toy_small", toy.bands, toy.psdgrid, toy.model),
              ("GW190814-like", gw_bands, gw_psd, ToyModes(6.4, t_c=14))]
-    sections = ["# HH-step timing — iteration 003",
+    sections = ["# HH-step timing — iteration 004",
                 f"Machine: {platform.machine()}, Python {platform.python_version()}, "
                 f"numpy {np.__version__}, scipy {scipy.__version__}. Wall-clock median "
                 "per call after one warm-up; 7 batches of 100 calls. scipy real FFTs use "
-                "one worker. Both models use all five default toy modes and analytic "
-                "aLIGO PSD + TOY_LINES. Setup/precomputation is outside all timings.",
+                "one worker. Both models use all five default toy modes. toy_small uses analytic "
+                "aLIGO PSD + TOY_LINES; GW190814-like uses the real L1 Welch-16s PSD. "
+                "Setup/precomputation is outside all timings.",
                 "toy_small: T=128 s, dt=1/1024 s, 20–256 Hz, T_b=(128,64,32,16,8,4) s, "
                 "mchirp=mchirp_ref=4.85 Msun, t_c=126 s. GW190814-like uses iteration-001 "
                 "geometry: T=16 s, dt=1/4096 s, 20–1024 Hz, T_b=(16,8,4) s, "
@@ -47,8 +50,10 @@ def main():
                 "waveform evaluation, container construction, and precomputation. The fast "
                 "implementation reuses input/work buffers; scipy allocates FFT outputs."]
     rows = ["| system | K_MB | waveform total (ms) | waveform modes (ms) | linear HH (ms) | "
-            "paper IFFT-FFT HH (ms) | fast IFFT-FFT HH (ms) | pairwise einsum HH (ms) | pairwise pairs HH (ms) |",
-            "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+            "paper IFFT-FFT HH (ms) | fast IFFT-FFT HH (ms) | pairwise einsum HH (ms) | pairwise pairs HH (ms) | "
+            "B0 HH (ms) | B1 adaptive HH (ms) | B1 forced HH (ms) | fast/adaptive speedup |",
+            "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+    length_sections = []
     for label, bands, psd, model in cases:
         f = bands.all_coarse_frequencies().f
         coarse_modes = CoarseModes.from_model(bands, model, model.modes)
@@ -62,8 +67,23 @@ def main():
         pairwise = PairwiseHH(bands, psd, coarse_modes.modes)
         times.extend(median_time(lambda impl=impl: pairwise(coarse_modes, impl=impl))
                      for impl in ("einsum", "pairs"))
+        b0 = CentredBlockHH(bands, psd)
+        adaptive = BasebandIFFTFFTHH(bands, psd)
+        forced = BasebandIFFTFFTHH(bands, psd, force_half_points=True)
+        times.extend(median_time(method, coarse) for method in (b0, adaptive, forced))
         rows.append(f"| {label} | {bands.K_MB} | "
-                    + " | ".join(f"{1e3 * value:.6f}" for value in times) + " |")
+                    + " | ".join(f"{1e3 * value:.6f}" for value in times)
+                    + f" | {times[4]/times[-2]:.3f}x |")
+        length_sections.extend([f"## {label}: B1 adaptive FFT lengths", adaptive.summary()])
+        lengths = ["| b | paper IFFT | paper FFT=min(2M,N) | B1 runtime IFFT, FFT | forced runtime IFFT, FFT | K'/M |",
+                   "| --- | --- | --- | --- | --- | --- |"]
+        for b, (kp, mode) in enumerate(adaptive.fft_lengths()):
+            runtime = kp if mode == "B1" else 0
+            forced_runtime = kp if forced.modes[b] == "B1" else 0
+            lengths.append(f"| {b} | {bands.M_b[b]} | {methods[-1].Nhat_b[b]} | "
+                           f"{runtime}, {runtime} | {forced_runtime}, {forced_runtime} | "
+                           f"{kp/bands.M_b[b]:.6f} |")
+        length_sections.append("\n".join(lengths))
     sections.extend(["\n".join(rows),
                      "Default PairwiseHH implementation: pairs. Same-m modes are added first; "
                      "each distinct lag class is then contracted once. Both implementations "
@@ -71,8 +91,15 @@ def main():
                      "not predict the cost of real per-mode waveform calls. GW190814-like "
                      "band 0 emits unwrapped-SPA slack warnings, but M_b=N_b there: its "
                      "quadrature retains every circular lag and is exact for any placement."])
+    sections.extend(length_sections)
+    sections.append("B1 adaptive uses the prescribed 5 sigma_mmax margin with m_values=(1,2,3,4). "
+                    "It selects no B0 band in either five-mode geometry: the top bands just fail "
+                    "lag_max+margin<=T_b/2. exact bands execute no FFT even in forced mode. "
+                    "K' in summary() remains the available diagnostic length. M=N is the exact "
+                    "coarse-grid shortcut; 2M=N still needs half points. These timings compare "
+                    "HH costs only, not total likelihood speedups.")
     report = "\n\n".join(sections) + "\n"
-    output = ROOT / "data" / "bench_hh_step_iter003.md"
+    output = ROOT / "data" / "bench_hh_step_iter004.md"
     output.parent.mkdir(exist_ok=True)
     output.write_text(report)
     print(report, end="")
