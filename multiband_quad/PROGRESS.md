@@ -22,3 +22,10 @@ Iteration log for the Codex-driven development loop (see `TASK.md`). Newest entr
   candidate method is derived in `notes/method_idea.md`. A design review (three adversarial reviewers,
   three independent proposers, one judge) was run before drafting `TASK.md`; its conclusions are folded
   into `TASK.md` and `notes/method_idea.md`.
+
+Owner decisions (2026-10-17, via the question card): accuracy/speed targets as proposed; IMRPhenomXHM
+non-precessing as the main model (precession is a stretch item); real PSDs may be downloaded from public
+sources (GWOSC / LIGO DCC / zenodo reachable, HTTP 200) into `data/` (not committed); **additional requirement:
+also provide a method that works when only `h_+`, `h_x` are available (no mode decomposition)** -> recorded as
+method B (baseband IFFT-FFT with half-sample shift and adaptive block length) in `TASK.md` §1-2 and
+`notes/method_idea.md` §7, verified on the toy (`notes/orchestrator_toy_methodB.py`).

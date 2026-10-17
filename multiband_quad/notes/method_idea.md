@@ -157,3 +157,30 @@ versus the available slack. Timing of the toy is not meaningful (the toy re-eval
 Note: with the correct reading of Eq. 30 (tilde-f only in the summation ranges, true `f` in the weights)
 the linear interpolation is accurate to ~1e-6 even here; a first implementation that used the tilde
 values in the weights gave 3% errors.
+
+## 7. Method B: total waveform only (no mode decomposition), `notes/orchestrator_toy_methodB.py`
+
+When only `h = h_+ F_+ + h_x F_x` is available the lag support of `w |h|^2` is two-sided,
+`[-lag_max, lag_max]` with `lag_max ~ T^(b)`, so values at the half points `(kappa + 1/2)/T^(b)` are
+genuinely needed (the IFFT-FFT method computes them by exact band-limited interpolation). Two savings keep
+the method exact under the same time-limitation assumption:
+
+1. Baseband FFTs. The windowed band waveform vanishes outside `[f_Ks, f_Ke]`, so the `K = K_e - K_s + 1`
+   coarse samples `x_j = sqrt(w) h(f_{Ks + j})` can be inverse-transformed with length `K' >= K`
+   (`scipy.fft.next_fast_len(K)`) instead of `M^(b) ~ 2 f^(b+1) T^(b)`: `y = ifft(x, K')` is the band waveform
+   demodulated by `f_Ks` and sampled with step `T^(b)/K'`, aliased with period `T^(b)` (harmless, the support is
+   `[T - T^(b), T]`, which with `T/T^(b)` an integer maps to indices `n' = n`). The half points are
+   `z = fft(y * exp(-i pi n/K'))`, `z_j = sqrt(w) h(f_{Ks + j + 1/2})`, `j < K`. Two FFTs of length `K'` per band
+   instead of one of length `M` and one of length `2M`; `K'/M ~ (f^(b+1) - f^(b))/(2 f^(b+1)) ~ 1/8 .. 1/4`.
+2. Adaptive block length. If the predicted two-sided lag support `lag_max + margin < T^(b)/2` (short
+   high-frequency bands, where the `t_c` prior range dominates `T^(b)`), the integer grid with the centred
+   block of length `M` suffices and no FFT is needed in that band; otherwise the `2M` symmetric block on the
+   `2T^(b)` grid is used, with the weights `W_{2 kappa}` (integer points) and `W_{2 kappa + 1}` (half points),
+   which are the paper's `Itilde_c` restricted to the band.
+
+Toy results (same configuration as Sec. 6): relative error 4.3e-7 (paper's IFFT-FFT 2.2e-7, same order);
+FFT lengths per band 0 / 594 / 432 / 350 / 360 / 0 versus the paper's (M, 2M) = (8192, 8192), (8192, 16384),
+(4096, 8192), (4096, 8192), (2048, 4096), (4096, 8192); `(h, h)` step 0.26 ms versus 1.61 ms.
+Further FFT-free variants for the total waveform (local Dirichlet-kernel interpolation of the half points,
+non-dyadic `That` between `T^(b)` and `2 T^(b)`) give at most modest gains for the long bands and are left
+as optional explorations.
