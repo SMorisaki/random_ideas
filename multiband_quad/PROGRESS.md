@@ -59,3 +59,31 @@ median/ln 2 bias correction; L1: 378 segments, H1: 502) saved as `data/psd_{L1,H
 (0.87 MB each, committed as derived products) with the script `notes/make_real_psd.py`. Strongest lines
 relative to a 16 Hz running median: L1 at 306-315, 506-516, 1012-1018 Hz (up to 1.4e4x); H1 at 20.1, 22.4,
 300-303, 502-517 (up to 3e5x), 992-1011 Hz (up to 4e6x).
+
+## Iteration 002 — the paper's linear-interpolation and IFFT-FFT methods (PASS)
+
+Codex (~12 min) added `mbquad/coarse.py` (`CoarseWaveform`), `mbquad/linear.py` (`LinearInterpolationHH`, Eqs. 27-30 with
+the tilde-f ranges / true-f weights convention), `mbquad/ifftfft.py` (`IFFTFFTHH`, Eqs. 31-46, `impl="paper"` complex
+FFTs and `impl="fast"` real FFTs with reusable buffers, `half_point_waveform`), `mbquad/timing.py`, two scripts and
+`tests/test_paper_methods.py`.
+
+Orchestrator verification: 75 tests pass in 0.5 s; code read in full. Accuracy on `toy_small()` (relative `(h,h)`
+error / `|Delta ln Lambda|` at SNR 25): linear 1.40e-6 / 4.4e-4 (quadrupole) and 1.57e-6 / 4.9e-4 (five modes);
+IFFT-FFT 1.54e-7 / 4.8e-5 and 2.22e-7 / 6.9e-5; identical to the orchestrator's toy to all printed digits. With the
+smooth PSD the five-mode linear error grows to 4.8e-6 (the Fejer-taper attenuation of cross terms, not the lines).
+`(h,h)` step timings (median, this machine): linear 0.019 ms, IFFT-FFT paper 1.41 ms, IFFT-FFT fast (rfft) 0.70 ms,
+toy waveform 0.87 ms (`toy_small`, K_MB = 3294); GW190814-like geometry: 1.29 / 0.70 ms with waveform 1.18 ms.
+The "fast" implementation is the fair baseline for the new methods.
+
+## Design review (workflow: 3 adversarial reviewers, 3 proposers, 1 judge) — partial results folded in
+
+Two reviewers (signal processing, waveform physics) finished; both verdicts "sound with caveats". Their corrections
+are recorded in `notes/method_idea.md` §8 and `TASK.md` §2: lag sign convention (positive lags for the slower mode
+first), window on the pair product (not in the weights), lag interval `[Lambda(f^(b+1)), Lambda(f_lo)]` with
+`Lambda_min ~ 0.5 Lambda_max` (7 lag classes per band), margins from the pair chirp rate `sigma_AA'`, prior coverage of
+the anchors (`Mc_min`, `Mc_max`), the exact folding-error formula, the cheap total-waveform variant B0 (centred block
+on the total `|h|^2`), and the speed-up ceiling (~1.3x overall from Table I; per-mode XHM calls cost more than one
+polarization call) -> timing breakdown and go/no-go for method A in iteration 005. Test BBH changed to 60+20 Msun,
+T = 16 s. Remaining reviewer/proposer/judge outputs will be folded in when they finish.
+
+Next: iteration 003 (method A with lag classes, pair margins, prior coverage, lag audit).

@@ -64,8 +64,9 @@ length `T^(b)` positioned over that pair's lag range instead of the symmetric bl
 
 ## 3. Exact discrete statement (precomputed "block weights")
 
-Fix a band `b`; drop the superscript. Let `a_k = w(f_k)/S_k` on the fine grid (zero outside the
-band) and `g_k = h_A^*(f_k) h_{A'}(f_k)` (any complex sequence). With the `N`-point DFTs
+Fix a band `b`; drop the superscript. Let `a_k = 1/S_k` on the fine grid (zero outside
+`[f_low, f_high]`, Eq. 6; the window is NOT here) and `g_k = w^(b)(f_k) h_A^*(f_k) h_{A'}(f_k)` (the smooth
+window multiplies the mode product, which is what makes `G` compact in lag; see Sec. 8). With the `N`-point DFTs
 `A_m = sum_k a_k e^{2 pi i k m/N}`, `G_m = sum_k g_k e^{2 pi i k m/N}` (one-sided, complex),
 Parseval gives `sum_k a_k g_k = (1/N) sum_m A_m^* G_m`.
 
@@ -78,8 +79,8 @@ periodization in time, harmless when the support fits in one period):
 
     W_kappa(B) = (1/Nhat) sum_{m in B} A_m^* e^{2 pi i m kappa/Nhat} .
 
-`W(B)` depends only on the PSD, the window and the block, so it is precomputed once per
-(band, block class). Sanity check: `B = ` all of `[0, N)` gives `W_kappa = a_kappa` (the fine
+`W(B)` depends only on the PSD, `N^(b)` and the block, so it is precomputed once per
+(band, lag class); the window enters as `w^(b)(f_kappa)` on the coarse grid, exactly as in Eq. 24. Sanity check: `B = ` all of `[0, N)` gives `W_kappa = a_kappa` (the fine
 grid sum). The paper's Eq. 45 is the special case of a symmetric block of length `2 M`
 applied to the total `|h|^2`.
 
@@ -184,3 +185,72 @@ FFT lengths per band 0 / 594 / 432 / 350 / 360 / 0 versus the paper's (M, 2M) = 
 Further FFT-free variants for the total waveform (local Dirichlet-kernel interpolation of the half points,
 non-dyadic `That` between `T^(b)` and `2 T^(b)`) give at most modest gains for the long bands and are left
 as optional explorations.
+
+## 8. Corrections and refinements from the design review (2026-10-17)
+
+Three independent adversarial reviewers (signal processing, waveform physics, implementation) re-derived
+Sec. 3 and attacked Secs. 2 and 4 numerically with their own toys. Verdicts: "sound with caveats". What changes:
+
+1. **Conventions.** With `G_m = sum_k g_k e^{+2 pi i k m/N}`, `g = w h_A^* h_{A'}` and `h ~ e^{-i Psi}`, the
+   stationary lag is `m dt = tau_A(f) - tau_{A'}(f) > 0` for `m_A > m_{A'}` (the higher-`m` mode reaches `f`
+   earlier). Blocks for ordered pairs with the slower mode first sit at POSITIVE lags; `B_{A'A} = -B_{AA'}` and
+   `W(-B) = conj W(B)` keep the mode matrix Hermitian. (An earlier draft of Sec. 2 had the opposite sign.)
+2. **Window placement.** The identity needs `G` compact; this holds only if the smooth window multiplies the
+   pair product (`g = w h_A^* h_{A'}`, `a = 1/S`). Putting `w` into `a` (as an earlier draft of Sec. 3 did) gives
+   rectangular in-band truncation of `g` (1/lag tails) or the lag range of the whole signal: errors of order 1.
+   With `w` on the product the edge tails fall like `lag^-3` (Eq. A16), ~5x smaller in amplitude at equal `L`
+   than the IFFT-FFT's `sqrt(w)` tails (Eq. A20).
+3. **Lag range.** The lower end is not ~0 but `Lambda_min = Lambda(f^(b+1)) ~ (f^(b+1)/f^(b))^{-8/3} Lambda_max
+   ~ 0.45-0.5 Lambda_max` for dyadic bands (only ~0 in the top band). BNS band 1 (T = 128 s): (4,4)x(2,1)
+   [52.8, 112.7] s, (4,4)x(2,2) [45.6, 97.4] s, (3,3)x(2,2) [16.6, 35.5] s, (2,2)x(2,1) [7.2, 15.3] s. A block
+   anchored at lag 0 overflows for the (4,1) class in BNS bands 1-2 (by 2.6 and 1.0 s); a block centred on the
+   class's own interval has 20-50 s of slack. Since `tau_lm` depends only on `m`, there are 7 lag classes per
+   band for `m in {1,2,3,4}`: class 0 (diagonal and same-`m` pairs such as (3,2)x(2,2), lag 0, centred block) and
+   the six `(m_A, m_{A'})` classes with `Lambda = c tau_44(f)`, `c = 0.133, 0.440, 0.307, 0.975, 0.843, 0.535`
+   for (2,1), (3,1), (3,2), (4,1), (4,2), (4,3). One complex weight vector per (band, class).
+4. **Margins.** The edge tails of `G_{AA'}` are governed by the pair's own chirp rate
+   `sigma_{AA'}^2 = |tau'_A - tau'_{A'}|` at the band edge in question, not by the individual modes:
+   margins `L sigma_{AA'}(f^(b+1))` at the `Lambda_min` end and `L sigma_{AA'}(f_lo)` at the `Lambda_max` end
+   (conservative: `L sigma_44` at both ends, since `sigma_{AA'} <= sigma_44`). The earlier Sec. 4.1 rule
+   (one margin per mode, `sigma_21` at the near end) would cut the tail at ~0.8 sigma and leak ~8%.
+5. **Exact error mechanism.** For a block quadrature of period `That`,
+   `err = (1/N) sum_{m not in B} G_m (A^*_{m~} - A^*_m)`, `m~` the element of `B` congruent to `m` mod `Nhat`:
+   content of `G` outside `B` is folded with period `That` and weighted by the PSD kernel at the aliased lag.
+   What hurts most is `G` content one period away (lag ~ +-That), which lands on `A_0`. The diagnostics must
+   compute `G_m` per pair on the fine grid and this decomposition, not just "block coverage".
+6. **Prior dependence.** The anchors `Lambda(f)` scale with the chirp mass (and PN/spin corrections of
+   `tau_lm`). The block must cover the prior: lower edge from `Lambda_min` at `Mc_max` (and the most negative
+   `chi_eff`), upper edge from `Lambda_max` at `Mc_min`. The slack then shrinks with `rho = Mc_max/Mc_min`;
+   for BNS bands 1-2 the (4,1) class fails for `rho >~ 6` (fine for LVK BNS priors, `rho ~ 1.1`). Use a
+   >= 1.5PN (better 3.5PN TaylorF2) `tau` at the prior corners or an explicit extra margin; validate the slack
+   over a grid of `(Mc, q, chi_eff)` with the model's own `dPsi_lm/df`. Encode a setup-time slack assertion per
+   band and class (as Eq. 51 does for `(d, h)`).
+7. **Linear interpolation in this language** = folding with period `T^(b)` + Fejer taper in lag (triangle
+   kernel, first zero at lag `T^(b)`); IFFT-FFT = folding with period `2 T^(b)` + rectangular crop; the proposal =
+   folding with period `T^(b)` + pair-specific rectangular crop. This explains when linear interpolation fails
+   for HOM (pair lag within the PSD coherence time of `j T^(b)`, or attenuated by the Fejer taper at
+   `0.3-0.5 T^(b)` while `A(lag)` is not negligible).
+8. **Cheapest total-waveform variant (B0), to be tested first.** A centred block of length `M` applied to the
+   TOTAL `w |h|^2` on the `(d, h)` coarse grid (no modes, no FFT, one real weight vector per band, `O(K_MB)`)
+   gave in a reviewer's toy with strong HOM and 8 narrow lines: band errors 1.5e-6 (64 s band), 1.7e-7 (8 s),
+   1.3e-7 (4 s), i.e. `Delta ln Lambda <~ 5e-4` at SNR 25 (linear interpolation: up to 3.4e-5 = 1e-2 at SNR 25;
+   IFFT-FFT 2M: 3e-9 to 1e-8; pairwise: 6e-8 to 1.3e-7), because the PSD kernel `A_m` at lags >= 2 s is
+   <= 2e-3 of `A_0` even with lines. Hypothesis to test on real waveforms/PSDs; if confirmed it is the natural
+   default for short bands (where `Lambda_max + margin < T^(b)/2` for every pair) with B1 (baseband IFFT-FFT)
+   or pair-specific blocks only where needed.
+9. **Speed-up ceiling (important caveat for the owner).** Table I of the paper bounds the non-waveform
+   overhead of the HOM multiband likelihood: `K_orig/K_MB` vs speed-up = 27 vs 21, 57 vs 46, 160 vs 120, i.e.
+   the IFFT-FFT plus all bookkeeping is ~22-25% of the likelihood time, so removing the `(h, h)` cost entirely
+   gains at most ~1.3x (BNS, 256 s) and ~1.1x (16 s signals). Moreover method A needs every mode on the coarse
+   grid at every call: with lalsimulation's `SimIMRPhenomXHMFrequencySequenceOneMode` the six per-mode calls
+   repeat the setup (orchestrator's timing at 1e4 points: 1.5-8 ms per mode, ~20 ms in total vs 12 ms for one
+   polarization call), which can cost more than the FFTs it removes. IMRPhenomHM's `GethlmModes` returns all
+   modes in one call. The timing breakdown (waveform total vs per-mode vs `(h, h)` step for each method) is
+   therefore an early deliverable (iteration 005) and a go/no-go point for method A as a *practical* speed-up;
+   methods B0/B1 need only the total waveform.
+10. **Scope/tests.** The Fig. 4 HOM comparison in the paper used the precessing IMRPhenomPv3HM; a like-for-like
+    comparison here re-runs the IFFT-FFT baseline with IMRPhenomXHM. Strong-HOM edge-on `q ~ 0.1` injections at
+    SNR 25-50 must be in the population (the extreme pair carries up to 1% of `(h, h)` there, so no pair may be
+    dropped: the error budget `Delta ln Lambda ~ 1e-4` means relative `(h, h)` error 3e-7). The BBH test system is
+    60+20 Msun with `T = 16 s` (with `T = 8 s` the (4,4) signal from 20 Hz does not fit the segment).
+    `T^(b) = T/2^j` is required for `M | N^(b)` (enforced by `BandSetup`).
