@@ -1,0 +1,192 @@
+[
+  {
+    "system": "BNS",
+    "K_MB": 20167,
+    "K_unique": 19945,
+    "times_seconds": {
+      "XHM polarizations (LAL)": 0.0059093959148939085,
+      "XHM five OneMode -m (LAL)": 0.006291696227978855,
+      "XHM ten OneMode +/-m (LAL)": 0.013884283782609284,
+      "HM all modes (LAL)": 0.04525145685714246,
+      "XHM assembled detector modes": 0.011197130527777845,
+      "XHM total_direct adapter": 0.007251297277174049,
+      "linear HH": 5.8654381672649396e-05,
+      "IFFT-FFT paper HH": 0.00617270115976317,
+      "IFFT-FFT fast HH": 0.003640307111498526,
+      "pairwise pairs HH": 0.000540861168428038,
+      "pairwise einsum HH": 0.001572210148282084,
+      "B0 HH": 5.632184531725428e-05,
+      "B1 adaptive HH": 0.0004170003718008563,
+      "Python assembly overhead (difference)": 0.0049054342997989905
+    },
+    "batch_numbers": {
+      "XHM polarizations (LAL)": 188,
+      "XHM five OneMode -m (LAL)": 193,
+      "XHM ten OneMode +/-m (LAL)": 69,
+      "HM all modes (LAL)": 21,
+      "XHM assembled detector modes": 72,
+      "XHM total_direct adapter": 184,
+      "linear HH": 16991,
+      "IFFT-FFT paper HH": 169,
+      "IFFT-FFT fast HH": 287,
+      "pairwise pairs HH": 1514,
+      "pairwise einsum HH": 553,
+      "B0 HH": 17746,
+      "B1 adaptive HH": 2149
+    },
+    "routes": {
+      "IFFT-FFT": {
+        "seconds": 0.010891604388672574,
+        "ratio_to_ifftfft": 1.0
+      },
+      "A": {
+        "seconds": 0.011737991696205883,
+        "ratio_to_ifftfft": 1.0777100670690503
+      },
+      "B1": {
+        "seconds": 0.007668297648974905,
+        "ratio_to_ifftfft": 0.7040558374439349
+      },
+      "B0": {
+        "seconds": 0.007307619122491303,
+        "ratio_to_ifftfft": 0.6709405576731499
+      }
+    },
+    "raw_routes": {
+      "IFFT-FFT": {
+        "seconds": 0.009549703026392435,
+        "ratio_to_ifftfft": 1.0
+      },
+      "A": {
+        "seconds": 0.006832557396406893,
+        "ratio_to_ifftfft": 0.7154732851402615
+      },
+      "B1": {
+        "seconds": 0.006326396286694765,
+        "ratio_to_ifftfft": 0.6624704736064102
+      },
+      "B0": {
+        "seconds": 0.005965717760211163,
+        "ratio_to_ifftfft": 0.6247019141562579
+      }
+    },
+    "failed": {},
+    "fft_lengths": [
+      [
+        6912,
+        "exact"
+      ],
+      [
+        1980,
+        "B1"
+      ],
+      [
+        1350,
+        "B1"
+      ],
+      [
+        972,
+        "B1"
+      ],
+      [
+        768,
+        "B1"
+      ],
+      [
+        784,
+        "B1"
+      ],
+      [
+        7500,
+        "B1"
+      ]
+    ]
+  },
+  {
+    "system": "GW190814",
+    "K_MB": 4865,
+    "K_unique": 4822,
+    "times_seconds": {
+      "XHM polarizations (LAL)": 0.0021169647802419113,
+      "XHM five OneMode -m (LAL)": 0.0030577698231048413,
+      "XHM ten OneMode +/-m (LAL)": 0.006359521625730908,
+      "HM all modes (LAL)": 0.016220273796296557,
+      "XHM assembled detector modes": 0.005065555847826268,
+      "XHM total_direct adapter": 0.002634125275689061,
+      "linear HH": 1.6142572813741365e-05,
+      "IFFT-FFT paper HH": 0.0010349687621010256,
+      "IFFT-FFT fast HH": 0.0006199852708498703,
+      "pairwise pairs HH": 0.000153122145138336,
+      "pairwise einsum HH": 0.00037079688408383864,
+      "B0 HH": 1.758808104172081e-05,
+      "B1 adaptive HH": 0.00012731526683970807,
+      "Python assembly overhead (difference)": 0.0020077860247214264
+    },
+    "batch_numbers": {
+      "XHM polarizations (LAL)": 496,
+      "XHM five OneMode -m (LAL)": 277,
+      "XHM ten OneMode +/-m (LAL)": 171,
+      "HM all modes (LAL)": 54,
+      "XHM assembled detector modes": 230,
+      "XHM total_direct adapter": 399,
+      "linear HH": 64974,
+      "IFFT-FFT paper HH": 971,
+      "IFFT-FFT fast HH": 1259,
+      "pairwise pairs HH": 6325,
+      "pairwise einsum HH": 2243,
+      "B0 HH": 58365,
+      "B1 adaptive HH": 7705
+    },
+    "routes": {
+      "IFFT-FFT": {
+        "seconds": 0.0032541105465389315,
+        "ratio_to_ifftfft": 1.0
+      },
+      "A": {
+        "seconds": 0.0052186779929646035,
+        "ratio_to_ifftfft": 1.6037187177046532
+      },
+      "B1": {
+        "seconds": 0.0027614405425287693,
+        "ratio_to_ifftfft": 0.8486007168582009
+      },
+      "B0": {
+        "seconds": 0.002651713356730782,
+        "ratio_to_ifftfft": 0.8148811537921297
+      }
+    },
+    "raw_routes": {
+      "IFFT-FFT": {
+        "seconds": 0.0027369500510917816,
+        "ratio_to_ifftfft": 1.0
+      },
+      "A": {
+        "seconds": 0.0032108919682431775,
+        "ratio_to_ifftfft": 1.1731642552126
+      },
+      "B1": {
+        "seconds": 0.0022442800470816194,
+        "ratio_to_ifftfft": 0.8199930598610545
+      },
+      "B0": {
+        "seconds": 0.002134552861283632,
+        "ratio_to_ifftfft": 0.7799020155417705
+      }
+    },
+    "failed": {},
+    "fft_lengths": [
+      [
+        600,
+        "exact"
+      ],
+      [
+        315,
+        "B1"
+      ],
+      [
+        3960,
+        "B1"
+      ]
+    ]
+  }
+]

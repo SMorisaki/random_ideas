@@ -52,6 +52,8 @@ class CoarseModes:
 
     Positive-m contributions must already combine ±m and the detector
     response. This container neither projects nor rescales those samples.
+    For PairwiseHH.mode_matrix, it may instead hold raw intrinsic modes;
+    coefficients are then supplied separately to hh_from_matrix.
     """
 
     def __init__(self, bands, modes, h_b):

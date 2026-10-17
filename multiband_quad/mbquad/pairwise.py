@@ -172,6 +172,22 @@ class PairwiseHH:
                                         grouped[slow].conj() * grouped[fast]).real
         return float((4 / self.bands.T) * total)
 
+    def mode_matrix(self, coarse_modes):
+        """Return Hermitian M_ij=sum_b,k conj(H_i) W_ij H_j (§8.13).
+
+        Input raw modes omit coefficients and t_c. W already contains w_b.
+        M excludes 4/T: use hh_from_matrix(M,C,T=bands.T). Ordering is
+        self.modes, even if the input uses another order. Extrinsic
+        independence requires the supplied raw modes to have that property.
+        """
+        M = sum(np.einsum('ik,ijk,jk->ij', H.conj(), W, H)
+                for H, W in zip(self._samples(coarse_modes), self.W))
+        return (M + M.conj().T) / 2
+
+    def hh_from_matrix(self, M, C):
+        """Return (4/T) C^dagger M C for this setup's segment duration."""
+        return hh_from_matrix(M, C, T=self.bands.T)
+
     def summary(self):
         """Per-band/class prior anchors, margins, block and slack, all in seconds."""
         return [row.copy() for row in self._summary]
@@ -185,3 +201,15 @@ class PairwiseHH:
             lines.append("| " + " | ".join(f"{row[k]:.6f}" if isinstance(row[k], float)
                                           else str(row[k]) for k in keys) + " |")
         return "\n".join(lines)
+
+
+def hh_from_matrix(M, C, T):
+    """Return (4/T) Re(C^dagger M C), M excluding the Eq. (4) factor.
+
+    C must follow the evaluator's mode ordering. T is explicit because
+    an ordinary ndarray M carries no segment-duration metadata.
+    """
+    M, C = np.asarray(M), np.asarray(C)
+    if C.ndim != 1 or M.shape != (len(C), len(C)) or not np.isfinite(T) or T <= 0:
+        raise ValueError('Require square M, matching C and positive T')
+    return float((4/T) * np.vdot(C, M @ C).real)

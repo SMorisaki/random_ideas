@@ -144,3 +144,52 @@ iterations 003-004). The three proposers and the judge failed with a model usage
 no further workflow/subagent runs will be started in this session).
 
 Next: iteration 005 (IMRPhenomXHM interface, real systems, mode matrix C5, timing breakdown / go-no-go).
+
+## Iteration 005 — IMRPhenomXHM interface, real systems, mode matrix, timing breakdown (PASS; go/no-go data)
+
+Codex (~25 min) added `mbquad/lalwave.py` (`XHMModel`: detector-frame modes from `SimIMRPhenomXHMFrequencySequenceOneMode`
+with the negative-m series, AddMode coefficients at azimuth pi/2 and `exp(+i|m| phi_ref)`, raw modes normalised to 1 Mpc,
+`total_direct` through `ChooseFDWaveformSequence`, recovery of the `Mf > 0.3` tails that `OneMode` truncates for the BBH via
+mode-selected polarization calls), `PairwiseHH.mode_matrix` / `hh_from_matrix` (C5), `xhm_systems()` / `xhm_case()`, two
+scripts, `tests/test_lalwave.py`. 110 tests pass. Mode sums reproduce `F_+ h_+ + F_x h_x` to 1e-10; all 22 partition-of-unity
+checks pass; BNS fine-grid references (2^20 grid) computed through the sequence path and cached.
+
+Orchestrator verification and reading of the results (`data/xhm_accuracy_iter005.md`, `data/xhm_timing_iter005.md`):
+- Accuracy (relative `(h,h)` error, median over inclinations {0.3, 1.0, 1.4} and both PSDs; worst in parentheses):
+  BNS: linear 1.3e-7, IFFT-FFT 3.5e-8, pairwise 1.0e-8 (1.2e-8), B0 1.3e-7, B1 3.6e-7 (5.2e-7).
+  GW190814-like: linear 1.3e-5 (1.1e-4), IFFT-FFT 1.6e-7 (3.3e-7), pairwise 3.6e-7 (4.3e-7), B0 3.3e-7 (1.8e-6), B1 2.8e-7 (5.2e-7).
+  BBH 60+20: linear 1.4e-5, IFFT-FFT 1.1e-7, pairwise 2.0e-8, B0 3.8e-8, B1 6.0e-7; the worst cases (2.7e-5 pairwise,
+  5.4e-6 IFFT-FFT) are the q = 0.1 variants whose chirp masses (5.7, 14.8 Msun) lie BELOW the band-design reference
+  (out of the prior the bands were built for; Eq. 51 itself is violated there), so they are excluded from the criteria.
+  In `Delta ln Lambda` at SNR 25 all in-prior pairwise and B1 errors are <= 1.6e-4 (the paper's IFFT-FFT median at L = 5
+  was 2e-4). Against C1 (pairwise median <= IFFT-FFT median): met for BNS (3x better) and BBH (5x better), NOT met for
+  GW190814-like (2.2x worse in the median, 1.3x in the worst case). B1 is 1.7x (GW190814) to 10x (BNS) worse than IFFT-FFT.
+- Diagnosis of the B1 gap (orchestrator): B1 and the paper's method compute the same half-point interpolant (a one-period
+  Riemann sum of the periodised time series against `e^{-2 pi i f t}` with half-integer `f T_b`, whose integrand flips sign
+  at the period boundary) with `K'` versus `M` samples per period; the endpoint error is first order in the sample spacing,
+  so B1 loses by ~M/K' (5-14) where the boundary tails are not negligible. Expected cure (to test in iteration 006): the
+  Euler-Maclaurin endpoint correction (`g(T_b) = -g(0)` makes the trapezoidal endpoint weight vanish: drop the `n = 0` term
+  and, at the next order, correct with finite differences of `y` near `n = 0`) and/or zero-padding the baseband IFFT to
+  `p K'` samples (error ~ 1/p, cost ~ p log p).
+- Lag audit on real XHM ((4,4)x(2,1), GW190814-like): out-of-block fraction 4.2e-5 (band 1) and 3.0e-5 (top band, which
+  contains merger-ringdown), lag centroids inside the predicted SPA intervals: the SPA interval design holds on IMR waveforms.
+- C5: `hh_from_matrix(mode_matrix(raw), C)` equals the direct pairwise value to 5.8e-15; the raw-mode matrix is identical
+  under changes of `t_c`, distance, inclination, `F_+`, `F_x`; under `phi_ref` it changes by 6.5e-13 (relative, max-scaled)
+  because LAL's mixed (3,2) mode carries a 1.3e-5 phase residual beyond `e^{-i m phi}` (LAL detail, negligible).
+  Pairwise `(h,h)` is independent of `t_c` to roundoff; the IFFT-FFT value changes by 4.6e-9 over the prior.
+- Timing (warm medians, this machine; BNS K_MB = 20167, GW190814 K_MB = 4865): raw LAL XHM polarizations 5.9 / 2.1 ms;
+  five `OneMode` calls 6.3 / 3.1 ms (per-mode generation is NOT penalised for the BNS, +45% for the short signal); HM
+  all modes 45 / 16 ms. Adapter overhead (per-call sort/unique/unsort, copies, projection) 4.9 / 2.0 ms is an artefact of
+  the current adapter (the coarse grid is fixed, so the sorted-unique mapping can be precomputed). `(h,h)` steps:
+  IFFT-FFT fast 3.64 / 0.62 ms, pairwise pairs 0.54 / 0.15 ms, B1 0.42 / 0.13 ms, B0 0.056 / 0.018 ms, linear 0.059 / 0.016 ms.
+  Route sums (waveform + `(h,h)`), adapter-inclusive: IFFT-FFT 10.9 / 3.25 ms; A 11.7 (1.08x) / 5.2 (1.60x); B1 7.7 (0.70x) /
+  2.8 (0.85x); raw-LAL sums without the adapter: A 6.8 (0.72x) / 3.2 (1.17x), B1 6.3 (0.66x) / 2.2 (0.82x).
+
+Go/no-go reading (to be put to the owner): with lalsimulation's IMRPhenomXHM, method A is not a practical speed-up for
+short signals (per-mode generation costs more than the whole IFFT-FFT step) and at best ~0.7x of the IFFT-FFT route for the
+BNS once the adapter is lean; its value is structural (no FFT, `t_c` independence, the extrinsic factorisation C5).
+Method B1 already gives 0.70x (BNS) / 0.85x (GW190814) end-to-end and needs the accuracy fix above to match the IFFT-FFT.
+
+Next (re-planned): iteration 006 = B1 endpoint correction and zero-padding study on the XHM systems, lean adapter
+(precomputed grid mapping) with re-timed routes, pairwise margin/diag study on the GW190814-like system; iteration 007 =
+population study; 008 = band rule / L-scan / prior grid; 009 = numba kernels; 010 = full-scale BNS; 011 = documents.
