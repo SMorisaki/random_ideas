@@ -26,7 +26,9 @@ class PairwiseHH:
     summary() retains requested slack and margins as well as clipped ones.
     If M_b=N_b, every block contains the complete circular lag grid; the
     quadrature is exact even when the unwrapped SPA interval exceeds T_b.
-    pairs is the faster default in the iteration-003 benchmark.
+    pairs is the faster default in the iteration-003 benchmark. Opt-in numba
+    uses flattened class weights and a reusable sample buffer; instances
+    using that path must not be evaluated concurrently.
     """
 
     def __init__(self, bands, psdgrid, modes, L_margin=5.0,
@@ -42,8 +44,8 @@ class PairwiseHH:
             raise ValueError("Mode m exceeds the BandSetup m_max")
         if margin_units not in ("sigma_pair", "sigma_mmax", "T_b"):
             raise ValueError("Unknown margin_units")
-        if diag not in ("block", "linear") or impl not in ("einsum", "pairs"):
-            raise ValueError("Require diag='block'|'linear', impl='einsum'|'pairs'")
+        if diag not in ("block", "linear") or impl not in ("einsum", "pairs", "numba"):
+            raise ValueError("Require diag='block'|'linear', impl='einsum'|'pairs'|'numba'")
         if not np.isfinite(L_margin) or L_margin < 0:
             raise ValueError("L_margin must be finite and nonnegative")
         prior = (bands.mchirp_ref, bands.mchirp_ref) if mchirp_range is None else mchirp_range
@@ -82,6 +84,32 @@ class PairwiseHH:
             self.W.append(W)
         self.W = tuple(self.W)
         self.class_weights = tuple(self.class_weights)
+        if impl == 'numba':
+            self._prepare_flat()
+
+    def _prepare_flat(self):
+        """Build §3 class tables once, with w_b and 4/T folded in."""
+        if hasattr(self, 'Wc'):
+            return
+        self.Wc = np.ascontiguousarray([
+            np.concatenate([w[cl] for w in self.class_weights]) * (4/self.bands.T)
+            for cl in self.classes], dtype=complex)
+        self.class_map = np.asarray([
+            [0 if mi == mj else self.classes.index((mi, mj)) if mi > mj else -1
+             for _, mj in self.modes] for _, mi in self.modes], dtype=np.int64)
+        self._flat_H = np.empty((len(self.modes), self.bands.K_MB), complex)
+
+    def flatten(self, coarse_modes):
+        """Return current contiguous samples, copying only if needed (§3).
+
+        Includes setup/mode-order validation, accepts the existing mapping API,
+        and preserves mutations of caller-owned per-band arrays between calls.
+        Shared contiguous band views retain their original backing array.
+        Otherwise returned scratch is overwritten by the next call.
+        """
+        from .kernels import flatten_samples
+        self._prepare_flat()
+        return flatten_samples(self._samples(coarse_modes), self._flat_H, axis=1)
 
     def _placement(self, b, cl):
         bands = self.bands
@@ -149,11 +177,16 @@ class PairwiseHH:
         """Evaluate the §3 quadratic form; no FFT or waveform call at run time.
 
         einsum uses the Hermitian tensor. pairs combines same-m modes first,
-        then sums each distinct lag class once. impl overrides self.impl.
+        then sums each distinct lag class once. numba fuses the flattened
+        quadrature with the same grouping. impl overrides self.impl.
         """
         impl = self.impl if impl is None else impl
+        if impl == 'numba':
+            from .kernels import pairwise_hh
+            H = self.flatten(coarse_modes)
+            return float(pairwise_hh(H, self.Wc, self.class_map))
         if impl not in ("einsum", "pairs"):
-            raise ValueError("impl must be 'einsum' or 'pairs'")
+            raise ValueError("impl must be 'einsum', 'pairs' or 'numba'")
         total = 0.0
         for b, (H, W, weights) in enumerate(zip(
                 self._samples(coarse_modes), self.W, self.class_weights)):
@@ -182,7 +215,7 @@ class PairwiseHH:
             np.einsum('ik,ijk,jk->', H.conj(), W, H).real
             for H, W in zip(self._samples(coarse_modes), self.W)])
 
-    def mode_matrix(self, coarse_modes):
+    def mode_matrix(self, coarse_modes, impl=None):
         """Return Hermitian M_ij=sum_b,k conj(H_i) W_ij H_j (§8.13).
 
         Input raw modes omit coefficients and t_c. W already contains w_b.
@@ -190,6 +223,13 @@ class PairwiseHH:
         self.modes, even if the input uses another order. Extrinsic
         independence requires the supplied raw modes to have that property.
         """
+        impl = self.impl if impl is None else impl
+        if impl == 'numba':
+            from .kernels import mode_matrix
+            H = self.flatten(coarse_modes)
+            return mode_matrix(H, self.Wc, self.class_map) * (self.bands.T/4)
+        if impl not in ('pairs', 'einsum'):
+            raise ValueError("impl must be 'einsum', 'pairs' or 'numba'")
         M = sum(np.einsum('ik,ijk,jk->ij', H.conj(), W, H)
                 for H, W in zip(self._samples(coarse_modes), self.W))
         return (M + M.conj().T) / 2

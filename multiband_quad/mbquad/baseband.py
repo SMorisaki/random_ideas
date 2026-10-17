@@ -27,10 +27,16 @@ class BasebandIFFTFFTHH:
     amplitudes or mode samples are used; m_values only sets the lag rule.
     Buffers are reused: instances are not safe for concurrent evaluation.
     scipy allocates FFT results (it has no out parameter).
+    impl='numba' fuses window/phase multiplication and power-weight sums;
+    impl='numpy' is the unchanged default.
     """
 
     def __init__(self, bands, psdgrid, m_values=(1, 2, 3, 4), L_margin=5.0,
-                 force_half_points=False, pad_factor=1, all_half_bins=False):
+                 force_half_points=False, pad_factor=1, all_half_bins=False,
+                 impl='numpy'):
+        if impl not in ('numpy', 'numba'):
+            raise ValueError("impl must be 'numpy' or 'numba'")
+        self.impl = impl
         self.m_values = _m_values(m_values, bands.m_max)
         if not np.isfinite(L_margin) or L_margin < 0:
             raise ValueError("L_margin must be finite and nonnegative")
@@ -83,17 +89,37 @@ class BasebandIFFTFFTHH:
         """§7 half-sample phase on baseband indices n=0,...,K'-1."""
         x = self._input[b]
         K = int(self.bands.K_b[b])
-        np.multiply(self._sqrt_w[b], coarse.h_b[b], out=x[:K])
+        if self.impl == 'numba':
+            from .kernels import b1_prepare, phase_multiply
+            b1_prepare(coarse.h_b[b], self._sqrt_w[b], x, self.W_even[b])
+        else:
+            np.multiply(self._sqrt_w[b], coarse.h_b[b], out=x[:K])
         # The zero tail is never overwritten by scipy's non-in-place IFFT.
         y = ifft(x, workers=1)
-        np.multiply(y, self._phase[b], out=y)
+        if self.impl == 'numba':
+            phase_multiply(y, self._phase[b])
+        else:
+            np.multiply(y, self._phase[b], out=y)
         return fft(y, workers=1)[:len(self._half_power[b])]
 
     def band_contributions(self, coarse):
         """Return B1/B0 band norms, Eq. (26), each including 4/T."""
         coarse.check_bands(self.bands)
         values = np.empty(self.bands.B)
+        if self.impl == 'numba':
+            from .kernels import b0_hh, b1_prepare, phase_multiply
         for b, h in enumerate(coarse.h_b):
+            if self.impl == 'numba':
+                if self.modes[b] == 'B1':
+                    value = b1_prepare(h, self._sqrt_w[b], self._input[b], self.W_even[b])
+                    y = ifft(self._input[b], workers=1)
+                    phase_multiply(y, self._phase[b])
+                    z = fft(y, workers=1)[:len(self._half_power[b])]
+                    value += b0_hh(z, self.W_odd[b])
+                else:
+                    value = b0_hh(h, self.W_even[b])
+                values[b] = (4 / self.bands.T) * value
+                continue
             power = self._power[b]
             np.absolute(h, out=power)
             np.square(power, out=power)

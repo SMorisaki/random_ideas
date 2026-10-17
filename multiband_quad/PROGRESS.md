@@ -285,3 +285,23 @@ Orchestrator verification (tables inspected):
 
 Next: iteration 009 (numba kernels, final timing tables, C2); then 010 = documents (METHOD_NOTE.md, REPORT.md, incl. the
 final full-scale BNS table, merged from the former 010/011).
+
+## Iteration 009 — numba kernels, flattened weights, final timing tables (PASS; C2 met)
+
+Codex (~45 min) added `mbquad/kernels.py` (numba: flattened m-grouped pairwise kernel, mode-matrix kernel, B0 and B1
+kernels; `cache=True`), opt-in `impl="numba"` paths for `PairwiseHH`, `CentredBlockHH`, `BasebandIFFTFFTHH`, two scripts and
+`tests/test_kernels.py` (numba vs numpy to 1e-12); 170 tests pass; defaults unchanged.
+
+Orchestrator verification (`data/perf_iter009.md`, one thread, warm medians):
+- `(h,h)` steps (BNS / GW190814-like / BBH, L = 5): IFFT-FFT fast 3.26 / 0.59 / 0.54 ms; pairwise numba 0.25 / 0.061 / 0.058
+  (bare kernel 0.22 / 0.051 / 0.047); B1 numba 0.36 / 0.11 / 0.11; B0 numba 0.027 / 0.011 / 0.010; B0 `hh_half` numba
+  0.031 / 0.011 / 0.011; mode matrix numba 0.62 / 0.15 / 0.13. **C2: pairwise step = 7.7% / 10.4% / 10.7% of the fast IFFT-FFT
+  (target <= 20%) and 4.0% / 2.1% / 2.9% of the five-mode evaluation (target <= 10%); B1 = 11% / 18% / 21% (target <= 33%).**
+- Precomputation (BNS): 0.10-0.23 s per evaluator, BlockWeights 39-59 MB, traced peak <= 93 MB (targets 60 s / 200 MB).
+- Routes (waveform + `(h,h)`), 1 detector: IFFT-FFT 9.46 / 3.05 / 2.94 ms; pairwise 0.83 / 1.10 / 1.82; B1 0.69 / 0.84 / 0.86;
+  B0 `hh_half` 0.81 / 0.83 / 0.84. 3 detectors: pairwise 0.52 / 0.82 / 1.36; B1 0.46 / 0.66 / 0.68; B0 `hh_half` 0.48 / 0.61 / 0.62.
+  (The BBH pairwise route carries the 2.6 ms LAL tail-recovery calls for `OneMode`.)
+- Remaining overhead (GW190814-like): LAL 2.2-3.0 ms, Python bookkeeping 0.19-0.34 ms, kernels 0.007-0.13 ms.
+- Accuracy of the numba paths identical to numpy (1e-12).
+
+Next: iteration 010 (documents: METHOD_NOTE.md, REPORT.md, README, summary figure; C4).

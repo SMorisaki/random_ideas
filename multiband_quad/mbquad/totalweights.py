@@ -21,19 +21,37 @@ class CentredBlockHH:
     Exact when G=N_b ifft(w_b |h|²) is supported in [-T_b/2,T_b/2),
     and always exact if M_b=N_b. Otherwise the error is lag folding (§8.5).
     Instances reuse power buffers and must not be evaluated concurrently.
+    impl='numba' fuses power and weighting on a reusable flattened grid;
+    the default impl='numpy' preserves the original calculation.
     """
 
-    def __init__(self, bands, psdgrid):
+    def __init__(self, bands, psdgrid, impl='numpy'):
+        if impl not in ('numpy', 'numba'):
+            raise ValueError("impl must be 'numpy' or 'numba'")
+        self.impl = impl
         self.blockweights = BlockWeights(bands, psdgrid)
         self.bands = bands
         self.W = tuple(self.blockweights.centred(b, int(bands.M_b[b]))[
             grid.kappa].real * grid.w
             for b, grid in enumerate(bands.coarse_frequencies()))
         self._power = tuple(np.empty(int(k)) for k in bands.K_b)
+        if impl == 'numba':
+            self.w0 = np.concatenate(self.W) * (4/bands.T)
+            self._flat_h = np.empty(bands.K_MB, complex)
+
+    def flatten(self, coarse):
+        """Return current Eq. (24) samples, copying independent bands only."""
+        from .kernels import flatten_samples
+        coarse.check_bands(self.bands)
+        return flatten_samples(coarse.h_b, self._flat_h)
 
     def band_contributions(self, coarse):
         """Return Eq. (26)'s approximate band norms, including the 4/T factor."""
         coarse.check_bands(self.bands)
+        if self.impl == 'numba':
+            from .kernels import b0_hh
+            return np.asarray([(4/self.bands.T)*b0_hh(h, W)
+                               for h, W in zip(coarse.h_b, self.W)])
         values = np.empty(self.bands.B)
         for b, (h, W, power) in enumerate(zip(coarse.h_b, self.W, self._power)):
             np.absolute(h, out=power)
@@ -43,6 +61,9 @@ class CentredBlockHH:
 
     def __call__(self, coarse):
         """Evaluate B0 using only unwindowed total CoarseWaveform samples."""
+        if self.impl == 'numba':
+            from .kernels import b0_hh
+            return float(b0_hh(self.flatten(coarse), self.w0))
         return float(np.sum(self.band_contributions(coarse)))
 
     def predicted_lag_support(self, b, m_values, mchirp=None):
