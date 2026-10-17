@@ -1,9 +1,10 @@
-"""Opt-in fused quadratures for method_idea §3 and §7 (Eqs. 26,45).
+"""Opt-in fused Eq. (26) quadratures; METHOD_NOTE.md §§3–5.
 
-All flattened weights include the window and 4/T. class_map[i,j] is a
+All flattened class weights include w_b and 4/T. class_map[i,j] is a
 nonnegative class for m_i >= m_j, or -1 to conjugate the reverse entry.
-Class zero is real and identifies equal-m groups. No fast-math reassociation
-is allowed. The support/aliasing assumptions are those of the NumPy methods.
+Class zero is real and identifies equal-m groups. No fast-math
+reassociation is allowed. Support/aliasing assumptions match NumPy paths.
+The public mode-matrix wrapper removes the kernel's 4/T factor.
 """
 
 import numpy as np

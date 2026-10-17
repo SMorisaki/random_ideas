@@ -305,3 +305,33 @@ Orchestrator verification (`data/perf_iter009.md`, one thread, warm medians):
 - Accuracy of the numba paths identical to numpy (1e-12).
 
 Next: iteration 010 (documents: METHOD_NOTE.md, REPORT.md, README, summary figure; C4).
+
+## Iteration 010 — documents (PASS; C4 met)
+
+Codex (~40 min) wrote `METHOD_NOTE.md` (387 lines: problem, conventions, block-weight identity and folding error, method A
+with prior blocks and the extrinsic factorisation, methods B0/B1 and the `hh_half` rule, accuracy and cost summaries,
+limitations, API with a runnable example), `REPORT.md` (405 lines: test design, fixed-case and population accuracy,
+band design, costs, figures, verdicts against C1-C5, recommendations and a reconciliation list of every discrepancy
+found between the tables), `README.md`, `scripts/make_report_figure.py` and `figures/report_summary.png`; docstrings
+updated (no executable change, verified by diff); 170 tests pass. The orchestrator read both documents in full: every
+number traced to a `data/*.md` table; the verdicts are stated conservatively (C1 "qualified", C1' "fails at L = 5, passes
+at L = 50", C2 met with opt-in numba, C3 supported within the audited scope, C4 met, C5 verified with the LAL (3,2) phase
+qualification). No corrections were needed.
+
+## Session end (2026-10-17): planned iterations 001-010 complete
+
+Stop reason: the iteration plan of `TASK.md` §7 is complete and the remaining items (011+: precessing extension, bilby port,
+adjusting the accuracy criteria to an absolute form, promoting numba or `hh_half` to defaults) are the owner's decisions.
+Deliverables: `multiband_quad/mbquad` (package, 170 tests), `METHOD_NOTE.md`, `REPORT.md`, `README.md`, `data/*.md`
+tables, `figures/*.png`, `notes/` (paper summary, design note with review corrections), `prompts/` (10 Codex prompts).
+All work is on branch `LLM`; Codex ran with `--sandbox workspace-write` throughout (never disabled); the design-review
+workflow's proposer/judge agents failed on a model usage limit and were not re-run.
+
+Headline results (IMRPhenomXHM, single-detector SNR 25, `|Delta ln Lambda|` medians over 100-draw populations, L = 5):
+- Method A (modes, no FFT): 0.08-1.04x the paper's IFFT-FFT error (3-13x better with the real L1 PSD), `(h,h)` step
+  0.25 ms vs 3.3 ms (BNS), `t_c`-independent, `(h,h) = C^dagger M C` for extrinsic reuse; end-to-end 0.83x (1 detector) /
+  0.52x (3 detectors) of the IFFT-FFT route for the BNS, not a gain for short signals with per-mode LAL calls.
+- B0 + `hh_half` (total waveform, no FFT, no modes): errors at or below the paper-band IFFT-FFT, +23% (BNS) / +2-3% (16 s)
+  waveform points, end-to-end 0.81-0.84x (1 detector) / 0.48-0.62x (3 detectors).
+- B1 (total waveform, paper bands): 0.76-2.6x the IFFT-FFT error at L = 5 (<= 1.04x at L = 50), step 0.36 ms vs 3.3 ms,
+  end-to-end 0.69-0.86x / 0.46-0.68x.

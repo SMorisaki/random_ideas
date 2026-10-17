@@ -1,4 +1,8 @@
-"""Multibanding geometry and cosine windows, Secs. II.B, II.C, II.E, II.F."""
+"""Band geometry and cosine windows, Morisaki Eqs. (9), (13), (47)–(56).
+
+Optional hh_half/hh_full rules use Newtonian power-lag support estimates;
+see METHOD_NOTE.md §§4–5 for prior coverage and finite-tail limitations.
+"""
 
 from typing import NamedTuple
 

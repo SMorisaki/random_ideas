@@ -1,4 +1,10 @@
-"""IMRPhenomXHM arbitrary-sequence adapter (LALSimulation 6.2 conventions)."""
+"""Non-precessing XHM arbitrary-frequency adapter for Eq. (24).
+
+LALSimulation 6.2.0 signed-mode projection, phase and tail-recovery
+conventions are documented in METHOD_NOTE.md §§4,8. Sequence evaluation
+preserves the fine-reference convention; raw modes retain mixed-32 phase
+residuals and cannot guarantee strict orbital-phase independence.
+"""
 
 import numpy as np
 import lal

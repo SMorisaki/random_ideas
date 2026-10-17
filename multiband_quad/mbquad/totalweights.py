@@ -1,4 +1,9 @@
-"""FFT-free centred-block quadrature of the total power, method_idea §8.8."""
+"""Method B0: centred-block total-power quadrature of Eq. (26).
+
+Evaluate (4/T) sum_b,k Re(W_k) w_b |h_k|² on the Eq. (24) grid.
+Exact for centred block-supported power transforms; otherwise lag folding
+sets the approximation error (METHOD_NOTE.md §§3,5).
+"""
 
 import numpy as np
 

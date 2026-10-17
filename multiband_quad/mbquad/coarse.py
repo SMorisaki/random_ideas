@@ -1,4 +1,8 @@
-"""Total-waveform samples on the per-band coarse grids of Eq. (24)."""
+"""Unwindowed total and mode samples on Morisaki Eq. (24) coarse grids.
+
+Quadrature evaluators apply w_b; containers preserve band/mode ordering.
+See METHOD_NOTE.md §9 for projected versus raw mode inputs.
+"""
 
 import numpy as np
 

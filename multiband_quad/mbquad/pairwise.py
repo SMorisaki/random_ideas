@@ -1,4 +1,9 @@
-"""Mode-pair coarse-grid quadratic term, method_idea §§3 and 8."""
+"""Method A: mode-pair block quadrature of Eq. (26).
+
+Evaluate (4/T) sum_b,k conj(H_i) W_ij w_b H_j without runtime FFTs.
+Prior blocks assume non-precessing Newtonian lag classes; finite-window
+tails and model corrections require validation (METHOD_NOTE.md §§3–4).
+"""
 
 from collections.abc import Mapping
 import warnings

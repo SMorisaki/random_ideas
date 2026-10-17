@@ -1,4 +1,9 @@
-"""PSD block quadrature and exact folding diagnostics (method_idea §§3, 8)."""
+"""PSD block weights for Eq. (26); METHOD_NOTE.md §3.
+
+W_k(B)=(1/Nhat) sum_{m in B} conj(A_m) exp(2 pi i m k/Nhat),
+A=N_b ifft(1/S). The identity is exact for block-supported inverse
+transforms of g=w_b conj(h_A) h_A'; lag_audit measures the folding error.
+"""
 
 import numpy as np
 

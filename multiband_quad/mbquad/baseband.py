@@ -1,4 +1,9 @@
-"""Total-waveform baseband IFFT-FFT, method_idea §7 (method B1)."""
+"""Method B1: baseband IFFT-FFT quadratic term, Morisaki Eqs. (36), (45).
+
+Short transforms interpolate sqrt(w_b) h at half points with an adaptive
+B0 shortcut. Finite-tail errors differ from the paper's interpolant;
+see METHOD_NOTE.md §5 for support assumptions and phase conventions.
+"""
 
 import numpy as np
 from scipy.fft import fft, ifft, next_fast_len

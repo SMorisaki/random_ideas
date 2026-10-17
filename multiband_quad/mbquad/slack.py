@@ -1,7 +1,8 @@
-"""Model-phase support audits for method A, method_idea §8.3–6.
+"""Model-phase lag support audits for Eq. (26) method-A blocks.
 
-These measure stationary lag tracks, not the infinite window-induced tails.
-Phase at an amplitude zero is undefined and is explicitly excluded.
+Measure tau=t_c+(2pi)^-1 d arg(h)/df and ordered lag differences
+(METHOD_NOTE.md §§2,4). These are stationary tracks, not infinite window
+tails. Phase at an amplitude zero is undefined and explicitly excluded.
 """
 
 import numpy as np

@@ -1,6 +1,8 @@
-"""Multiband gravitational-wave quadrature research tools.
+"""Multiband gravitational-wave quadratic terms, Morisaki Eq. (26).
 
 Equations refer to Morisaki, Phys. Rev. D 104, 044062 (2021), arXiv:2104.07813.
+See METHOD_NOTE.md for the block identity, API and validity conditions.
+Specialised evaluators are imported from their submodules.
 """
 
 from .bands import AllCoarseGrid, BandSetup, CoarseGrid

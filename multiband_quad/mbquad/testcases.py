@@ -1,4 +1,8 @@
-"""Reusable documented systems for regression checks and later iterations."""
+"""Documented SPA and XHM systems for Morisaki Eq. (26) comparisons.
+
+Each helper states its geometry and prior. Fixed cases differ from the
+random populations; see REPORT.md §1 before comparing result tables.
+"""
 
 from dataclasses import dataclass
 
