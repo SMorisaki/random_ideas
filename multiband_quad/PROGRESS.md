@@ -219,3 +219,40 @@ Orchestrator verification (tables inspected, numbers cross-checked with iteratio
   so that B0 alone suffices for the total waveform.
 
 Next: iteration 007 (population study, C1/C1'), then 008 (band rule incl. the B0-compatible rule).
+
+## Iteration 007 — population study with IMRPhenomXHM (PASS; C1/C1' evidence)
+
+Codex (~45 min) added `mbquad/population.py` (seeded samplers for BNS / NSBH / BBH priors with `Mc >= Mc_ref`, strong-HOM
+subsets with `q <= 0.15` and `iota in (1.3, 1.8)`, cached fine-grid references), `add_lorentzian_lines`, three scripts and
+`tests/test_population.py`; 128 tests pass. 100 regular draws per population (+20 strong-HOM for NSBH/BBH), two PSDs
+(analytic + Lorentzian lines in every band; real L1), `L = 5` and `50`, six methods. Artifacts were produced under the
+prompt's `iter006` names and renamed by the orchestrator to `data/population_iter007*`, `data/tc_scan_iter007.md`,
+`figures/iter007_*` (scripts renamed accordingly; `iter006_common.py` belongs to iteration 006).
+
+Results (median / 99th percentile of `|Delta ln Lambda|` at SNR 25; ratios to the IFFT-FFT in parentheses):
+- Pairwise (method A), L = 5: BNS lines 1.55e-5 / 1.67e-5 (0.82 / 0.43), BNS L1 1.26e-6 / 2.06e-6 (0.079 / 0.045),
+  NSBH lines 4.42e-5 / 8.01e-5 (1.038 / 0.91; 1.028 excluding one draw above the prior's chirp-mass corner), NSBH L1
+  1.88e-5 / 6.12e-5 (0.36 / 0.39), BBH lines 3.16e-5 / 1.03e-4 (0.96 / 0.90), BBH L1 3.29e-5 / 9.22e-5 (0.18 / 0.30).
+  L = 50: ratios 0.04-0.10 (BNS, BBH) and 1.04 / 0.48 (NSBH lines), 0.53 / 0.30 (NSBH L1). Strong-HOM subsets: all
+  pairwise ratios <= 1 (0.28-0.99 medians). **C1 is met everywhere except the NSBH population with the synthetic-line PSD,
+  where the median is 3-4% above the IFFT-FFT's (the 99th percentile is below); with the real PSD method A is 3-13x better.**
+- B1 (method B, total waveform), L = 5: ratios 1.44 / 1.63 (BNS lines), 2.6 / 2.3 (BNS L1), 0.81 / 0.99 (NSBH lines),
+  0.97 / 1.49 (NSBH L1), 0.76 / 1.16 (BBH lines), 0.76 / 1.70 (BBH L1); strong-HOM BBH 1.02 / 2.06 (lines), 1.08 / 1.84 (L1).
+  L = 50: 0.04-1.03 everywhere (B1 selects B0 in every truncated band). **C1' (<= 1.5x) fails at L = 5 for the BNS and the
+  BBH 99th percentiles, holds at L = 50.** `all_half_bins` is not consistently better (BNS lines 3.5x worse, BNS L1 better).
+- B0 on the XHM populations is as accurate as the pairwise method (e.g. BNS L1 1.21e-6, NSBH L1 1.90e-5, BBH L1 3.16e-5 at
+  L = 5; strong-HOM subsets within 10% of pairwise): the exaggerated cross terms of the toys (where B0 was 20x worse) do not
+  occur in these populations, and B0 costs the same as linear interpolation (0.02-0.08 ms) with no FFT and no modes.
+- Absolute levels: all new-method medians <= 1.4e-4 at SNR 25 (the paper's L = 5 IFFT-FFT median on GW190814 was 2e-4);
+  at L = 50 they are 3e-7 to 3e-6. Linear interpolation: 1e-4 to 2e-3 (L = 5).
+- `t_c` scan (21 values over the prior): pairwise constant to 4e-16 relative; IFFT-FFT varies by 1.3e-6, B1 by 2.0e-6 at
+  L = 5; linear and B0 constant (power-only formulas).
+- Setup: K_MB 21653 -> 30422 (BNS), 5128 -> 6490 (NSBH), 4610 -> 5549 (BBH) from L = 5 to 50; minimum truncated-band
+  slack 2.0 / 1.6 / 1.3 s (L = 5); no Eq. 51 root failures; no clipped margins.
+
+Orchestrator's reading for the owner: C1 holds up to a 4% median excess in one synthetic case; C1' holds only at L = 50;
+B0 is the surprise practical winner for the total waveform on realistic populations. Proposal: define the accuracy
+criteria in absolute terms (median `|Delta ln Lambda| <= 2e-4` at SNR 25 for L = 5, the paper's own level) in addition to
+the ratios, and treat the L = 50 (or HOM-aware) band rule as the recommended configuration for B0/B1.
+
+Next: iteration 008 (band rules, L scaling, prior slack audit, B0-compatible rule).

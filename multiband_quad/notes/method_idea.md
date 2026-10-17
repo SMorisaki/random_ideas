@@ -328,3 +328,14 @@ methods is `L` (the band margin), to be scanned in iteration 008.
 4. **B1 variant `all_half_bins`** (sum over all `K''` half bins): 5x better median at equal cost on the BNS and GW190814-like
    systems (2.1e-7 -> 4.6e-8, 2.2e-7 -> 3.8e-8), slightly worse on the BBH (4.1e-7 -> 4.4e-7); `p = 2` helps the BBH only.
    Decision deferred to the population study (both variants are evaluated there).
+
+## 11. Population results (iteration 007, IMRPhenomXHM, 100 draws per class + 40 strong-HOM, two PSDs)
+
+Relative to the IFFT-FFT (median / 99th percentile of `|Delta ln Lambda|` at SNR 25, L = 5): pairwise 0.08-1.04 / 0.05-0.91;
+B1 0.76-2.6 / 0.99-2.3; B0 0.08-1.05 / 0.05-1.0 (B0 ~ pairwise on these populations). At L = 50 all three new methods
+coincide (B1 -> B0 in every truncated band) at 0.04-1.04 of the IFFT-FFT, i.e. 3e-7 to 3e-6 absolute. With the real L1 PSD
+the paper's IFFT-FFT is the method most hurt by the narrow lines (BBH median 1.9e-4 vs 3.2e-5 for pairwise and B0), because
+its period-`2T_b` folding of the `sqrt(w)` tails interacts with the long PSD kernel. Pairwise `(h,h)` is `t_c`-independent to
+4e-16; IFFT-FFT and B1 vary by 1-2e-6 over the `t_c` prior. Conclusion for the total-waveform case: B0 with a slightly more
+conservative band rule (L = 50 or the `hh_half` rule of iteration 008) is the simplest and cheapest adequate method; B1 is
+the fallback when the band rule cannot be changed; method A adds `t_c` independence and the extrinsic factorisation.

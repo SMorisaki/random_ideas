@@ -47,6 +47,30 @@ def add_lines(psd_fn, lines):
     return psd_with_lines
 
 
+def add_lorentzian_lines(psd_fn, lines):
+    """Return S(f) [1 + sum_i h_i/(1+((f-f_i)/gamma_i)^2)], Eq. (6).
+
+    Each positive-frequency line is (centre Hz, HWHM gamma Hz, relative
+    height h >= 0). Heights add relative to the baseline, so overlapping
+    Lorentzian wings do not multiply. Accepts arbitrary array shapes and
+    scalars; the original callable is unmodified.
+    """
+    lines = tuple(tuple(line) for line in lines)
+    for line in lines:
+        if (len(line) != 3 or not np.all(np.isfinite(line))
+                or line[0] <= 0 or line[1] <= 0 or line[2] < 0):
+            raise ValueError('Require finite (centre > 0, HWHM > 0, height >= 0)')
+
+    def psd_with_lines(f):
+        f = np.asarray(f, dtype=float)
+        factor = np.ones_like(f)
+        for centre, width, height in lines:
+            factor += height / (1 + ((f-centre)/width)**2)
+        return np.asarray(psd_fn(f)) * factor
+
+    return psd_with_lines
+
+
 def load_asd_or_psd(path, *, skip_dc=False):
     """Read two columns (Hz, noise) and return a one-sided PSD callable.
 
