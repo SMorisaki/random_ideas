@@ -87,3 +87,30 @@ polarization call) -> timing breakdown and go/no-go for method A in iteration 00
 T = 16 s. Remaining reviewer/proposer/judge outputs will be folded in when they finish.
 
 Next: iteration 003 (method A with lag classes, pair margins, prior coverage, lag audit).
+
+## Iteration 003 — method A: pairwise block weights with lag classes (PASS)
+
+Codex (~14 min) added `mbquad/blockweights.py` (`BlockWeights`: cached `A_m` per `N_b`, `weights(b, m0, Nhat)`,
+`centred`, `for_lag_interval`, `lag_audit` with the exact folding-error formula), `mbquad/pairwise.py` (`PairwiseHH`:
+7 lag classes per band, blocks centred on `[Lambda_min - L sigma_pair(f_hi), Lambda_max + L sigma_pair(f_lo)]` with the
+prior corners `Mc_max`/`Mc_min`, slack bookkeeping and clipping with warnings, `einsum` and `pairs` implementations,
+`diag="block"|"linear"`), `CoarseModes`, `BandSetup.lag_pair/lag_interval_pair`, `IFFTFFTHH.positive_grid_waveform`,
+two scripts, two test files and two figures. 85 tests pass (0.8 s).
+
+Orchestrator verification (code read in full, tables and figures inspected):
+- Accuracy on `toy_small()` (relative `(h,h)` error): pairwise block 2.21e-7 (quadrupole) and 3.53e-7 (five modes,
+  lines) vs IFFT-FFT 1.54e-7 / 2.22e-7 and linear 1.40e-6 / 1.57e-6; smooth PSD five modes 3.54e-7 vs 2.94e-7 / 4.79e-6.
+  Deliberately wrong placements: all blocks centred on lag 0 -> 4.40e-6 (lines), mirrored to negative lags -> 1.35e-4,
+  which pins the sign convention (positive lags for the slower mode first).
+- Margin scan: error flat at 2.9-3.0e-7 for 0.5-3 pair-sigma, 3.5e-7 at 5, clipping needed at 8 in the toy; default
+  kept at 5 sigma_pair (conservative). The residual gap to IFFT-FFT (period `T_b` vs `2 T_b` folding) is 1.5x.
+- Lag audit (`figures/iter003_lag_audit.png`): |G|^2 of each ordered pair sits inside the predicted SPA interval with
+  `lag^-3`-type tails; class blocks contain it with large slack, centred blocks cut the bulk of (4,4)x(2,1) and
+  (4,4)x(2,2) in bands 1, 3 and 5. Class-block out-of-block fraction 1.5e-5 vs 0.69 for the zero-anchored block.
+- Prior-coverage slack (`data/slack_iter003.md`): minimum requested slack in truncated bands 1.84 s (toy), 1.99 s (BNS,
+  Mc in (1.15, 1.25)), 1.12 s (GW190814-like, Mc in (6, 7)), 0.86 s (BBH 60+20, T = 16 s, Mc in (25, 35)); band 0 has
+  `M_b = N_b` and is exact for any placement.
+- Timing of the `(h,h)` step (numpy): pairwise `pairs` 0.22 ms (toy) / 0.16 ms (GW190814-like geometry) vs IFFT-FFT fast
+  0.71 / 0.68 ms: 3.2x / 4.3x faster; the C2 target (5x) is deferred to the numba implementation of iteration 008.
+
+Next: iteration 004 (methods B0 and B1 for the total waveform).

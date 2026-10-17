@@ -107,3 +107,16 @@ class IFFTFFTHH:
         coarse.check_bands(self.bands)
         self.bands._check_band(b)
         return self._transform(coarse, b)[self._band_slices[b]].copy()
+
+    def positive_grid_waveform(self, coarse, b):
+        """Eq. (44) on ALL positive non-Nyquist bins, including leakage tails.
+
+        Return (f,h_tilde_c). Unlike half_point_waveform's band-span slice,
+        this retains interpolation leakage outside the original band and
+        is suitable for an exact Eq. (45)/block-weight identity check.
+        """
+        coarse.check_bands(self.bands)
+        self.bands._check_band(b)
+        n = int(self.Nhat_b[b])
+        k = np.arange(1, (n + 1) // 2)
+        return k / self.That_b[b], self._transform(coarse, b)[k].copy()

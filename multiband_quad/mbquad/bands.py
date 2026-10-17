@@ -223,3 +223,28 @@ class BandSetup:
         f_lo = self.f_b[b] - self.Df_b[b]
         return float(tau_0pn(2 * f_lo / m_slow, self.mchirp_ref)
                      - tau_0pn(2 * f_lo / m_fast, self.mchirp_ref))
+
+    def lag_pair(self, f, m_slow, m_fast, mchirp=None):
+        """Positive SPA lag tau_slow-tau_fast, method_idea §8.1, f > 0.
+
+        Uses Newtonian Eqs. (53), (55); m_slow >= m_fast >= 1 are integers.
+        Optional chirp mass is in solar masses; default is mchirp_ref.
+        """
+        if (not np.all(np.isfinite([m_slow, m_fast]))
+                or not m_slow >= m_fast >= 1
+                or int(m_slow) != m_slow or int(m_fast) != m_fast):
+            raise ValueError("Require positive integer m_slow >= m_fast")
+        mc = self.mchirp_ref if mchirp is None else mchirp
+        return (tau_0pn(2 * np.asarray(f) / m_slow, mc)
+                - tau_0pn(2 * np.asarray(f) / m_fast, mc))
+
+    def lag_interval_pair(self, b, m_slow, m_fast, mchirp=None):
+        """Return [Lambda(f_hi),Lambda(f_lo)] in seconds, method_idea §8.3.
+
+        f_lo includes the lower transition; f_hi includes the upper taper.
+        These Newtonian anchors omit finite-window tails and PN/spin effects.
+        """
+        self._check_band(b)
+        f_lo = self.f_b[b] - self.Df_b[b]
+        return tuple(float(self.lag_pair(f, m_slow, m_fast, mchirp))
+                     for f in (self.f_b[b + 1], f_lo))

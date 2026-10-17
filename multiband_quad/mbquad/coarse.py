@@ -45,3 +45,41 @@ class CoarseWaveform:
         """Reject accidental use with a different coarse-grid setup."""
         if self.bands is not bands:
             raise ValueError("CoarseWaveform must use the evaluator's BandSetup instance")
+
+
+class CoarseModes:
+    """Unwindowed mode samples H_b of shape (n_modes,K_b), method_idea §3.
+
+    Positive-m contributions must already combine ±m and the detector
+    response. This container neither projects nor rescales those samples.
+    """
+
+    def __init__(self, bands, modes, h_b):
+        self.bands = bands
+        self.modes = list(map(tuple, modes))
+        if not self.modes or len(set(self.modes)) != len(self.modes):
+            raise ValueError("modes must be nonempty and unique")
+        self.h_b = tuple(np.asarray(h, dtype=complex) for h in h_b)
+        if (len(self.h_b) != bands.B or any(
+                h.shape != (len(self.modes), int(k))
+                for h, k in zip(self.h_b, bands.K_b))):
+            raise ValueError("Expected mode arrays with shape (n_modes, K_b[b])")
+        if any(np.any(~np.isfinite(h)) for h in self.h_b):
+            raise ValueError("Coarse mode samples must be finite")
+
+    @classmethod
+    def from_model(cls, bands, model, modes):
+        """Evaluate each model.mode(f,lm) once on Eq. (24)'s concatenated grid."""
+        modes = list(modes)
+        f = bands.all_coarse_frequencies().f
+        h = np.asarray([model.mode(f, lm) for lm in modes])
+        return cls(bands, modes, np.split(h, np.cumsum(bands.K_b)[:-1], axis=1))
+
+    def total(self):
+        """Sum mode contributions, returning Eq. (24)'s CoarseWaveform."""
+        return CoarseWaveform(self.bands, [h.sum(axis=0) for h in self.h_b])
+
+    def check_bands(self, bands):
+        """Require the evaluator's BandSetup instance, as for CoarseWaveform."""
+        if self.bands is not bands:
+            raise ValueError("CoarseModes must use the evaluator's BandSetup instance")
